@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>MessFit ERD - Supporting</title>
+</head>
+
+<body>
+  <style>
+  body {
+    margin: 0;
+    padding: 32px;
+    background: #0d1117;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* SVG background */
+  #erd2 svg { background: transparent !important; }
+
+  /* Entity header box — deep blue */
+  #erd2 svg.erDiagram .node .outer-path rect,
+  #erd2 svg.erDiagram .node .outer-path path { fill: #1c3050 !important; stroke: #3b82f6 !important; }
+
+  /* Entity header border — only the stroke path */
+  #erd2 svg.erDiagram .node .outer-path path[fill="none"] { fill: none !important; stroke: #3b82f6 !important; stroke-width: 1.5px; }
+
+  /* Row backgrounds — dark alternating */
+  #erd2 svg.erDiagram .row-rect-odd path,
+  #erd2 svg.erDiagram .row-rect-odd rect { fill: #161b22 !important; stroke: none !important; }
+  #erd2 svg.erDiagram .row-rect-even path,
+  #erd2 svg.erDiagram .row-rect-even rect { fill: #1c2128 !important; stroke: none !important; }
+
+  /* Divider line between header and rows */
+  #erd2 svg.erDiagram .divider path { stroke: #30363d !important; stroke-opacity: 0.6; }
+
+  /* Text colors — light for readability */
+  #erd2 svg.erDiagram text { fill: #c9d1d9 !important; }
+  #erd2 svg.erDiagram .er.entityLabel text { fill: #e2e8f0 !important; font-weight: 600; }
+  #erd2 svg.erDiagram .er.attribute-type text { fill: #7dd3fc !important; }
+  #erd2 svg.erDiagram .er.attribute-name text { fill: #e2e8f0 !important; }
+  #erd2 svg.erDiagram .er.attribute-keys text { fill: #fbbf24 !important; }
+  #erd2 svg.erDiagram .er.attribute-comment text { fill: #6b7280 !important; }
+
+  /* Relationship lines */
+  #erd2 svg.erDiagram .relationshipLine { stroke: #5a6a7e !important; }
+  #erd2 svg.erDiagram .edgeLabel text { fill: #94a3b8 !important; }
+  #erd2 svg.erDiagram marker path { fill: #5a6a7e !important; stroke: #5a6a7e !important; }
+</style>
+  <div id="erd2"></div>
+  <script type="module">
+    import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+    await document.fonts.ready;
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      fontFamily: '"Segoe UI", system-ui, -apple-system, sans-serif',
+      themeVariables: {
+        darkMode: true,
+        fontSize: '13px',
+        fontFamily: '"Segoe UI", system-ui, -apple-system, sans-serif',
+        background: '#0d1117',
+        primaryColor: '#1c3050',
+        primaryBorderColor: '#3b82f6',
+        primaryTextColor: '#e2e8f0',
+        secondaryColor: '#151d2b',
+        tertiaryColor: '#111827',
+        lineColor: '#5a6a7e',
+        textColor: '#c9d1d9',
+      },
+    });
+    const { svg } = await mermaid.render('erd2-svg', `erDiagram
+  users ||--o{ meal_logs : logs
+  users ||--o{ weight_logs : logs
+  users ||--o{ workout_logs : logs
+  users ||--o{ subjective_logs : logs
+  users ||--o{ chatbot_conversations : owns
+  chatbot_conversations ||--o{ chatbot_messages : contains
+  workout_templates ||--o{ workout_logs : logged_for
+  kb_documents ||--o{ kb_chunks : split_into
+  users ||--o{ ocr_jobs : creates
+
+  users {
+    uuid id PK
+    text email UK
+    text role
+  }
+
+  meal_logs {
+    uuid id PK
+    uuid user_id FK
+    date date
+    text meal_type
+    text status
+    text notes
+  }
+
+  weight_logs {
+    uuid user_id PK,FK
+    date log_date PK
+    numeric weight_kg
+  }
+
+  workout_logs {
+    uuid id PK
+    uuid user_id FK
+    date date
+    text template_id FK
+    jsonb exercises_done
+    text status
+  }
+
+  subjective_logs {
+    uuid user_id PK,FK
+    date log_date PK
+    int energy
+    int hunger
+    int mood
+  }
+
+  workout_templates {
+    text id PK
+    text name
+    text goal
+    textarray equipment_req
+    int duration_minutes
+    jsonb structure
+  }
+
+  exercises {
+    text id PK
+    text name
+    text primary_muscle
+    int default_sets
+    text default_reps
+    text youtube_video_id
+  }
+
+  chatbot_conversations {
+    uuid id PK
+    uuid user_id FK
+    text title
+  }
+
+  chatbot_messages {
+    uuid id PK
+    uuid conversation_id FK
+    text role
+    text content
+    jsonb citations
+    text model
+  }
+
+  kb_documents {
+    uuid id PK
+    text source
+    text title
+  }
+
+  kb_chunks {
+    uuid id PK
+    uuid document_id FK
+    text content
+    vector embedding
+  }
+
+  ocr_jobs {
+    uuid id PK
+    uuid mess_id FK
+    uuid uploaded_by FK
+    text status
+    jsonb parsed_result
+  }
+
+  audit_logs {
+    uuid id PK
+    uuid actor_id FK
+    text action
+    text resource
+    jsonb details
+  }
+`);
+    document.getElementById('erd2').innerHTML = svg;
+    document.querySelectorAll('#erd2 svg.erDiagram .node').forEach(node => {
+      const fp = node.querySelector('path[d]');
+      if (!fp) return;
+      const d = fp.getAttribute('d');
+      const nums = d.match(/-?[\d.]+/g)?.map(Number);
+      if (!nums || nums.length < 8) return;
+      const xs = [nums[0], nums[2], nums[4], nums[6]];
+      const ys = [nums[1], nums[3], nums[5], nums[7]];
+      const x = Math.min(...xs), y = Math.min(...ys);
+      const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x); rect.setAttribute('y', y);
+      rect.setAttribute('width', w); rect.setAttribute('height', h);
+      rect.setAttribute('rx', '8');
+      for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+        if (fp.hasAttribute(a)) rect.setAttribute(a, fp.getAttribute(a));
+      }
+      fp.replaceWith(rect);
+    });
+    document.querySelectorAll('#erd2 svg.erDiagram .row-rect-odd path, #erd2 svg.erDiagram .row-rect-even path').forEach(p => {
+      p.setAttribute('stroke', 'none');
+    });
+  </script>
+</body>
+
+</html>

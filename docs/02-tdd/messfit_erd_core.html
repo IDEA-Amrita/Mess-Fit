@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>MessFit ERD - Core</title>
+</head>
+
+<body>
+  <style>
+  body {
+    margin: 0;
+    padding: 32px;
+    background: #0d1117;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* SVG background */
+  #erd1 svg { background: transparent !important; }
+
+  /* Entity header box — deep blue */
+  #erd1 svg.erDiagram .node .outer-path rect,
+  #erd1 svg.erDiagram .node .outer-path path { fill: #1c3050 !important; stroke: #3b82f6 !important; }
+
+  /* Entity header border — only the stroke path */
+  #erd1 svg.erDiagram .node .outer-path path[fill="none"] { fill: none !important; stroke: #3b82f6 !important; stroke-width: 1.5px; }
+
+  /* Row backgrounds — dark alternating */
+  #erd1 svg.erDiagram .row-rect-odd path,
+  #erd1 svg.erDiagram .row-rect-odd rect { fill: #161b22 !important; stroke: none !important; }
+  #erd1 svg.erDiagram .row-rect-even path,
+  #erd1 svg.erDiagram .row-rect-even rect { fill: #1c2128 !important; stroke: none !important; }
+
+  /* Divider line between header and rows */
+  #erd1 svg.erDiagram .divider path { stroke: #30363d !important; stroke-opacity: 0.6; }
+
+  /* Text colors — light for readability */
+  #erd1 svg.erDiagram text { fill: #c9d1d9 !important; }
+  #erd1 svg.erDiagram .er.entityLabel text { fill: #e2e8f0 !important; font-weight: 600; }
+  #erd1 svg.erDiagram .er.attribute-type text { fill: #7dd3fc !important; }
+  #erd1 svg.erDiagram .er.attribute-name text { fill: #e2e8f0 !important; }
+  #erd1 svg.erDiagram .er.attribute-keys text { fill: #fbbf24 !important; }
+  #erd1 svg.erDiagram .er.attribute-comment text { fill: #6b7280 !important; }
+
+  /* Relationship lines */
+  #erd1 svg.erDiagram .relationshipLine { stroke: #5a6a7e !important; }
+  #erd1 svg.erDiagram .edgeLabel text { fill: #94a3b8 !important; }
+  #erd1 svg.erDiagram marker path { fill: #5a6a7e !important; stroke: #5a6a7e !important; }
+</style>
+  <div id="erd1"></div>
+  <script type="module">
+    import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+    await document.fonts.ready;
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      fontFamily: '"Segoe UI", system-ui, -apple-system, sans-serif',
+      themeVariables: {
+        darkMode: true,
+        fontSize: '13px',
+        fontFamily: '"Segoe UI", system-ui, -apple-system, sans-serif',
+        background: '#0d1117',
+        primaryColor: '#1c3050',
+        primaryBorderColor: '#3b82f6',
+        primaryTextColor: '#e2e8f0',
+        secondaryColor: '#151d2b',
+        tertiaryColor: '#111827',
+        lineColor: '#5a6a7e',
+        textColor: '#c9d1d9',
+      },
+    });
+    const { svg } = await mermaid.render('erd1-svg', `erDiagram
+  users ||--|| profiles : has
+  users ||--|| hostel_contexts : has
+  users ||--o{ optimizations : generates
+  messes ||--o{ hostel_contexts : selected_by
+  messes ||--o{ mess_menus : has
+  mess_menus }o--|| dishes : references
+
+  users {
+    uuid id PK
+    text email UK
+    text display_name
+    text role
+    timestamptz onboarded_at
+    timestamptz created_at
+  }
+
+  profiles {
+    uuid user_id PK,FK
+    date dob
+    text sex
+    numeric height_cm
+    numeric weight_kg
+    numeric target_weight_kg
+    text goal
+    int activity_level
+    text diet_type
+    textarray allergies
+    textarray conditions
+  }
+
+  hostel_contexts {
+    uuid user_id PK,FK
+    uuid mess_id FK
+    text canteen_freq
+    int canteen_spend
+    textarray equipment
+    int workout_min_day
+    int workout_days_wk
+  }
+
+  messes {
+    uuid id PK
+    text name
+    text college
+    text city
+  }
+
+  dishes {
+    uuid id PK
+    text name
+    text category
+    text serving_unit
+    numeric kcal
+    numeric protein_g
+    numeric carbs_g
+    numeric fats_g
+    int glycemic_index
+    textarray allergens
+    textarray tags
+    text portion_icon
+    text confidence
+  }
+
+  mess_menus {
+    uuid id PK
+    uuid mess_id FK
+    date effective_from
+    int day_of_week
+    text meal_type
+    uuid dish_id FK
+  }
+
+  optimizations {
+    uuid user_id PK,FK
+    date log_date PK
+    text input_hash
+    jsonb output_json
+    text solver_status
+    int solve_time_ms
+    numeric total_kcal
+    numeric total_protein_g
+  }
+`);
+    document.getElementById('erd1').innerHTML = svg;
+    document.querySelectorAll('#erd1 svg.erDiagram .node').forEach(node => {
+      const fp = node.querySelector('path[d]');
+      if (!fp) return;
+      const d = fp.getAttribute('d');
+      const nums = d.match(/-?[\d.]+/g)?.map(Number);
+      if (!nums || nums.length < 8) return;
+      const xs = [nums[0], nums[2], nums[4], nums[6]];
+      const ys = [nums[1], nums[3], nums[5], nums[7]];
+      const x = Math.min(...xs), y = Math.min(...ys);
+      const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x); rect.setAttribute('y', y);
+      rect.setAttribute('width', w); rect.setAttribute('height', h);
+      rect.setAttribute('rx', '8');
+      for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+        if (fp.hasAttribute(a)) rect.setAttribute(a, fp.getAttribute(a));
+      }
+      fp.replaceWith(rect);
+    });
+    document.querySelectorAll('#erd1 svg.erDiagram .row-rect-odd path, #erd1 svg.erDiagram .row-rect-even path').forEach(p => {
+      p.setAttribute('stroke', 'none');
+    });
+  </script>
+</body>
+
+</html>
