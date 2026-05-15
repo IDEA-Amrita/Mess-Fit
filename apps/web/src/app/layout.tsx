@@ -13,21 +13,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MessFit",
-  description: "Eat well from what your mess serves.",
+  title: "MessFit — Eat right from what your mess serves",
+  description:
+    "Constraint-based plate optimizer for Indian hostel students. Hit your calorie and macro targets from what your mess actually serves.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col" style={{ background: "#080808" }}>
+        {children}
+      </body>
     </html>
   );
 }
