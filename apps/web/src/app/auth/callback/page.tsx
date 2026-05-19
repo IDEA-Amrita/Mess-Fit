@@ -4,27 +4,35 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+/**
+ * OAuth callback handler.
+ *
+ * After Google/GitHub redirects back here with the auth code in the
+ * URL hash, Supabase's client library automatically exchanges it for
+ * a session. We wait for that, then redirect to /dashboard (the
+ * middleware will further redirect to /onboarding if no profile exists).
+ */
 export default function AuthCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
         router.replace("/dashboard");
       }
     });
 
-    // Check immediately in case the session was already processed from URL hash
+    // Also check immediately — session might already be set from URL hash
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) router.replace("/dashboard");
     });
 
-    // Fallback: redirect to login if nothing happens after 5 s
+    // Fallback: if nothing happens in 8s, go to login
     const timeout = setTimeout(() => {
       router.replace("/auth/login");
-    }, 5000);
+    }, 8000);
 
     return () => {
       subscription.unsubscribe();

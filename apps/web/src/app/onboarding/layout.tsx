@@ -3,6 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+/**
+ * Onboarding layout — shared wrapper for all 4 steps.
+ *
+ * Auth protection is handled by middleware (src/middleware.ts).
+ * If a guest hits /onboarding/*, middleware redirects to /auth/login.
+ * If an onboarded user hits /onboarding/*, middleware redirects to /dashboard.
+ * So this layout only renders for authenticated, non-onboarded users.
+ */
+
 const steps = [
   { path: "/onboarding/profile", label: "Profile" },
   { path: "/onboarding/goal", label: "Goal" },
