@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     redis_url: str
     supabase_url: str
     supabase_jwt_secret: str
+    supabase_project_ref: str  # e.g. "ubzezhokwifxccrcottk" — used to build the JWKS URL
     gemini_api_key: str
     groq_api_key: str = ""
     cors_origins: List[str] = ["http://localhost:3000"]
