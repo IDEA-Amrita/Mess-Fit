@@ -62,22 +62,47 @@ export default function DashboardPage() {
         <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3">
           {navItems.map((item) => {
             const active = item.href === "/dashboard";
+            const disabled = item.comingSoon;
+            const inner = (
+              <>
+                <HugeiconsIcon icon={item.icon} size={18} strokeWidth={1.5} color="currentColor" />
+                <span className="flex-1">{item.label}</span>
+                {disabled && (
+                  <span
+                    className="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+                    style={{ background: "rgba(255,255,255,0.05)", color: "#444" }}
+                  >
+                    Soon
+                  </span>
+                )}
+              </>
+            );
+            const baseClasses =
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors";
+            const activeStyle = active
+              ? { background: "rgba(245,158,11,0.12)", color: "#f59e0b" }
+              : { color: disabled ? "#3a3a3a" : "#555" };
+
+            if (disabled) {
+              return (
+                <div
+                  key={item.label}
+                  aria-disabled="true"
+                  className={`${baseClasses} cursor-not-allowed opacity-60`}
+                  style={activeStyle}
+                >
+                  {inner}
+                </div>
+              );
+            }
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
-                style={
-                  active
-                    ? {
-                        background: "rgba(245,158,11,0.12)",
-                        color: "#f59e0b",
-                      }
-                    : { color: "#555" }
-                }
+                className={baseClasses}
+                style={activeStyle}
               >
-                <HugeiconsIcon icon={item.icon} size={18} strokeWidth={1.5} color="currentColor" />
-                {item.label}
+                {inner}
               </Link>
             );
           })}
@@ -230,11 +255,11 @@ function timeOfDay() {
 }
 
 const navItems = [
-  { icon: DashboardSquare01Icon, label: "Dashboard", href: "/dashboard" },
-  { icon: PlateIcon, label: "Today's Plate", href: "/dashboard/plate" },
-  { icon: Target01Icon, label: "Goals", href: "/dashboard/goals" },
-  { icon: Calendar01Icon, label: "History", href: "/dashboard/history" },
-  { icon: Settings01Icon, label: "Settings", href: "/dashboard/settings" },
+  { icon: DashboardSquare01Icon, label: "Dashboard", href: "/dashboard", comingSoon: false },
+  { icon: PlateIcon, label: "Today's Plate", href: "/dashboard/plate", comingSoon: true },
+  { icon: Target01Icon, label: "Goals", href: "/dashboard/goals", comingSoon: true },
+  { icon: Calendar01Icon, label: "History", href: "/dashboard/history", comingSoon: true },
+  { icon: Settings01Icon, label: "Settings", href: "/dashboard/settings", comingSoon: true },
 ];
 
 const statCards = [
