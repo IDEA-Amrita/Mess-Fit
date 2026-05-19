@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOnboardingStore } from "@/lib/onboarding-store";
 import { apiFetch } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 import type { CanteenFreq, Equipment, ProfilePayload, HostelContextPayload } from "@/lib/types";
 
 const canteenOptions: { value: CanteenFreq; label: string }[] = [
@@ -73,6 +74,17 @@ export default function HostelStep() {
         method: "PUT",
         body: JSON.stringify(hostelPayload),
       });
+
+      // Mark onboarding complete in Supabase user metadata.
+      // This refreshes the JWT so the middleware sees onboarded=true
+      // on the next request.
+      const { error: updateErr } = await supabase.auth.updateUser({
+        data: { onboarded: true },
+      });
+      if (updateErr) throw new Error(updateErr.message);
+
+      // Force a session refresh so the new JWT is used immediately.
+      await supabase.auth.refreshSession();
 
       // Navigate to targets page
       router.push("/onboarding/targets");
