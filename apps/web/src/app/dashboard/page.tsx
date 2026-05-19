@@ -17,49 +17,23 @@ export default function DashboardPage() {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let cancelled = false;
-
-    supabase.auth.getUser().then(({ data, error }) => {
-      if (cancelled) return;
-      if (error || !data.user) {
-        router.replace("/auth/login");
-        return;
+    // Auth + onboarding check is done by middleware. We just need
+    // to display the user's basic info here.
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setEmail(data.user.email ?? null);
+        setDisplayName(
+          (data.user.user_metadata?.display_name as string) ?? null
+        );
       }
-      setEmail(data.user.email ?? null);
-      setDisplayName(
-        (data.user.user_metadata?.display_name as string) ?? null
-      );
-      setLoading(false);
     });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [router]);
+  }, []);
 
   async function handleLogout() {
     await supabase.auth.signOut();
     router.replace("/auth/login");
-  }
-
-  if (loading) {
-    return (
-      <div
-        className="flex min-h-screen items-center justify-center"
-        style={{ background: "#080808" }}
-      >
-        <div
-          className="h-7 w-7 animate-spin rounded-full border-2"
-          style={{
-            borderColor: "rgba(255,255,255,0.12)",
-            borderTopColor: "#f59e0b",
-          }}
-        />
-      </div>
-    );
   }
 
   const name = displayName ?? email ?? "there";
