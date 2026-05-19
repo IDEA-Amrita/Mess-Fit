@@ -33,7 +33,7 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/onboarding/profile");
+    router.push("/dashboard");
   }
 
   return (
