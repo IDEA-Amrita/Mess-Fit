@@ -64,6 +64,7 @@ def _verify_asymmetric(token: str) -> dict[str, Any]:
         algorithms=["ES256", "RS256"],
         audience="authenticated",
         options={"verify_exp": True},
+        leeway=60,
     )
 
 
@@ -75,6 +76,7 @@ def _verify_hs256(token: str) -> dict[str, Any]:
         algorithms=["HS256"],
         audience="authenticated",
         options={"verify_exp": True},
+        leeway=60,
     )
 
 
