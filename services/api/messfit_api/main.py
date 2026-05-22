@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .auth.deps import get_current_user_id
 from .config import settings
 from .profile.router import router as profile_router
+from .mess.routes import router as mess_router
 
 app = FastAPI(title="MessFit API", version="0.1.0")
 
@@ -27,3 +28,4 @@ async def me(user_id: str = Depends(get_current_user_id)):
 
 
 app.include_router(profile_router)
+app.include_router(mess_router)
