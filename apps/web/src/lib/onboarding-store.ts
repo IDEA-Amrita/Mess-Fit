@@ -7,6 +7,7 @@
  */
 
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import type {
   CanteenFreq,
   DayOfWeek,
@@ -74,8 +75,16 @@ const defaults: Omit<OnboardingState, "setField" | "reset"> = {
   gym_access_days: [],
 };
 
-export const useOnboardingStore = create<OnboardingState>((set) => ({
-  ...defaults,
-  setField: (key, value) => set({ [key]: value } as Partial<OnboardingState>),
-  reset: () => set(defaults),
-}));
+export const useOnboardingStore = create<OnboardingState>()(
+  persist(
+    (set) => ({
+      ...defaults,
+      setField: (key, value) => set({ [key]: value } as Partial<OnboardingState>),
+      reset: () => set(defaults),
+    }),
+    {
+      name: "onboarding-storage",
+      storage: createJSONStorage(() => sessionStorage),
+    }
+  )
+);

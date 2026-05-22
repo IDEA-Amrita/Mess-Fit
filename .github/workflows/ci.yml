@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Sync deps
+        working-directory: services/api
+        run: uv sync --all-extras
+      - name: Lint
+        working-directory: services/api
+        run: uv run ruff check .
+      - name: Format check
+        working-directory: services/api
+        run: uv run ruff format --check .
+      - name: Type check
+        working-directory: services/api
+        run: uv run mypy messfit_api
+      - name: Test
+        working-directory: services/api
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/postgres
+          REDIS_URL: redis://localhost:6379/0
+          SUPABASE_URL: http://localhost
+          SUPABASE_JWT_SECRET: test
+          GEMINI_API_KEY: test
+        run: uv run pytest --cov=messfit_api --cov-report=term-missing
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install
+        working-directory: apps/web
+        run: pnpm install --frozen-lockfile
+      - name: Type check
+        working-directory: apps/web
+        run: pnpm exec tsc --noEmit
+      - name: Lint
+        working-directory: apps/web
+        run: pnpm exec eslint .
+      - name: Build
+        working-directory: apps/web
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
