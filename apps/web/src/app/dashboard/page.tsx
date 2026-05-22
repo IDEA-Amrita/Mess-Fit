@@ -256,6 +256,7 @@ function timeOfDay() {
 
 const navItems = [
   { icon: DashboardSquare01Icon, label: "Dashboard", href: "/dashboard", comingSoon: false },
+  { icon: PlateIcon, label: "Menu", href: "/menu", comingSoon: false },
   { icon: PlateIcon, label: "Today's Plate", href: "/dashboard/plate", comingSoon: true },
   { icon: Target01Icon, label: "Goals", href: "/dashboard/goals", comingSoon: true },
   { icon: Calendar01Icon, label: "History", href: "/dashboard/history", comingSoon: true },
