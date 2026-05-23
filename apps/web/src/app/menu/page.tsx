@@ -7,6 +7,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sunrise, Sun, Coffee, Moon, Flame, MapPin } from "lucide-react";
+
+const getMealIcon = (title: string) => {
+  switch (title.toLowerCase()) {
+    case "breakfast": return <Sunrise className="w-5 h-5 text-amber-500" />;
+    case "lunch": return <Sun className="w-5 h-5 text-yellow-500" />;
+    case "snack": return <Coffee className="w-5 h-5 text-orange-400" />;
+    case "dinner": return <Moon className="w-5 h-5 text-indigo-400" />;
+    default: return null;
+  }
+};
+
+const getCategoryColor = (category: string) => {
+  const cat = category.toLowerCase();
+  if (["protein", "dal"].includes(cat)) return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+  if (["rice", "roti"].includes(cat)) return "bg-orange-500/10 text-orange-500 border-orange-500/20";
+  if (["curry", "sabzi"].includes(cat)) return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+  if (["sweet", "snack"].includes(cat)) return "bg-pink-500/10 text-pink-500 border-pink-500/20";
+  return "bg-slate-500/10 text-slate-400 border-slate-500/20";
+};
 
 export default function MenuPage() {
   const [messes, setMesses] = useState<Mess[]>([]);
@@ -22,7 +42,6 @@ export default function MenuPage() {
         const data = await getMesses();
         setMesses(data);
         if (data.length > 0) {
-          // Find "Amrita CB Boys A" or just pick the first one
           const cbBoys = data.find(m => m.name === "Amrita CB Boys A");
           setSelectedMessId(cbBoys ? cbBoys.id : data[0].id);
         }
@@ -60,25 +79,56 @@ export default function MenuPage() {
   const renderMeal = (title: string, items: any[]) => {
     if (!items || items.length === 0) return null;
     return (
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3 capitalize border-b pb-2">{title}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-inner">
+            {getMealIcon(title)}
+          </div>
+          <h3 className="text-xl font-bold tracking-tight text-white capitalize">{title}</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map((item) => (
-            <Card key={item.id} className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-base">{item.dish.name}</CardTitle>
-                  <Badge variant="outline" className="capitalize">{item.dish.category}</Badge>
+            <Card key={item.id} className="group relative overflow-hidden bg-background/40 backdrop-blur-xl border-white/10 hover:border-white/20 hover:shadow-[0_0_30px_-10px_rgba(255,255,255,0.1)] transition-all duration-300 hover:scale-[1.02]">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start mb-2">
+                  <CardTitle className="text-lg font-semibold leading-tight text-zinc-100">{item.dish.name}</CardTitle>
+                  <Badge variant="outline" className={`capitalize transition-colors ${getCategoryColor(item.dish.category)}`}>
+                    {item.dish.category}
+                  </Badge>
                 </div>
-                <CardDescription>
-                  {item.dish.kcal} kcal • {item.dish.protein_g}g P • {item.dish.carbs_g}g C • {item.dish.fats_g}g F
+                <CardDescription className="flex items-center gap-1.5 text-xs font-medium">
+                  <Flame className="w-3.5 h-3.5 text-orange-500" />
+                  <span className="text-orange-100/70">{item.dish.kcal} kcal</span>
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-0 text-sm text-muted-foreground flex justify-between items-center">
-                <span>Serving: {item.dish.default_serving_grams}g ({item.dish.default_serving_unit})</span>
-                {item.availability !== "always" && (
-                  <Badge variant="secondary" className="capitalize">{item.availability}</Badge>
-                )}
+              
+              <CardContent className="pt-0">
+                <div className="flex items-center gap-4 text-xs font-medium text-zinc-400 bg-black/20 rounded-lg p-2.5 mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-blue-500" />
+                    {item.dish.protein_g}g P
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-amber-500" />
+                    {item.dish.carbs_g}g C
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-rose-500" />
+                    {item.dish.fats_g}g F
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-xs text-zinc-500">
+                  <span>Serving: {item.dish.default_serving_grams}g ({item.dish.default_serving_unit})</span>
+                  {item.availability !== "always" && (
+                    <Badge variant="secondary" className="capitalize text-[10px] bg-white/5 hover:bg-white/10 text-zinc-300">
+                      {item.availability}
+                    </Badge>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -90,22 +140,35 @@ export default function MenuPage() {
   const renderDayMenu = (menu: DailyMenuResponse | null) => {
     if (loading) {
       return (
-        <div className="space-y-4">
-          <Skeleton className="h-[20px] w-[100px] rounded-full" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-[120px] rounded-xl" />)}
+        <div className="space-y-10 mt-6">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-9 w-9 rounded-xl bg-white/5" />
+            <Skeleton className="h-7 w-32 rounded-lg bg-white/5" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <Skeleton key={i} className="h-[180px] rounded-2xl bg-white/5 border border-white/5" />
+            ))}
           </div>
         </div>
       );
     }
 
-    if (!menu) return <div>Failed to load menu.</div>;
+    if (!menu) return <div className="py-12 text-center text-zinc-500 font-medium">Failed to load menu.</div>;
 
     const hasAny = menu.breakfast.length > 0 || menu.lunch.length > 0 || menu.snack.length > 0 || menu.dinner.length > 0;
-    if (!hasAny) return <div className="py-8 text-center text-muted-foreground">No menu items found for this day.</div>;
+    if (!hasAny) return (
+      <div className="py-20 flex flex-col items-center justify-center text-center">
+        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+          <PlateIcon className="w-8 h-8 text-zinc-600" />
+        </div>
+        <p className="text-zinc-400 font-medium text-lg">No menu items found for this day.</p>
+        <p className="text-zinc-600 text-sm mt-1">Check back later or select a different day.</p>
+      </div>
+    );
 
     return (
-      <div className="space-y-2 mt-4">
+      <div className="mt-8">
         {renderMeal("Breakfast", menu.breakfast)}
         {renderMeal("Lunch", menu.lunch)}
         {renderMeal("Snack", menu.snack)}
@@ -115,39 +178,81 @@ export default function MenuPage() {
   };
 
   return (
-    <div className="container max-w-5xl py-8 space-y-8">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Mess Menu</h1>
-        <p className="text-muted-foreground">View what's cooking in your mess.</p>
-        
-        {messes.length > 0 && (
-          <div className="mt-4 flex items-center gap-2">
-            <span className="text-sm font-medium">Current Mess:</span>
-            <select 
-              className="bg-transparent border rounded px-2 py-1 text-sm"
-              value={selectedMessId || ""}
-              onChange={(e) => setSelectedMessId(e.target.value)}
-            >
-              {messes.map(m => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
+    <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+      {/* Decorative ambient background */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <Tabs defaultValue="today" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
-          <TabsTrigger value="today">Today</TabsTrigger>
-          <TabsTrigger value="tomorrow">Tomorrow</TabsTrigger>
-        </TabsList>
-        <TabsContent value="today" className="mt-6">
-          {renderDayMenu(todayMenu)}
-        </TabsContent>
-        <TabsContent value="tomorrow" className="mt-6">
-          {renderDayMenu(tomorrowMenu)}
-        </TabsContent>
-      </Tabs>
+      <div className="container max-w-6xl py-12 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div className="flex flex-col gap-3">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400">
+              Mess Menu
+            </h1>
+            <p className="text-zinc-400 text-lg">Discover what's cooking today.</p>
+          </div>
+          
+          {messes.length > 0 && (
+            <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-2 pl-4 shadow-lg shadow-black/50">
+              <MapPin className="w-4 h-4 text-emerald-400" />
+              <select 
+                className="bg-transparent text-white font-medium text-sm focus:outline-none appearance-none cursor-pointer py-1 pr-6"
+                value={selectedMessId || ""}
+                onChange={(e) => setSelectedMessId(e.target.value)}
+              >
+                {messes.map(m => (
+                  <option key={m.id} value={m.id} className="bg-zinc-900">{m.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        <Tabs defaultValue="today" className="w-full">
+          <TabsList className="bg-white/5 border border-white/10 p-1 rounded-xl w-full max-w-[400px] h-12 shadow-inner">
+            <TabsTrigger 
+              value="today" 
+              className="rounded-lg h-full text-zinc-400 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all font-medium"
+            >
+              Today
+            </TabsTrigger>
+            <TabsTrigger 
+              value="tomorrow"
+              className="rounded-lg h-full text-zinc-400 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all font-medium"
+            >
+              Tomorrow
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="today" className="outline-none focus:outline-none">
+            {renderDayMenu(todayMenu)}
+          </TabsContent>
+          <TabsContent value="tomorrow" className="outline-none focus:outline-none">
+            {renderDayMenu(tomorrowMenu)}
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
+  );
+}
+
+// Fallback icon
+function PlateIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="7" />
+    </svg>
   );
 }
