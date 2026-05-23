@@ -31,7 +31,12 @@ async def main():
         result = await db.execute(select(DishORM))
         dishes = {d.name: d.id for d in result.scalars().all()}
 
-        # 3. Insert menus starting from today
+        # 3. Clear existing menus for this mess to allow safe reseeding
+        from sqlalchemy import delete
+        await db.execute(delete(MessMenuORM).where(MessMenuORM.mess_id == mess.id))
+        await db.flush()
+
+        # 4. Insert menus starting from today
         today = date.today()
         # Find the most recent Monday (day_of_week = 0)
         start_of_week = today - timedelta(days=today.weekday())
