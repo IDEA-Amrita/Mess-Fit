@@ -1,0 +1,137 @@
+{
+  "mess_name": "Amrita CB Boys A",
+  "effective_from": "2025-01-01",
+  "source_document": "Mess-Menu-2025.pdf",
+  "schedule": [
+    {
+      "day_of_week": 0,
+      "day_name": "Monday",
+      "meals": {
+        "breakfast": ["Appam", "Egg Roast", "Bread", "Jam", "Tea", "Milk"],
+        "lunch": [
+          "Chapathi", "Dal Fry", "White Rice", "Matta Rice", "Poriyal",
+          "Moru Kolumbu", "Rasam", "Cut Vegetables", "Sprouts", "Curd",
+          "Buttermilk", "Appalam", "Pickle", "Ulli Theeyal", "Inchi Puli"
+        ],
+        "dinner": [
+          "Chapathi", "Soya Masala", "Lemon Rice", "Pickle", "Vadakam",
+          "Variety Dosa", "Coconut Chutney", "Sambar"
+        ]
+      }
+    },
+    {
+      "day_of_week": 1,
+      "day_name": "Tuesday",
+      "meals": {
+        "breakfast": [
+          "Idly", "Medu Vada", "Inchi Puli", "Coconut Chutney", "Sambar",
+          "Bread", "Jam", "Tea", "Milk"
+        ],
+        "lunch": [
+          "Chapathi", "Gobi Manchurian", "White Rice", "Matta Rice", "Aviyal",
+          "Sambar", "Rasam", "Sprouts", "Curd", "Buttermilk", "Appalam",
+          "Pickle", "Pavakka Pachadi", "Inchi Puli"
+        ],
+        "dinner": [
+          "Chapathi", "Soya Masala", "Veg Pulao", "Raitha", "Vadakam",
+          "Variety Dosa", "Coconut Chutney", "Sambar"
+        ]
+      }
+    },
+    {
+      "day_of_week": 2,
+      "day_name": "Wednesday",
+      "meals": {
+        "breakfast": [
+          "Semiya Upma", "Kadala Curry", "Bread", "Butter", "Jam", "Tea",
+          "Milk", "Watermelon"
+        ],
+        "lunch": [
+          "Chapathi", "Green Peas Masala", "White Rice", "Matta Rice",
+          "Cheera Poriyal", "Sambar", "Rasam", "Cut Vegetables", "Curd",
+          "Buttermilk", "Appalam", "Pickle", "Olan", "Inchi Puli"
+        ],
+        "dinner": [
+          "Porotta", "Paneer Kuruma", "Puli Sadham", "Vadakam", "Pickle",
+          "Cut Vegetables"
+        ]
+      }
+    },
+    {
+      "day_of_week": 3,
+      "day_name": "Thursday",
+      "meals": {
+        "breakfast": [
+          "Dosa", "Aloo Masala", "Bread", "Butter", "Jam", "Tea", "Milk",
+          "Nentra Banana"
+        ],
+        "lunch": [
+          "Chapathi", "Dal Fry", "White Rice", "Matta Rice", "Poriyal",
+          "Sambar", "Puli Kolambu", "Rasam", "Cut Vegetables", "Sprouts",
+          "Curd", "Buttermilk", "Appalam", "Pickle", "Cheera Aviyal",
+          "Inchi Puli"
+        ],
+        "dinner": [
+          "Rava Idly", "Sambar", "Coconut Chutney", "Jeera Rice", "Vadakam",
+          "Inchi Puli"
+        ]
+      }
+    },
+    {
+      "day_of_week": 4,
+      "day_name": "Friday",
+      "meals": {
+        "breakfast": [
+          "Puttu", "Green Gram Curry", "Bread", "Butter", "Jam", "Banana",
+          "Tea", "Milk"
+        ],
+        "lunch": [
+          "Chapathi", "Veg Kadai", "White Rice", "Matta Rice", "Poriyal",
+          "Sambar", "Rasam", "Cut Vegetables", "Sprouts", "Curd",
+          "Buttermilk", "Appalam", "Pickle", "Mathanga Elisseri", "Inchi Puli"
+        ],
+        "dinner": [
+          "Bhatura", "Chana Masala", "Cut Vegetables", "Noodles", "Sauce",
+          "Sambar Sadham", "Vadakam"
+        ]
+      }
+    },
+    {
+      "day_of_week": 5,
+      "day_name": "Saturday",
+      "meals": {
+        "breakfast": [
+          "Pongal", "Coconut Chutney", "Sambar", "Poha", "Bread", "Butter",
+          "Jam", "Tea", "Milk", "Pineapple"
+        ],
+        "lunch": [
+          "Chapathi", "Green Gram Kuruma", "White Rice", "Matta Rice",
+          "Poriyal", "Sambar", "Rasam", "Cut Vegetables", "Sprouts", "Curd",
+          "Buttermilk", "Appalam", "Pickle", "Inchi Puli"
+        ],
+        "dinner": [
+          "Bhatura", "Chana Masala", "Cut Vegetables", "Noodles", "Sauce",
+          "Carrot Rice", "Vadakam"
+        ]
+      }
+    },
+    {
+      "day_of_week": 6,
+      "day_name": "Sunday",
+      "meals": {
+        "breakfast": [
+          "Poori", "Chana Masala", "Boiled Egg", "Veg Semiya Upma",
+          "Coconut Chutney", "Tea", "Milk"
+        ],
+        "lunch": [
+          "Veg Biryani", "Raitha", "Pickle", "Vadakam", "White Rice", "Ghee",
+          "Dal", "Rasam", "Curd", "Buttermilk", "Appalam", "Pickle",
+          "Inchi Puli"
+        ],
+        "dinner": [
+          "Chapathi", "Palak Paneer", "Tomato Rice", "Pickle", "Vadakam"
+        ]
+      }
+    }
+  ]
+}
