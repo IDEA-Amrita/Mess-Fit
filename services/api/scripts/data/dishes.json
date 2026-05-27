@@ -1,0 +1,1896 @@
+[
+  {
+    "name": "Appam",
+    "name_local": {
+      "ta": "ஆப்பம்",
+      "ml": "അപ്പം"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 40,
+    "kcal": 90,
+    "protein_g": 2.0,
+    "carbs_g": 18.0,
+    "fats_g": 0.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 120,
+    "glycemic_index": 68,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Egg Roast",
+    "name_local": {
+      "ta": "முட்டை ரோஸ்ட்",
+      "ml": "മുട്ട റോസ്റ്റ്"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 100,
+    "kcal": 150,
+    "protein_g": 12.0,
+    "carbs_g": 5.0,
+    "fats_g": 9.0,
+    "fiber_g": 1.0,
+    "sodium_mg": 350,
+    "glycemic_index": 20,
+    "allergens": [
+      "eggs"
+    ],
+    "tags": [
+      "high_protein",
+      "low_gi"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Bread",
+    "name_local": {
+      "ta": "ரொட்டி",
+      "ml": "ബ്രെഡ്"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 25,
+    "kcal": 65,
+    "protein_g": 2.0,
+    "carbs_g": 13.0,
+    "fats_g": 0.5,
+    "fiber_g": 0.5,
+    "sodium_mg": 150,
+    "glycemic_index": 71,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Jam",
+    "name_local": {
+      "ta": "ஜாம்",
+      "ml": "ജാം"
+    },
+    "category": "sweet",
+    "default_serving_unit": "spoon",
+    "default_serving_grams": 15,
+    "kcal": 40,
+    "protein_g": 0.0,
+    "carbs_g": 10.0,
+    "fats_g": 0.0,
+    "fiber_g": 0.2,
+    "sodium_mg": 10,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "estimated",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Butter",
+    "name_local": {
+      "ta": "வெண்ணெய்",
+      "ml": "വെണ്ണ"
+    },
+    "category": "other",
+    "default_serving_unit": "spoon",
+    "default_serving_grams": 10,
+    "kcal": 70,
+    "protein_g": 0.1,
+    "carbs_g": 0.0,
+    "fats_g": 8.0,
+    "fiber_g": 0.0,
+    "sodium_mg": 60,
+    "glycemic_index": 0,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ],
+    "portion_icon": "thumb",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Tea",
+    "name_local": {
+      "ta": "தேநீர்",
+      "ml": "ചായ"
+    },
+    "category": "beverage",
+    "default_serving_unit": "glass",
+    "default_serving_grams": 150,
+    "kcal": 45,
+    "protein_g": 1.5,
+    "carbs_g": 6.0,
+    "fats_g": 1.5,
+    "fiber_g": 0.0,
+    "sodium_mg": 30,
+    "glycemic_index": 30,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ],
+    "portion_icon": "glass",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Milk",
+    "name_local": {
+      "ta": "பால்",
+      "ml": "പാൽ"
+    },
+    "category": "beverage",
+    "default_serving_unit": "glass",
+    "default_serving_grams": 200,
+    "kcal": 120,
+    "protein_g": 6.5,
+    "carbs_g": 10.0,
+    "fats_g": 6.0,
+    "fiber_g": 0.0,
+    "sodium_mg": 85,
+    "glycemic_index": 27,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "high_protein",
+      "high_calcium",
+      "low_gi"
+    ],
+    "portion_icon": "glass",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Idly",
+    "name_local": {
+      "ta": "இட்லி",
+      "ml": "ഇഡ്ഡലി"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 60,
+    "kcal": 58,
+    "protein_g": 1.9,
+    "carbs_g": 11.5,
+    "fats_g": 0.1,
+    "fiber_g": 0.5,
+    "sodium_mg": 120,
+    "glycemic_index": 77,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Medu Vada",
+    "name_local": {
+      "ta": "மெது வடை",
+      "ml": "ഉഴുന്ന് വട"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 40,
+    "kcal": 120,
+    "protein_g": 3.0,
+    "carbs_g": 14.0,
+    "fats_g": 6.0,
+    "fiber_g": 1.5,
+    "sodium_mg": 180,
+    "glycemic_index": 55,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Inchi Puli",
+    "name_local": {
+      "ta": "இஞ்சி புளி",
+      "ml": "ഇഞ്ചി പുളി"
+    },
+    "category": "other",
+    "default_serving_unit": "spoon",
+    "default_serving_grams": 15,
+    "kcal": 25,
+    "protein_g": 0.2,
+    "carbs_g": 6.0,
+    "fats_g": 0.1,
+    "fiber_g": 0.5,
+    "sodium_mg": 200,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ],
+    "portion_icon": "thumb",
+    "confidence": "estimated",
+    "source": "manual"
+  },
+  {
+    "name": "Coconut Chutney",
+    "name_local": {
+      "ta": "தேங்காய் சட்னி",
+      "ml": "തേങ്ങ ചമ്മന്തി"
+    },
+    "category": "other",
+    "default_serving_unit": "small_katori",
+    "default_serving_grams": 50,
+    "kcal": 80,
+    "protein_g": 1.0,
+    "carbs_g": 3.0,
+    "fats_g": 7.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 150,
+    "glycemic_index": 35,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "small_katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Sambar",
+    "name_local": {
+      "ta": "சாம்பார்",
+      "ml": "സാമ്പാർ"
+    },
+    "category": "dal",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 110,
+    "protein_g": 5.0,
+    "carbs_g": 16.0,
+    "fats_g": 3.0,
+    "fiber_g": 4.0,
+    "sodium_mg": 300,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Semiya Upma",
+    "name_local": {
+      "ta": "சேமியா உப்புமா",
+      "ml": "സേമിയ ഉപ്പുമാവ്"
+    },
+    "category": "snack",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 220,
+    "protein_g": 4.0,
+    "carbs_g": 38.0,
+    "fats_g": 5.0,
+    "fiber_g": 1.5,
+    "sodium_mg": 350,
+    "glycemic_index": 65,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Kadala Curry",
+    "name_local": {
+      "ta": "கடலை கறி",
+      "ml": "കടല കറി"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 180,
+    "protein_g": 8.0,
+    "carbs_g": 22.0,
+    "fats_g": 7.0,
+    "fiber_g": 6.0,
+    "sodium_mg": 400,
+    "glycemic_index": 40,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber",
+      "low_gi"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Watermelon",
+    "name_local": {
+      "ta": "தர்பூசணி",
+      "ml": "തണ്ണിമത്തൻ"
+    },
+    "category": "snack",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 45,
+    "protein_g": 0.9,
+    "carbs_g": 11.0,
+    "fats_g": 0.2,
+    "fiber_g": 0.6,
+    "sodium_mg": 2,
+    "glycemic_index": 72,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat",
+      "low_sodium"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Dosa",
+    "name_local": {
+      "ta": "தோசை",
+      "ml": "ദോശ"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 60,
+    "kcal": 110,
+    "protein_g": 2.5,
+    "carbs_g": 18.0,
+    "fats_g": 3.0,
+    "fiber_g": 1.0,
+    "sodium_mg": 180,
+    "glycemic_index": 60,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Aloo Masala",
+    "name_local": {
+      "ta": "ஆலு மசாலா",
+      "ml": "ഉരുളക്കിഴങ്ങ് മസാല"
+    },
+    "category": "sabzi",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 100,
+    "kcal": 120,
+    "protein_g": 2.0,
+    "carbs_g": 18.0,
+    "fats_g": 4.5,
+    "fiber_g": 2.5,
+    "sodium_mg": 250,
+    "glycemic_index": 75,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Nentra Banana",
+    "name_local": {
+      "ta": "நேந்திரம் பழம்",
+      "ml": "നേന്ത്രപ്പഴം"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 120,
+    "kcal": 135,
+    "protein_g": 1.2,
+    "carbs_g": 35.0,
+    "fats_g": 0.4,
+    "fiber_g": 3.0,
+    "sodium_mg": 1,
+    "glycemic_index": 52,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_gi",
+      "high_fiber"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Banana",
+    "name_local": {
+      "ta": "வாழைப்பழம்",
+      "ml": "പഴം"
+    },
+    "category": "other",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 100,
+    "kcal": 89,
+    "protein_g": 1.1,
+    "carbs_g": 22.8,
+    "fats_g": 0.3,
+    "fiber_g": 2.6,
+    "sodium_mg": 1,
+    "glycemic_index": 51,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat",
+      "high_fiber"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Puttu",
+    "name_local": {
+      "ta": "புட்டு",
+      "ml": "പുട്ട്"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 150,
+    "kcal": 210,
+    "protein_g": 3.5,
+    "carbs_g": 45.0,
+    "fats_g": 1.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 50,
+    "glycemic_index": 70,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Green Gram Curry",
+    "name_local": {
+      "ta": "பச்சை பயறு கறி",
+      "ml": "ചെറുപയർ കറി"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 165,
+    "protein_g": 10.0,
+    "carbs_g": 25.0,
+    "fats_g": 2.5,
+    "fiber_g": 7.0,
+    "sodium_mg": 300,
+    "glycemic_index": 35,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber",
+      "low_gi"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Pongal",
+    "name_local": {
+      "ta": "பொங்கல்",
+      "ml": "പൊങ്കൽ"
+    },
+    "category": "snack",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 240,
+    "protein_g": 6.0,
+    "carbs_g": 35.0,
+    "fats_g": 8.0,
+    "fiber_g": 3.0,
+    "sodium_mg": 280,
+    "glycemic_index": 65,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Poha",
+    "name_local": {
+      "ta": "அவல்",
+      "ml": "അവൽ"
+    },
+    "category": "snack",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 100,
+    "kcal": 180,
+    "protein_g": 3.0,
+    "carbs_g": 35.0,
+    "fats_g": 3.5,
+    "fiber_g": 1.5,
+    "sodium_mg": 200,
+    "glycemic_index": 55,
+    "allergens": [
+      "nuts"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Pineapple",
+    "name_local": {
+      "ta": "அன்னாசி",
+      "ml": "കൈതച്ചക്ക"
+    },
+    "category": "snack",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 75,
+    "protein_g": 0.8,
+    "carbs_g": 19.5,
+    "fats_g": 0.2,
+    "fiber_g": 2.0,
+    "sodium_mg": 2,
+    "glycemic_index": 59,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Poori",
+    "name_local": {
+      "ta": "பூரி",
+      "ml": "പൂരി"
+    },
+    "category": "roti",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 35,
+    "kcal": 120,
+    "protein_g": 2.0,
+    "carbs_g": 13.0,
+    "fats_g": 6.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 100,
+    "glycemic_index": 70,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Chana Masala",
+    "name_local": {
+      "ta": "சன்னா மசாலா",
+      "ml": "ചന മസാല"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 190,
+    "protein_g": 8.5,
+    "carbs_g": 23.0,
+    "fats_g": 7.0,
+    "fiber_g": 7.5,
+    "sodium_mg": 350,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber",
+      "low_gi"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Boiled Egg",
+    "name_local": {
+      "ta": "வேகவைத்த முட்டை",
+      "ml": "പുഴുങ്ങിയ മുട്ട"
+    },
+    "category": "protein",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 50,
+    "kcal": 78,
+    "protein_g": 6.3,
+    "carbs_g": 0.6,
+    "fats_g": 5.3,
+    "fiber_g": 0.0,
+    "sodium_mg": 62,
+    "glycemic_index": 0,
+    "allergens": [
+      "eggs"
+    ],
+    "tags": [
+      "high_protein",
+      "keto_friendly"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Veg Semiya Upma",
+    "name_local": {
+      "ta": "காய்கறி சேமியா உப்புமா",
+      "ml": "വെജ് സേമിയ ഉപ്പുമാവ്"
+    },
+    "category": "snack",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 210,
+    "protein_g": 5.0,
+    "carbs_g": 36.0,
+    "fats_g": 5.0,
+    "fiber_g": 3.0,
+    "sodium_mg": 300,
+    "glycemic_index": 60,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Chapathi",
+    "name_local": {
+      "ta": "சப்பாத்தி",
+      "ml": "ചപ്പാത്തി"
+    },
+    "category": "roti",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 40,
+    "kcal": 105,
+    "protein_g": 3.5,
+    "carbs_g": 18.0,
+    "fats_g": 2.0,
+    "fiber_g": 3.0,
+    "sodium_mg": 80,
+    "glycemic_index": 52,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan",
+      "high_fiber",
+      "low_gi"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Dal Fry",
+    "name_local": {
+      "ta": "தால் ஃப்ரை",
+      "ml": "ദാൽ ഫ്രൈ"
+    },
+    "category": "dal",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 140,
+    "protein_g": 8.0,
+    "carbs_g": 16.0,
+    "fats_g": 5.0,
+    "fiber_g": 5.0,
+    "sodium_mg": 300,
+    "glycemic_index": 35,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "White Rice",
+    "name_local": {
+      "ta": "வெள்ளை சாதம்",
+      "ml": "വെള്ള ചോറ്"
+    },
+    "category": "rice",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 195,
+    "protein_g": 4.0,
+    "carbs_g": 43.0,
+    "fats_g": 0.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 5,
+    "glycemic_index": 73,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Matta Rice",
+    "name_local": {
+      "ta": "மட்டை சாதம்",
+      "ml": "മട്ട ചോറ്"
+    },
+    "category": "rice",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 185,
+    "protein_g": 4.5,
+    "carbs_g": 39.0,
+    "fats_g": 1.0,
+    "fiber_g": 3.5,
+    "sodium_mg": 5,
+    "glycemic_index": 55,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_gi",
+      "high_fiber"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Poriyal",
+    "name_local": {
+      "ta": "பொரியல்",
+      "ml": "തോരൻ"
+    },
+    "category": "sabzi",
+    "default_serving_unit": "small_katori",
+    "default_serving_grams": 75,
+    "kcal": 60,
+    "protein_g": 1.5,
+    "carbs_g": 6.0,
+    "fats_g": 3.5,
+    "fiber_g": 3.0,
+    "sodium_mg": 150,
+    "glycemic_index": 30,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ],
+    "portion_icon": "small_katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Moru Kolumbu",
+    "name_local": {
+      "ta": "மோர் குழம்பு",
+      "ml": "മോര് കറി"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 80,
+    "protein_g": 3.0,
+    "carbs_g": 5.0,
+    "fats_g": 5.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 280,
+    "glycemic_index": 30,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Rasam",
+    "name_local": {
+      "ta": "ரசம்",
+      "ml": "രസം"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 45,
+    "protein_g": 1.0,
+    "carbs_g": 8.0,
+    "fats_g": 1.0,
+    "fiber_g": 1.5,
+    "sodium_mg": 300,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Cut Vegetables",
+    "name_local": {
+      "ta": "நறுக்கிய காய்கறிகள்",
+      "ml": "പച്ചക്കറികൾ"
+    },
+    "category": "salad",
+    "default_serving_unit": "small_katori",
+    "default_serving_grams": 50,
+    "kcal": 15,
+    "protein_g": 0.5,
+    "carbs_g": 3.0,
+    "fats_g": 0.1,
+    "fiber_g": 1.5,
+    "sodium_mg": 10,
+    "glycemic_index": 20,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_gi",
+      "high_fiber"
+    ],
+    "portion_icon": "small_katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Sprouts",
+    "name_local": {
+      "ta": "முளைகட்டிய பயறு",
+      "ml": "മുളപ്പിച്ച പയർ"
+    },
+    "category": "salad",
+    "default_serving_unit": "small_katori",
+    "default_serving_grams": 50,
+    "kcal": 45,
+    "protein_g": 3.5,
+    "carbs_g": 8.0,
+    "fats_g": 0.2,
+    "fiber_g": 2.5,
+    "sodium_mg": 5,
+    "glycemic_index": 25,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "low_gi"
+    ],
+    "portion_icon": "small_katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Curd",
+    "name_local": {
+      "ta": "தயிர்",
+      "ml": "തൈര്"
+    },
+    "category": "other",
+    "default_serving_unit": "small_katori",
+    "default_serving_grams": 75,
+    "kcal": 45,
+    "protein_g": 2.5,
+    "carbs_g": 3.5,
+    "fats_g": 2.5,
+    "fiber_g": 0.0,
+    "sodium_mg": 35,
+    "glycemic_index": 25,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ],
+    "portion_icon": "small_katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Buttermilk",
+    "name_local": {
+      "ta": "மோர்",
+      "ml": "സംഭാരം"
+    },
+    "category": "beverage",
+    "default_serving_unit": "glass",
+    "default_serving_grams": 150,
+    "kcal": 30,
+    "protein_g": 1.5,
+    "carbs_g": 3.0,
+    "fats_g": 1.0,
+    "fiber_g": 0.0,
+    "sodium_mg": 60,
+    "glycemic_index": 25,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ],
+    "portion_icon": "glass",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Appalam",
+    "name_local": {
+      "ta": "அப்பளம்",
+      "ml": "പപ്പടം"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 10,
+    "kcal": 45,
+    "protein_g": 1.5,
+    "carbs_g": 5.0,
+    "fats_g": 2.5,
+    "fiber_g": 0.5,
+    "sodium_mg": 120,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Pickle",
+    "name_local": {
+      "ta": "ஊறுகாய்",
+      "ml": "അച്ചാർ"
+    },
+    "category": "other",
+    "default_serving_unit": "spoon",
+    "default_serving_grams": 15,
+    "kcal": 30,
+    "protein_g": 0.2,
+    "carbs_g": 2.5,
+    "fats_g": 2.5,
+    "fiber_g": 0.5,
+    "sodium_mg": 400,
+    "glycemic_index": 45,
+    "allergens": [
+      "mustard"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "thumb",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Ulli Theeyal",
+    "name_local": {
+      "ta": "உள்ளி தீயல்",
+      "ml": "ഉള്ളി തീയൽ"
+    },
+    "category": "curry",
+    "default_serving_unit": "small_katori",
+    "default_serving_grams": 75,
+    "kcal": 95,
+    "protein_g": 1.5,
+    "carbs_g": 8.0,
+    "fats_g": 6.5,
+    "fiber_g": 2.0,
+    "sodium_mg": 200,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "small_katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Gobi Manchurian",
+    "name_local": {
+      "ta": "கோபி மஞ்சூரியன்",
+      "ml": "ഗോബി മഞ്ചൂരിയൻ"
+    },
+    "category": "sabzi",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 210,
+    "protein_g": 4.5,
+    "carbs_g": 25.0,
+    "fats_g": 11.0,
+    "fiber_g": 4.0,
+    "sodium_mg": 450,
+    "glycemic_index": 65,
+    "allergens": [
+      "gluten",
+      "soy"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Aviyal",
+    "name_local": {
+      "ta": "அவியல்",
+      "ml": "അവിയൽ"
+    },
+    "category": "sabzi",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 160,
+    "protein_g": 3.0,
+    "carbs_g": 14.0,
+    "fats_g": 11.0,
+    "fiber_g": 4.5,
+    "sodium_mg": 200,
+    "glycemic_index": 45,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "high_fiber",
+      "low_gi"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Pavakka Pachadi",
+    "name_local": {
+      "ta": "பாகற்காய் பச்சடி",
+      "ml": "പാവയ്ക്ക പച്ചടി"
+    },
+    "category": "sabzi",
+    "default_serving_unit": "small_katori",
+    "default_serving_grams": 75,
+    "kcal": 65,
+    "protein_g": 2.0,
+    "carbs_g": 5.0,
+    "fats_g": 4.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 120,
+    "glycemic_index": 35,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ],
+    "portion_icon": "small_katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Green Peas Masala",
+    "name_local": {
+      "ta": "பச்சை பட்டாணி மசாலா",
+      "ml": "ഗ്രീൻ പീസ് മസാല"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 175,
+    "protein_g": 7.0,
+    "carbs_g": 22.0,
+    "fats_g": 6.5,
+    "fiber_g": 6.0,
+    "sodium_mg": 320,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Cheera Poriyal",
+    "name_local": {
+      "ta": "கீரை பொரியல்",
+      "ml": "ചീര തോരൻ"
+    },
+    "category": "sabzi",
+    "default_serving_unit": "small_katori",
+    "default_serving_grams": 75,
+    "kcal": 55,
+    "protein_g": 2.0,
+    "carbs_g": 4.0,
+    "fats_g": 3.5,
+    "fiber_g": 3.0,
+    "sodium_mg": 180,
+    "glycemic_index": 35,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber",
+      "high_iron"
+    ],
+    "portion_icon": "small_katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Olan",
+    "name_local": {
+      "ta": "ஓலன்",
+      "ml": "ഓലൻ"
+    },
+    "category": "curry",
+    "default_serving_unit": "small_katori",
+    "default_serving_grams": 100,
+    "kcal": 110,
+    "protein_g": 3.0,
+    "carbs_g": 10.0,
+    "fats_g": 6.5,
+    "fiber_g": 3.0,
+    "sodium_mg": 150,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ],
+    "portion_icon": "small_katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Puli Kolambu",
+    "name_local": {
+      "ta": "புளி குழம்பு",
+      "ml": "പുളി കുഴമ്പ്"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 130,
+    "protein_g": 3.5,
+    "carbs_g": 15.0,
+    "fats_g": 6.0,
+    "fiber_g": 3.5,
+    "sodium_mg": 380,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Cheera Aviyal",
+    "name_local": {
+      "ta": "கீரை அவியல்",
+      "ml": "ചീര അവിയൽ"
+    },
+    "category": "sabzi",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 140,
+    "protein_g": 4.0,
+    "carbs_g": 12.0,
+    "fats_g": 9.0,
+    "fiber_g": 5.0,
+    "sodium_mg": 220,
+    "glycemic_index": 40,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "high_fiber",
+      "high_iron"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Veg Kadai",
+    "name_local": {
+      "ta": "வெஜ் கடாய்",
+      "ml": "വെജ് കടായ്"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 185,
+    "protein_g": 5.0,
+    "carbs_g": 16.0,
+    "fats_g": 11.5,
+    "fiber_g": 5.0,
+    "sodium_mg": 350,
+    "glycemic_index": 50,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Mathanga Elisseri",
+    "name_local": {
+      "ta": "பரங்கிக்காய் எலிசேரி",
+      "ml": "മത്തങ്ങ എരിശ്ശേരി"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 150,
+    "protein_g": 4.5,
+    "carbs_g": 18.0,
+    "fats_g": 7.0,
+    "fiber_g": 4.5,
+    "sodium_mg": 200,
+    "glycemic_index": 55,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Green Gram Kuruma",
+    "name_local": {
+      "ta": "பச்சை பயறு குருமா",
+      "ml": "ചെറുപയർ കുരുമ"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 170,
+    "protein_g": 8.5,
+    "carbs_g": 20.0,
+    "fats_g": 6.5,
+    "fiber_g": 6.0,
+    "sodium_mg": 300,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Veg Biryani",
+    "name_local": {
+      "ta": "காய்கறி பிரியாணி",
+      "ml": "വെജ് ബിരിയാണി"
+    },
+    "category": "rice",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 200,
+    "kcal": 290,
+    "protein_g": 6.0,
+    "carbs_g": 45.0,
+    "fats_g": 9.5,
+    "fiber_g": 4.0,
+    "sodium_mg": 450,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Raitha",
+    "name_local": {
+      "ta": "ரய்தா",
+      "ml": "റൈത്ത"
+    },
+    "category": "other",
+    "default_serving_unit": "small_katori",
+    "default_serving_grams": 75,
+    "kcal": 35,
+    "protein_g": 2.0,
+    "carbs_g": 4.0,
+    "fats_g": 1.5,
+    "fiber_g": 0.5,
+    "sodium_mg": 50,
+    "glycemic_index": 25,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ],
+    "portion_icon": "small_katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Ghee",
+    "name_local": {
+      "ta": "நெய்",
+      "ml": "നെയ്യ്"
+    },
+    "category": "other",
+    "default_serving_unit": "spoon",
+    "default_serving_grams": 10,
+    "kcal": 90,
+    "protein_g": 0.0,
+    "carbs_g": 0.0,
+    "fats_g": 10.0,
+    "fiber_g": 0.0,
+    "sodium_mg": 0,
+    "glycemic_index": 0,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "keto_friendly"
+    ],
+    "portion_icon": "thumb",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Dal",
+    "name_local": {
+      "ta": "பருப்பு",
+      "ml": "പരിപ്പ്"
+    },
+    "category": "dal",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 130,
+    "protein_g": 7.5,
+    "carbs_g": 15.0,
+    "fats_g": 4.5,
+    "fiber_g": 4.5,
+    "sodium_mg": 280,
+    "glycemic_index": 35,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Soya Masala",
+    "name_local": {
+      "ta": "சோயா மசாலா",
+      "ml": "സോയ മസാല"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 180,
+    "protein_g": 15.0,
+    "carbs_g": 12.0,
+    "fats_g": 8.0,
+    "fiber_g": 5.0,
+    "sodium_mg": 350,
+    "glycemic_index": 40,
+    "allergens": [
+      "soy"
+    ],
+    "tags": [
+      "vegan",
+      "high_protein"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Lemon Rice",
+    "name_local": {
+      "ta": "எலுமிச்சை சாதம்",
+      "ml": "ലെമൺ റൈസ്"
+    },
+    "category": "rice",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 210,
+    "protein_g": 4.0,
+    "carbs_g": 38.0,
+    "fats_g": 4.5,
+    "fiber_g": 1.5,
+    "sodium_mg": 300,
+    "glycemic_index": 68,
+    "allergens": [
+      "nuts"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Vadakam",
+    "name_local": {
+      "ta": "வடகம்",
+      "ml": "വടകം"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 15,
+    "kcal": 65,
+    "protein_g": 1.0,
+    "carbs_g": 9.0,
+    "fats_g": 2.5,
+    "fiber_g": 0.5,
+    "sodium_mg": 150,
+    "glycemic_index": 70,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Variety Dosa",
+    "name_local": {
+      "ta": "வகை தோசை",
+      "ml": "വെറൈറ്റി ദോശ"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 80,
+    "kcal": 140,
+    "protein_g": 3.5,
+    "carbs_g": 20.0,
+    "fats_g": 5.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 220,
+    "glycemic_index": 55,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Veg Pulao",
+    "name_local": {
+      "ta": "வெஜ் புலாவ்",
+      "ml": "വെജ് പുലാവ്"
+    },
+    "category": "rice",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 220,
+    "protein_g": 4.5,
+    "carbs_g": 35.0,
+    "fats_g": 6.5,
+    "fiber_g": 3.0,
+    "sodium_mg": 300,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Porotta",
+    "name_local": {
+      "ta": "பரோட்டா",
+      "ml": "പൊറോട്ട"
+    },
+    "category": "roti",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 70,
+    "kcal": 230,
+    "protein_g": 5.0,
+    "carbs_g": 35.0,
+    "fats_g": 8.0,
+    "fiber_g": 1.5,
+    "sodium_mg": 280,
+    "glycemic_index": 80,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Paneer Kuruma",
+    "name_local": {
+      "ta": "பன்னீர் குருமா",
+      "ml": "പനീർ കുരുമ"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 240,
+    "protein_g": 9.0,
+    "carbs_g": 12.0,
+    "fats_g": 17.0,
+    "fiber_g": 2.5,
+    "sodium_mg": 350,
+    "glycemic_index": 35,
+    "allergens": [
+      "lactose",
+      "nuts"
+    ],
+    "tags": [
+      "high_protein",
+      "low_gi"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Puli Sadham",
+    "name_local": {
+      "ta": "புளி சாதம்",
+      "ml": "പുളി സാദം"
+    },
+    "category": "rice",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 225,
+    "protein_g": 4.0,
+    "carbs_g": 40.0,
+    "fats_g": 5.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 350,
+    "glycemic_index": 60,
+    "allergens": [
+      "nuts"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Rava Idly",
+    "name_local": {
+      "ta": "ரவா இட்லி",
+      "ml": "റവ ഇഡ്ഡലി"
+    },
+    "category": "snack",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 60,
+    "kcal": 85,
+    "protein_g": 2.0,
+    "carbs_g": 14.0,
+    "fats_g": 2.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 180,
+    "glycemic_index": 65,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Jeera Rice",
+    "name_local": {
+      "ta": "சீரக சாதம்",
+      "ml": "ജീരക റൈസ്"
+    },
+    "category": "rice",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 210,
+    "protein_g": 4.0,
+    "carbs_g": 38.0,
+    "fats_g": 4.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 280,
+    "glycemic_index": 70,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Bhatura",
+    "name_local": {
+      "ta": "பட்டூரா",
+      "ml": "ഭട്ടൂര"
+    },
+    "category": "roti",
+    "default_serving_unit": "piece",
+    "default_serving_grams": 60,
+    "kcal": 190,
+    "protein_g": 4.0,
+    "carbs_g": 26.0,
+    "fats_g": 8.0,
+    "fiber_g": 1.0,
+    "sodium_mg": 200,
+    "glycemic_index": 75,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "piece",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Noodles",
+    "name_local": {
+      "ta": "நூடுல்ஸ்",
+      "ml": "നൂഡിൽസ്"
+    },
+    "category": "snack",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 220,
+    "protein_g": 5.0,
+    "carbs_g": 35.0,
+    "fats_g": 6.5,
+    "fiber_g": 2.0,
+    "sodium_mg": 400,
+    "glycemic_index": 68,
+    "allergens": [
+      "gluten",
+      "soy"
+    ],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Sauce",
+    "name_local": {
+      "ta": "சாஸ்",
+      "ml": "സോസ്"
+    },
+    "category": "other",
+    "default_serving_unit": "spoon",
+    "default_serving_grams": 15,
+    "kcal": 15,
+    "protein_g": 0.2,
+    "carbs_g": 4.0,
+    "fats_g": 0.0,
+    "fiber_g": 0.0,
+    "sodium_mg": 180,
+    "glycemic_index": 60,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "thumb",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Sambar Sadham",
+    "name_local": {
+      "ta": "சாம்பார் சாதம்",
+      "ml": "സാമ്പാർ റൈസ്"
+    },
+    "category": "rice",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 200,
+    "kcal": 250,
+    "protein_g": 6.5,
+    "carbs_g": 40.0,
+    "fats_g": 7.0,
+    "fiber_g": 4.5,
+    "sodium_mg": 380,
+    "glycemic_index": 60,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Carrot Rice",
+    "name_local": {
+      "ta": "கேரட் சாதம்",
+      "ml": "ക്യാരറ്റ് റൈസ്"
+    },
+    "category": "rice",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 205,
+    "protein_g": 4.0,
+    "carbs_g": 38.0,
+    "fats_g": 4.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 280,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Palak Paneer",
+    "name_local": {
+      "ta": "பாலக் பன்னீர்",
+      "ml": "പാലക് പനീർ"
+    },
+    "category": "curry",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 210,
+    "protein_g": 10.0,
+    "carbs_g": 9.0,
+    "fats_g": 15.0,
+    "fiber_g": 3.5,
+    "sodium_mg": 350,
+    "glycemic_index": 30,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "high_protein",
+      "low_gi",
+      "high_iron"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  },
+  {
+    "name": "Tomato Rice",
+    "name_local": {
+      "ta": "தக்காளி சாதம்",
+      "ml": "തക്കാളി റൈസ്"
+    },
+    "category": "rice",
+    "default_serving_unit": "katori",
+    "default_serving_grams": 150,
+    "kcal": 200,
+    "protein_g": 4.0,
+    "carbs_g": 37.0,
+    "fats_g": 4.0,
+    "fiber_g": 1.5,
+    "sodium_mg": 300,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ],
+    "portion_icon": "katori",
+    "confidence": "verified",
+    "source": "IFCT_2017"
+  }
+]
