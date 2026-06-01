@@ -67,3 +67,13 @@ class DailyMenuResponse(BaseModel):
     lunch: list[MessMenuResponse]
     snack: list[MessMenuResponse]
     dinner: list[MessMenuResponse]
+
+
+class DishExclusionIn(BaseModel):
+    date: date
+    meal_type: str
+    dish_id: uuid.UUID
+
+
+class DishExclusionOut(DishExclusionIn):
+    model_config = ConfigDict(from_attributes=True)

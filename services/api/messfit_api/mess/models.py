@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import datetime
 import uuid
 from typing import Any
+
+import datetime as dt
 
 from sqlalchemy import (
     UUID,
@@ -14,8 +15,9 @@ from sqlalchemy import (
     Text,
     ForeignKey,
     UniqueConstraint,
+    func,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from messfit_api.db import Base
@@ -65,8 +67,8 @@ class MessMenuORM(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     mess_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("messes.id", ondelete="CASCADE"))
-    effective_from: Mapped[datetime.date] = mapped_column(Date)
-    effective_to: Mapped[datetime.date | None] = mapped_column(Date, nullable=True)
+    effective_from: Mapped[dt.date] = mapped_column(Date)
+    effective_to: Mapped[dt.date | None] = mapped_column(Date, nullable=True)
     day_of_week: Mapped[int] = mapped_column(Integer)
     meal_type: Mapped[str] = mapped_column(Text)
     dish_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("dishes.id", ondelete="RESTRICT"))
@@ -76,3 +78,25 @@ class MessMenuORM(Base):
 
     mess: Mapped["MessORM"] = relationship("MessORM", back_populates="menus")
     dish: Mapped["DishORM"] = relationship("DishORM")
+
+
+class DishExclusionORM(Base):
+    """Per-user, per-date, per-meal dish exclusions.
+
+    When a user marks a dish as 'not available today', a row is inserted here.
+    The Phase 3 optimizer reads this table to filter dishes before solving.
+    """
+
+    __tablename__ = "dish_exclusions"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    date: Mapped[dt.date] = mapped_column(Date, primary_key=True)
+    meal_type: Mapped[str] = mapped_column(Text, primary_key=True)
+    dish_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("dishes.id", ondelete="CASCADE"), primary_key=True
+    )
+    created_at: Mapped[dt.datetime] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.now()
+    )
