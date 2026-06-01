@@ -10,11 +10,16 @@ They cover the happy path and the most important failure modes:
 - 422 on bad input (Pydantic validation)
 - 409 on /targets when the profile isn't set up
 - 200 idempotent upsert (PUT twice should not create duplicates)
+- onboarded_at stamped on first hostel-context save, not overwritten later
 """
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from httpx import AsyncClient
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 # ─── 401: no auth ─────────────────────────────────────────────────────
@@ -135,6 +140,52 @@ class TestHostelContext:
             json=make_hostel_payload(canteen_freq="hourly"),
         )
         assert r.status_code == 422
+
+    async def test_put_stamps_onboarded_at(
+        self,
+        client: AsyncClient,
+        make_hostel_payload,
+        db_session: AsyncSession,
+        fake_user_id: str,
+    ):
+        """First PUT to hostel-context must stamp users.onboarded_at."""
+        await client.put("/api/v1/profile/hostel-context", json=make_hostel_payload())
+        row = (
+            await db_session.execute(
+                text("SELECT onboarded_at FROM users WHERE id = :id"),
+                {"id": fake_user_id},
+            )
+        ).first()
+        assert row is not None
+        assert row.onboarded_at is not None
+
+    async def test_put_does_not_overwrite_onboarded_at(
+        self,
+        client: AsyncClient,
+        make_hostel_payload,
+        db_session: AsyncSession,
+        fake_user_id: str,
+    ):
+        """Re-saving hostel context must not change an existing onboarded_at."""
+        known_dt = datetime(2024, 1, 1, tzinfo=timezone.utc)
+        await db_session.execute(
+            text("UPDATE users SET onboarded_at = :ts WHERE id = :id"),
+            {"ts": known_dt, "id": fake_user_id},
+        )
+        await db_session.commit()
+
+        await client.put(
+            "/api/v1/profile/hostel-context",
+            json=make_hostel_payload(canteen_freq="daily"),
+        )
+
+        row = (
+            await db_session.execute(
+                text("SELECT onboarded_at FROM users WHERE id = :id"),
+                {"id": fake_user_id},
+            )
+        ).first()
+        assert row.onboarded_at.year == 2024
 
 
 # ─── /targets ─────────────────────────────────────────────────────────
