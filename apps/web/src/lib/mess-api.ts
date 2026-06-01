@@ -54,3 +54,33 @@ export async function getDailyMenu(messId: string, dateStr?: string): Promise<Da
   const query = dateStr ? `?date=${dateStr}` : "";
   return apiFetch<DailyMenuResponse>(`/mess/messes/${messId}/menu${query}`);
 }
+
+// ─── Dish exclusions ──────────────────────────────────────────────────
+
+export interface DishExclusion {
+  date: string;
+  meal_type: string;
+  dish_id: string;
+}
+
+export async function getExclusions(dateStr: string): Promise<DishExclusion[]> {
+  return apiFetch<DishExclusion[]>(`/mess/menu/exclusions?date=${dateStr}`);
+}
+
+export async function excludeDish(payload: DishExclusion): Promise<DishExclusion> {
+  return apiFetch<DishExclusion>("/mess/menu/exclusions", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function unexcludeDish(
+  dishId: string,
+  dateStr: string,
+  mealType: string,
+): Promise<void> {
+  await apiFetch<void>(
+    `/mess/menu/exclusions/${dishId}?date=${dateStr}&meal_type=${mealType}`,
+    { method: "DELETE" },
+  );
+}
