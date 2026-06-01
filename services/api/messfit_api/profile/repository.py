@@ -12,10 +12,11 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from messfit_api.auth.models import UserORM
 from .models import HostelContext, Profile
 from .schemas import HostelContextIn, ProfileIn
 
@@ -73,5 +74,15 @@ async def upsert_hostel_context(
         .returning(HostelContext)
     )
     row = (await session.execute(stmt)).scalar_one()
+
+    # Stamp onboarded_at on first save only — does not overwrite if the user
+    # updates their hostel context later. Both writes share one commit so they
+    # are atomic; a crash between them won't leave a partial state.
+    await session.execute(
+        update(UserORM)
+        .where(UserORM.id == user_id, UserORM.onboarded_at.is_(None))
+        .values(onboarded_at=func.now())
+    )
+
     await session.commit()
     return row
