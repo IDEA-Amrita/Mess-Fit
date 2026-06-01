@@ -3,17 +3,20 @@ import uuid
 from collections import defaultdict
 from typing import Sequence
 
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import delete, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from messfit_api.auth.deps import require_admin
+from messfit_api.auth.deps import get_current_user_id, require_admin
 from messfit_api.db import get_session
-from messfit_api.mess.models import DishORM, MessMenuORM, MessORM
+from messfit_api.mess.models import DishExclusionORM, DishORM, MessMenuORM, MessORM
 from messfit_api.mess.schemas import (
     DailyMenuResponse,
     DishBase,
+    DishExclusionIn,
+    DishExclusionOut,
     DishResponse,
     MessBase,
     MessResponse,
@@ -109,3 +112,78 @@ async def create_dish(
     await db.commit()
     await db.refresh(db_dish)
     return db_dish
+
+
+# ─── Menu exclusions (per-user, per-date) ────────────────────────────
+
+
+@router.get("/menu/exclusions", response_model=list[DishExclusionOut])
+async def list_exclusions(
+    date: datetime.date | None = None,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> Sequence[DishExclusionORM]:
+    """List dishes the calling user has marked unavailable for a date (default: today)."""
+    target_date = date or datetime.date.today()
+    result = await db.execute(
+        select(DishExclusionORM).where(
+            DishExclusionORM.user_id == uuid.UUID(user_id),
+            DishExclusionORM.date == target_date,
+        )
+    )
+    return result.scalars().all()
+
+
+@router.post("/menu/exclusions", response_model=DishExclusionOut, status_code=status.HTTP_201_CREATED)
+async def exclude_dish(
+    payload: DishExclusionIn,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> DishExclusionORM:
+    """Mark a dish as unavailable for a meal on a specific date. Idempotent."""
+    stmt = (
+        pg_insert(DishExclusionORM)
+        .values(
+            user_id=uuid.UUID(user_id),
+            date=payload.date,
+            meal_type=payload.meal_type,
+            dish_id=payload.dish_id,
+        )
+        .on_conflict_do_nothing()
+        .returning(DishExclusionORM)
+    )
+    row = (await db.execute(stmt)).scalar_one_or_none()
+    await db.commit()
+
+    if row is None:
+        # Row already existed — fetch and return it.
+        existing = await db.execute(
+            select(DishExclusionORM).where(
+                DishExclusionORM.user_id == uuid.UUID(user_id),
+                DishExclusionORM.date == payload.date,
+                DishExclusionORM.meal_type == payload.meal_type,
+                DishExclusionORM.dish_id == payload.dish_id,
+            )
+        )
+        row = existing.scalar_one()
+    return row
+
+
+@router.delete("/menu/exclusions/{dish_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def unexclude_dish(
+    dish_id: uuid.UUID,
+    date: datetime.date,
+    meal_type: str,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> None:
+    """Remove a dish exclusion. No-op if the exclusion does not exist."""
+    await db.execute(
+        delete(DishExclusionORM).where(
+            DishExclusionORM.user_id == uuid.UUID(user_id),
+            DishExclusionORM.date == date,
+            DishExclusionORM.meal_type == meal_type,
+            DishExclusionORM.dish_id == dish_id,
+        )
+    )
+    await db.commit()
