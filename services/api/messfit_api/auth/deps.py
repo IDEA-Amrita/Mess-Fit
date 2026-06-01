@@ -15,14 +15,18 @@ on every request.
 from __future__ import annotations
 
 import time
+import uuid
 from typing import Any
 
 import httpx
 import jwt
-from fastapi import Header, HTTPException
+from fastapi import Depends, Header, HTTPException, status
 from jwt import PyJWKClient
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..config import settings
+from ..db import get_session
 
 
 # ─── JWKS client (cached) ─────────────────────────────────────────────
@@ -118,4 +122,26 @@ async def get_current_user_id(authorization: str = Header(...)) -> str:
     user_id = payload.get("sub")
     if not user_id:
         raise HTTPException(status_code=401, detail="Token missing 'sub' claim")
+    return user_id
+
+
+async def require_admin(
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> str:
+    """Dependency: raises 403 unless the authenticated user has role='admin'.
+
+    Composes get_current_user_id (JWT check) with a DB role lookup so the
+    two concerns stay separate. The DB is the source of truth for app roles —
+    never rely on JWT claims for permission checks, only for identity.
+    """
+    from .models import UserORM  # local import avoids a top-level circular dep
+
+    result = await db.execute(select(UserORM).where(UserORM.id == uuid.UUID(user_id)))
+    user = result.scalar_one_or_none()
+    if user is None or user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
+        )
     return user_id
