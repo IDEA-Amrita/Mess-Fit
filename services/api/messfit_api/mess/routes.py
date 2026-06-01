@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from messfit_api.auth.deps import require_admin
 from messfit_api.db import get_session
 from messfit_api.mess.models import DishORM, MessMenuORM, MessORM
 from messfit_api.mess.schemas import (
@@ -82,17 +83,14 @@ async def get_daily_menu(
     )
 
 
-# Admin routes (Basic for now, protected by RLS assuming the DB role is correctly set,
-# or we can explicitly verify admin role here. To keep it simple, we rely on RLS or future JWT checks)
-# Since we haven't wired up the admin JWT check dependency yet in deps.py, we just define the routes
-# and know RLS will block unauthorized inserts if they reach the DB.
-
 @router.post("/admin/messes", response_model=MessResponse)
 async def create_mess(
     mess: MessBase,
+    admin_user_id: str = Depends(require_admin),
     db: AsyncSession = Depends(get_session),
 ) -> MessORM:
-    db_mess = MessORM(**mess.model_dump())
+    """Create a mess. Requires admin role."""
+    db_mess = MessORM(**mess.model_dump(), seeded_by=uuid.UUID(admin_user_id))
     db.add(db_mess)
     await db.commit()
     await db.refresh(db_mess)
@@ -102,8 +100,10 @@ async def create_mess(
 @router.post("/admin/dishes", response_model=DishResponse)
 async def create_dish(
     dish: DishBase,
+    _: str = Depends(require_admin),
     db: AsyncSession = Depends(get_session),
 ) -> DishORM:
+    """Create a dish. Requires admin role."""
     db_dish = DishORM(**dish.model_dump())
     db.add(db_dish)
     await db.commit()

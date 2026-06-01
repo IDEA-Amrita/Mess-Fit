@@ -113,10 +113,58 @@ async def client(seed_test_user: str) -> AsyncIterator[AsyncClient]:
 
 @pytest_asyncio.fixture
 async def unauthed_client() -> AsyncIterator[AsyncClient]:
-    """HTTP client without auth override — useful for testing 401 paths."""
+    """HTTP client without auth override — useful for testing 401/422 paths."""
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
+
+
+# ─── admin fixtures ───────────────────────────────────────────────────
+
+
+@pytest.fixture
+def fake_admin_id() -> str:
+    """A stable UUID used to simulate an admin user in API tests."""
+    return "00000000-0000-0000-0000-000000000002"
+
+
+@pytest_asyncio.fixture
+async def seed_admin_user(
+    db_session: AsyncSession, fake_admin_id: str
+) -> AsyncIterator[str]:
+    """Create a user row with role='admin' for testing admin-gated routes."""
+    email = f"admin+{uuid.uuid4().hex[:8]}@messfit.local"
+    await db_session.execute(
+        text(
+            "INSERT INTO users (id, email, role) VALUES (:id, :email, 'admin') "
+            "ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, role = 'admin'"
+        ),
+        {"id": fake_admin_id, "email": email},
+    )
+    await db_session.commit()
+
+    yield fake_admin_id
+
+    await db_session.execute(
+        text("DELETE FROM users WHERE id = :id"), {"id": fake_admin_id}
+    )
+    await db_session.commit()
+
+
+@pytest_asyncio.fixture
+async def admin_client(seed_admin_user: str) -> AsyncIterator[AsyncClient]:
+    """HTTP client whose requests are treated as the seeded admin user."""
+
+    def _fake_admin() -> str:
+        return seed_admin_user
+
+    app.dependency_overrides[get_current_user_id] = _fake_admin
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        yield ac
+
+    app.dependency_overrides.pop(get_current_user_id, None)
 
 
 # ─── helpers ──────────────────────────────────────────────────────────
