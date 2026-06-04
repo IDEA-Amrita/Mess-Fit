@@ -1,0 +1,33 @@
+{
+  "id": "lose_female_egg_diabetes",
+  "description": "24y female, type-2 diabetes, fat-loss, eats eggs. Diabetes pushes fats to 30% and the plan should lean on low-GI / high-fibre dishes (matta rice, sambar, sprouts, chana) and avoid stacking high-GI white rice. Canteen eggs are an allowed protein top-up.",
+  "user": {
+    "sex": "female",
+    "age": 24,
+    "height_cm": 162,
+    "weight_kg": 72,
+    "goal": "lose",
+    "target_rate_kg_per_week": -0.45,
+    "activity_level": 2,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": ["diabetes"],
+    "canteen_budget_inr": 25
+  },
+  "menu": {
+    "breakfast": ["idly", "sambar", "coconut_chutney", "egg_roast"],
+    "lunch": ["matta_rice", "white_rice", "sambar", "rasam", "cheera_poriyal", "curd", "chana_masala"],
+    "snack": ["tea", "sprouts"],
+    "dinner": ["chapathi", "dal", "green_gram_curry", "cut_vegetables", "curd"]
+  },
+  "canteen": ["boiled_egg", "sprouts"],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "max_portions_per_meal": 6,
+    "no_dish_more_than_2x": true,
+    "diet_respected": true,
+    "feasible": true
+  }
+}

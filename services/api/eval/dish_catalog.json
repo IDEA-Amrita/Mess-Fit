@@ -1,0 +1,1600 @@
+[
+  {
+    "id": "aloo_masala",
+    "name": "Aloo Masala",
+    "category": "sabzi",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 100.0,
+    "portion_icon": "katori",
+    "kcal": 120.0,
+    "protein_g": 2.0,
+    "carbs_g": 18.0,
+    "fats_g": 4.5,
+    "fiber_g": 2.5,
+    "sodium_mg": 250.0,
+    "glycemic_index": 75,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "appalam",
+    "name": "Appalam",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 10.0,
+    "portion_icon": "piece",
+    "kcal": 45.0,
+    "protein_g": 1.5,
+    "carbs_g": 5.0,
+    "fats_g": 2.5,
+    "fiber_g": 0.5,
+    "sodium_mg": 120.0,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "appam",
+    "name": "Appam",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 40.0,
+    "portion_icon": "piece",
+    "kcal": 90.0,
+    "protein_g": 2.0,
+    "carbs_g": 18.0,
+    "fats_g": 0.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 120.0,
+    "glycemic_index": 68,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "aviyal",
+    "name": "Aviyal",
+    "category": "sabzi",
+    "diet_type": "veg",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 160.0,
+    "protein_g": 3.0,
+    "carbs_g": 14.0,
+    "fats_g": 11.0,
+    "fiber_g": 4.5,
+    "sodium_mg": 200.0,
+    "glycemic_index": 45,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "high_fiber",
+      "low_gi"
+    ]
+  },
+  {
+    "id": "banana",
+    "name": "Banana",
+    "category": "other",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 100.0,
+    "portion_icon": "piece",
+    "kcal": 89.0,
+    "protein_g": 1.1,
+    "carbs_g": 22.8,
+    "fats_g": 0.3,
+    "fiber_g": 2.6,
+    "sodium_mg": 1.0,
+    "glycemic_index": 51,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "bhatura",
+    "name": "Bhatura",
+    "category": "roti",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 60.0,
+    "portion_icon": "piece",
+    "kcal": 190.0,
+    "protein_g": 4.0,
+    "carbs_g": 26.0,
+    "fats_g": 8.0,
+    "fiber_g": 1.0,
+    "sodium_mg": 200.0,
+    "glycemic_index": 75,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "boiled_egg",
+    "name": "Boiled Egg",
+    "category": "protein",
+    "diet_type": "egg",
+    "serving_unit": "piece",
+    "serving_grams": 50.0,
+    "portion_icon": "piece",
+    "kcal": 78.0,
+    "protein_g": 6.3,
+    "carbs_g": 0.6,
+    "fats_g": 5.3,
+    "fiber_g": 0.0,
+    "sodium_mg": 62.0,
+    "glycemic_index": 0,
+    "allergens": [
+      "eggs"
+    ],
+    "tags": [
+      "high_protein",
+      "keto_friendly"
+    ]
+  },
+  {
+    "id": "bread",
+    "name": "Bread",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 25.0,
+    "portion_icon": "piece",
+    "kcal": 65.0,
+    "protein_g": 2.0,
+    "carbs_g": 13.0,
+    "fats_g": 0.5,
+    "fiber_g": 0.5,
+    "sodium_mg": 150.0,
+    "glycemic_index": 71,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "butter",
+    "name": "Butter",
+    "category": "other",
+    "diet_type": "veg",
+    "serving_unit": "spoon",
+    "serving_grams": 10.0,
+    "portion_icon": "thumb",
+    "kcal": 70.0,
+    "protein_g": 0.1,
+    "carbs_g": 0.0,
+    "fats_g": 8.0,
+    "fiber_g": 0.0,
+    "sodium_mg": 60.0,
+    "glycemic_index": 0,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ]
+  },
+  {
+    "id": "buttermilk",
+    "name": "Buttermilk",
+    "category": "beverage",
+    "diet_type": "veg",
+    "serving_unit": "glass",
+    "serving_grams": 150.0,
+    "portion_icon": "glass",
+    "kcal": 30.0,
+    "protein_g": 1.5,
+    "carbs_g": 3.0,
+    "fats_g": 1.0,
+    "fiber_g": 0.0,
+    "sodium_mg": 60.0,
+    "glycemic_index": 25,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ]
+  },
+  {
+    "id": "carrot_rice",
+    "name": "Carrot Rice",
+    "category": "rice",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 205.0,
+    "protein_g": 4.0,
+    "carbs_g": 38.0,
+    "fats_g": 4.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 280.0,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "chana_masala",
+    "name": "Chana Masala",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 190.0,
+    "protein_g": 8.5,
+    "carbs_g": 23.0,
+    "fats_g": 7.0,
+    "fiber_g": 7.5,
+    "sodium_mg": 350.0,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber",
+      "low_gi"
+    ]
+  },
+  {
+    "id": "chapathi",
+    "name": "Chapathi",
+    "category": "roti",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 40.0,
+    "portion_icon": "piece",
+    "kcal": 105.0,
+    "protein_g": 3.5,
+    "carbs_g": 18.0,
+    "fats_g": 2.0,
+    "fiber_g": 3.0,
+    "sodium_mg": 80.0,
+    "glycemic_index": 52,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan",
+      "high_fiber",
+      "low_gi"
+    ]
+  },
+  {
+    "id": "cheera_aviyal",
+    "name": "Cheera Aviyal",
+    "category": "sabzi",
+    "diet_type": "veg",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 140.0,
+    "protein_g": 4.0,
+    "carbs_g": 12.0,
+    "fats_g": 9.0,
+    "fiber_g": 5.0,
+    "sodium_mg": 220.0,
+    "glycemic_index": 40,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "high_fiber",
+      "high_iron"
+    ]
+  },
+  {
+    "id": "cheera_poriyal",
+    "name": "Cheera Poriyal",
+    "category": "sabzi",
+    "diet_type": "vegan",
+    "serving_unit": "small_katori",
+    "serving_grams": 75.0,
+    "portion_icon": "small_katori",
+    "kcal": 55.0,
+    "protein_g": 2.0,
+    "carbs_g": 4.0,
+    "fats_g": 3.5,
+    "fiber_g": 3.0,
+    "sodium_mg": 180.0,
+    "glycemic_index": 35,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber",
+      "high_iron"
+    ]
+  },
+  {
+    "id": "coconut_chutney",
+    "name": "Coconut Chutney",
+    "category": "other",
+    "diet_type": "vegan",
+    "serving_unit": "small_katori",
+    "serving_grams": 50.0,
+    "portion_icon": "small_katori",
+    "kcal": 80.0,
+    "protein_g": 1.0,
+    "carbs_g": 3.0,
+    "fats_g": 7.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 150.0,
+    "glycemic_index": 35,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "curd",
+    "name": "Curd",
+    "category": "other",
+    "diet_type": "veg",
+    "serving_unit": "small_katori",
+    "serving_grams": 75.0,
+    "portion_icon": "small_katori",
+    "kcal": 45.0,
+    "protein_g": 2.5,
+    "carbs_g": 3.5,
+    "fats_g": 2.5,
+    "fiber_g": 0.0,
+    "sodium_mg": 35.0,
+    "glycemic_index": 25,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ]
+  },
+  {
+    "id": "cut_vegetables",
+    "name": "Cut Vegetables",
+    "category": "salad",
+    "diet_type": "vegan",
+    "serving_unit": "small_katori",
+    "serving_grams": 50.0,
+    "portion_icon": "small_katori",
+    "kcal": 15.0,
+    "protein_g": 0.5,
+    "carbs_g": 3.0,
+    "fats_g": 0.1,
+    "fiber_g": 1.5,
+    "sodium_mg": 10.0,
+    "glycemic_index": 20,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_gi",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "dal",
+    "name": "Dal",
+    "category": "dal",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 130.0,
+    "protein_g": 7.5,
+    "carbs_g": 15.0,
+    "fats_g": 4.5,
+    "fiber_g": 4.5,
+    "sodium_mg": 280.0,
+    "glycemic_index": 35,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "dal_fry",
+    "name": "Dal Fry",
+    "category": "dal",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 140.0,
+    "protein_g": 8.0,
+    "carbs_g": 16.0,
+    "fats_g": 5.0,
+    "fiber_g": 5.0,
+    "sodium_mg": 300.0,
+    "glycemic_index": 35,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "dosa",
+    "name": "Dosa",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 60.0,
+    "portion_icon": "piece",
+    "kcal": 110.0,
+    "protein_g": 2.5,
+    "carbs_g": 18.0,
+    "fats_g": 3.0,
+    "fiber_g": 1.0,
+    "sodium_mg": 180.0,
+    "glycemic_index": 60,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "egg_roast",
+    "name": "Egg Roast",
+    "category": "curry",
+    "diet_type": "egg",
+    "serving_unit": "katori",
+    "serving_grams": 100.0,
+    "portion_icon": "katori",
+    "kcal": 150.0,
+    "protein_g": 12.0,
+    "carbs_g": 5.0,
+    "fats_g": 9.0,
+    "fiber_g": 1.0,
+    "sodium_mg": 350.0,
+    "glycemic_index": 20,
+    "allergens": [
+      "eggs"
+    ],
+    "tags": [
+      "high_protein",
+      "low_gi"
+    ]
+  },
+  {
+    "id": "ghee",
+    "name": "Ghee",
+    "category": "other",
+    "diet_type": "veg",
+    "serving_unit": "spoon",
+    "serving_grams": 10.0,
+    "portion_icon": "thumb",
+    "kcal": 90.0,
+    "protein_g": 0.0,
+    "carbs_g": 0.0,
+    "fats_g": 10.0,
+    "fiber_g": 0.0,
+    "sodium_mg": 0.0,
+    "glycemic_index": 0,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "keto_friendly"
+    ]
+  },
+  {
+    "id": "gobi_manchurian",
+    "name": "Gobi Manchurian",
+    "category": "sabzi",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 210.0,
+    "protein_g": 4.5,
+    "carbs_g": 25.0,
+    "fats_g": 11.0,
+    "fiber_g": 4.0,
+    "sodium_mg": 450.0,
+    "glycemic_index": 65,
+    "allergens": [
+      "gluten",
+      "soy"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "green_gram_curry",
+    "name": "Green Gram Curry",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 165.0,
+    "protein_g": 10.0,
+    "carbs_g": 25.0,
+    "fats_g": 2.5,
+    "fiber_g": 7.0,
+    "sodium_mg": 300.0,
+    "glycemic_index": 35,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber",
+      "low_gi"
+    ]
+  },
+  {
+    "id": "green_gram_kuruma",
+    "name": "Green Gram Kuruma",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 170.0,
+    "protein_g": 8.5,
+    "carbs_g": 20.0,
+    "fats_g": 6.5,
+    "fiber_g": 6.0,
+    "sodium_mg": 300.0,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "green_peas_masala",
+    "name": "Green Peas Masala",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 175.0,
+    "protein_g": 7.0,
+    "carbs_g": 22.0,
+    "fats_g": 6.5,
+    "fiber_g": 6.0,
+    "sodium_mg": 320.0,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "idly",
+    "name": "Idly",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 60.0,
+    "portion_icon": "piece",
+    "kcal": 58.0,
+    "protein_g": 1.9,
+    "carbs_g": 11.5,
+    "fats_g": 0.1,
+    "fiber_g": 0.5,
+    "sodium_mg": 120.0,
+    "glycemic_index": 77,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ]
+  },
+  {
+    "id": "inchi_puli",
+    "name": "Inchi Puli",
+    "category": "other",
+    "diet_type": "vegan",
+    "serving_unit": "spoon",
+    "serving_grams": 15.0,
+    "portion_icon": "thumb",
+    "kcal": 25.0,
+    "protein_g": 0.2,
+    "carbs_g": 6.0,
+    "fats_g": 0.1,
+    "fiber_g": 0.5,
+    "sodium_mg": 200.0,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ]
+  },
+  {
+    "id": "jam",
+    "name": "Jam",
+    "category": "sweet",
+    "diet_type": "vegan",
+    "serving_unit": "spoon",
+    "serving_grams": 15.0,
+    "portion_icon": "piece",
+    "kcal": 40.0,
+    "protein_g": 0.0,
+    "carbs_g": 10.0,
+    "fats_g": 0.0,
+    "fiber_g": 0.2,
+    "sodium_mg": 10.0,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "jeera_rice",
+    "name": "Jeera Rice",
+    "category": "rice",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 210.0,
+    "protein_g": 4.0,
+    "carbs_g": 38.0,
+    "fats_g": 4.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 280.0,
+    "glycemic_index": 70,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "kadala_curry",
+    "name": "Kadala Curry",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 180.0,
+    "protein_g": 8.0,
+    "carbs_g": 22.0,
+    "fats_g": 7.0,
+    "fiber_g": 6.0,
+    "sodium_mg": 400.0,
+    "glycemic_index": 40,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "high_fiber",
+      "low_gi"
+    ]
+  },
+  {
+    "id": "lemon_rice",
+    "name": "Lemon Rice",
+    "category": "rice",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 210.0,
+    "protein_g": 4.0,
+    "carbs_g": 38.0,
+    "fats_g": 4.5,
+    "fiber_g": 1.5,
+    "sodium_mg": 300.0,
+    "glycemic_index": 68,
+    "allergens": [
+      "nuts"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "mathanga_elisseri",
+    "name": "Mathanga Elisseri",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 150.0,
+    "protein_g": 4.5,
+    "carbs_g": 18.0,
+    "fats_g": 7.0,
+    "fiber_g": 4.5,
+    "sodium_mg": 200.0,
+    "glycemic_index": 55,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "matta_rice",
+    "name": "Matta Rice",
+    "category": "rice",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 185.0,
+    "protein_g": 4.5,
+    "carbs_g": 39.0,
+    "fats_g": 1.0,
+    "fiber_g": 3.5,
+    "sodium_mg": 5.0,
+    "glycemic_index": 55,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_gi",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "medu_vada",
+    "name": "Medu Vada",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 40.0,
+    "portion_icon": "piece",
+    "kcal": 120.0,
+    "protein_g": 3.0,
+    "carbs_g": 14.0,
+    "fats_g": 6.0,
+    "fiber_g": 1.5,
+    "sodium_mg": 180.0,
+    "glycemic_index": 55,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "milk",
+    "name": "Milk",
+    "category": "beverage",
+    "diet_type": "veg",
+    "serving_unit": "glass",
+    "serving_grams": 200.0,
+    "portion_icon": "glass",
+    "kcal": 120.0,
+    "protein_g": 6.5,
+    "carbs_g": 10.0,
+    "fats_g": 6.0,
+    "fiber_g": 0.0,
+    "sodium_mg": 85.0,
+    "glycemic_index": 27,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "high_protein",
+      "high_calcium",
+      "low_gi"
+    ]
+  },
+  {
+    "id": "moru_kolumbu",
+    "name": "Moru Kolumbu",
+    "category": "curry",
+    "diet_type": "veg",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 80.0,
+    "protein_g": 3.0,
+    "carbs_g": 5.0,
+    "fats_g": 5.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 280.0,
+    "glycemic_index": 30,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ]
+  },
+  {
+    "id": "nentra_banana",
+    "name": "Nentra Banana",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 120.0,
+    "portion_icon": "piece",
+    "kcal": 135.0,
+    "protein_g": 1.2,
+    "carbs_g": 35.0,
+    "fats_g": 0.4,
+    "fiber_g": 3.0,
+    "sodium_mg": 1.0,
+    "glycemic_index": 52,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_gi",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "noodles",
+    "name": "Noodles",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 220.0,
+    "protein_g": 5.0,
+    "carbs_g": 35.0,
+    "fats_g": 6.5,
+    "fiber_g": 2.0,
+    "sodium_mg": 400.0,
+    "glycemic_index": 68,
+    "allergens": [
+      "gluten",
+      "soy"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "olan",
+    "name": "Olan",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "small_katori",
+    "serving_grams": 100.0,
+    "portion_icon": "small_katori",
+    "kcal": 110.0,
+    "protein_g": 3.0,
+    "carbs_g": 10.0,
+    "fats_g": 6.5,
+    "fiber_g": 3.0,
+    "sodium_mg": 150.0,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "palak_paneer",
+    "name": "Palak Paneer",
+    "category": "curry",
+    "diet_type": "veg",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 210.0,
+    "protein_g": 10.0,
+    "carbs_g": 9.0,
+    "fats_g": 15.0,
+    "fiber_g": 3.5,
+    "sodium_mg": 350.0,
+    "glycemic_index": 30,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "high_protein",
+      "low_gi",
+      "high_iron"
+    ]
+  },
+  {
+    "id": "paneer_kuruma",
+    "name": "Paneer Kuruma",
+    "category": "curry",
+    "diet_type": "veg",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 240.0,
+    "protein_g": 9.0,
+    "carbs_g": 12.0,
+    "fats_g": 17.0,
+    "fiber_g": 2.5,
+    "sodium_mg": 350.0,
+    "glycemic_index": 35,
+    "allergens": [
+      "lactose",
+      "nuts"
+    ],
+    "tags": [
+      "high_protein",
+      "low_gi"
+    ]
+  },
+  {
+    "id": "pavakka_pachadi",
+    "name": "Pavakka Pachadi",
+    "category": "sabzi",
+    "diet_type": "veg",
+    "serving_unit": "small_katori",
+    "serving_grams": 75.0,
+    "portion_icon": "small_katori",
+    "kcal": 65.0,
+    "protein_g": 2.0,
+    "carbs_g": 5.0,
+    "fats_g": 4.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 120.0,
+    "glycemic_index": 35,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ]
+  },
+  {
+    "id": "pickle",
+    "name": "Pickle",
+    "category": "other",
+    "diet_type": "vegan",
+    "serving_unit": "spoon",
+    "serving_grams": 15.0,
+    "portion_icon": "thumb",
+    "kcal": 30.0,
+    "protein_g": 0.2,
+    "carbs_g": 2.5,
+    "fats_g": 2.5,
+    "fiber_g": 0.5,
+    "sodium_mg": 400.0,
+    "glycemic_index": 45,
+    "allergens": [
+      "mustard"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "pineapple",
+    "name": "Pineapple",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 75.0,
+    "protein_g": 0.8,
+    "carbs_g": 19.5,
+    "fats_g": 0.2,
+    "fiber_g": 2.0,
+    "sodium_mg": 2.0,
+    "glycemic_index": 59,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ]
+  },
+  {
+    "id": "poha",
+    "name": "Poha",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 100.0,
+    "portion_icon": "katori",
+    "kcal": 180.0,
+    "protein_g": 3.0,
+    "carbs_g": 35.0,
+    "fats_g": 3.5,
+    "fiber_g": 1.5,
+    "sodium_mg": 200.0,
+    "glycemic_index": 55,
+    "allergens": [
+      "nuts"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "pongal",
+    "name": "Pongal",
+    "category": "snack",
+    "diet_type": "veg",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 240.0,
+    "protein_g": 6.0,
+    "carbs_g": 35.0,
+    "fats_g": 8.0,
+    "fiber_g": 3.0,
+    "sodium_mg": 280.0,
+    "glycemic_index": 65,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": []
+  },
+  {
+    "id": "poori",
+    "name": "Poori",
+    "category": "roti",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 35.0,
+    "portion_icon": "piece",
+    "kcal": 120.0,
+    "protein_g": 2.0,
+    "carbs_g": 13.0,
+    "fats_g": 6.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 100.0,
+    "glycemic_index": 70,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "poriyal",
+    "name": "Poriyal",
+    "category": "sabzi",
+    "diet_type": "vegan",
+    "serving_unit": "small_katori",
+    "serving_grams": 75.0,
+    "portion_icon": "small_katori",
+    "kcal": 60.0,
+    "protein_g": 1.5,
+    "carbs_g": 6.0,
+    "fats_g": 3.5,
+    "fiber_g": 3.0,
+    "sodium_mg": 150.0,
+    "glycemic_index": 30,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "porotta",
+    "name": "Porotta",
+    "category": "roti",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 70.0,
+    "portion_icon": "piece",
+    "kcal": 230.0,
+    "protein_g": 5.0,
+    "carbs_g": 35.0,
+    "fats_g": 8.0,
+    "fiber_g": 1.5,
+    "sodium_mg": 280.0,
+    "glycemic_index": 80,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "puli_kolambu",
+    "name": "Puli Kolambu",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 130.0,
+    "protein_g": 3.5,
+    "carbs_g": 15.0,
+    "fats_g": 6.0,
+    "fiber_g": 3.5,
+    "sodium_mg": 380.0,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "puli_sadham",
+    "name": "Puli Sadham",
+    "category": "rice",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 225.0,
+    "protein_g": 4.0,
+    "carbs_g": 40.0,
+    "fats_g": 5.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 350.0,
+    "glycemic_index": 60,
+    "allergens": [
+      "nuts"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "puttu",
+    "name": "Puttu",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 150.0,
+    "portion_icon": "piece",
+    "kcal": 210.0,
+    "protein_g": 3.5,
+    "carbs_g": 45.0,
+    "fats_g": 1.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 50.0,
+    "glycemic_index": 70,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ]
+  },
+  {
+    "id": "raitha",
+    "name": "Raitha",
+    "category": "other",
+    "diet_type": "veg",
+    "serving_unit": "small_katori",
+    "serving_grams": 75.0,
+    "portion_icon": "small_katori",
+    "kcal": 35.0,
+    "protein_g": 2.0,
+    "carbs_g": 4.0,
+    "fats_g": 1.5,
+    "fiber_g": 0.5,
+    "sodium_mg": 50.0,
+    "glycemic_index": 25,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ]
+  },
+  {
+    "id": "rasam",
+    "name": "Rasam",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 45.0,
+    "protein_g": 1.0,
+    "carbs_g": 8.0,
+    "fats_g": 1.0,
+    "fiber_g": 1.5,
+    "sodium_mg": 300.0,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ]
+  },
+  {
+    "id": "rava_idly",
+    "name": "Rava Idly",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 60.0,
+    "portion_icon": "piece",
+    "kcal": 85.0,
+    "protein_g": 2.0,
+    "carbs_g": 14.0,
+    "fats_g": 2.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 180.0,
+    "glycemic_index": 65,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "sambar",
+    "name": "Sambar",
+    "category": "dal",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 110.0,
+    "protein_g": 5.0,
+    "carbs_g": 16.0,
+    "fats_g": 3.0,
+    "fiber_g": 4.0,
+    "sodium_mg": 300.0,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "sambar_sadham",
+    "name": "Sambar Sadham",
+    "category": "rice",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 200.0,
+    "portion_icon": "katori",
+    "kcal": 250.0,
+    "protein_g": 6.5,
+    "carbs_g": 40.0,
+    "fats_g": 7.0,
+    "fiber_g": 4.5,
+    "sodium_mg": 380.0,
+    "glycemic_index": 60,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "sauce",
+    "name": "Sauce",
+    "category": "other",
+    "diet_type": "vegan",
+    "serving_unit": "spoon",
+    "serving_grams": 15.0,
+    "portion_icon": "thumb",
+    "kcal": 15.0,
+    "protein_g": 0.2,
+    "carbs_g": 4.0,
+    "fats_g": 0.0,
+    "fiber_g": 0.0,
+    "sodium_mg": 180.0,
+    "glycemic_index": 60,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "semiya_upma",
+    "name": "Semiya Upma",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 220.0,
+    "protein_g": 4.0,
+    "carbs_g": 38.0,
+    "fats_g": 5.0,
+    "fiber_g": 1.5,
+    "sodium_mg": 350.0,
+    "glycemic_index": 65,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "soya_masala",
+    "name": "Soya Masala",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 180.0,
+    "protein_g": 15.0,
+    "carbs_g": 12.0,
+    "fats_g": 8.0,
+    "fiber_g": 5.0,
+    "sodium_mg": 350.0,
+    "glycemic_index": 40,
+    "allergens": [
+      "soy"
+    ],
+    "tags": [
+      "vegan",
+      "high_protein"
+    ]
+  },
+  {
+    "id": "sprouts",
+    "name": "Sprouts",
+    "category": "salad",
+    "diet_type": "vegan",
+    "serving_unit": "small_katori",
+    "serving_grams": 50.0,
+    "portion_icon": "small_katori",
+    "kcal": 45.0,
+    "protein_g": 3.5,
+    "carbs_g": 8.0,
+    "fats_g": 0.2,
+    "fiber_g": 2.5,
+    "sodium_mg": 5.0,
+    "glycemic_index": 25,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_protein",
+      "low_gi"
+    ]
+  },
+  {
+    "id": "tea",
+    "name": "Tea",
+    "category": "beverage",
+    "diet_type": "veg",
+    "serving_unit": "glass",
+    "serving_grams": 150.0,
+    "portion_icon": "glass",
+    "kcal": 45.0,
+    "protein_g": 1.5,
+    "carbs_g": 6.0,
+    "fats_g": 1.5,
+    "fiber_g": 0.0,
+    "sodium_mg": 30.0,
+    "glycemic_index": 30,
+    "allergens": [
+      "lactose"
+    ],
+    "tags": [
+      "low_gi"
+    ]
+  },
+  {
+    "id": "tomato_rice",
+    "name": "Tomato Rice",
+    "category": "rice",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 200.0,
+    "protein_g": 4.0,
+    "carbs_g": 37.0,
+    "fats_g": 4.0,
+    "fiber_g": 1.5,
+    "sodium_mg": 300.0,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "ulli_theeyal",
+    "name": "Ulli Theeyal",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "small_katori",
+    "serving_grams": 75.0,
+    "portion_icon": "small_katori",
+    "kcal": 95.0,
+    "protein_g": 1.5,
+    "carbs_g": 8.0,
+    "fats_g": 6.5,
+    "fiber_g": 2.0,
+    "sodium_mg": 200.0,
+    "glycemic_index": 45,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "vadakam",
+    "name": "Vadakam",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 15.0,
+    "portion_icon": "piece",
+    "kcal": 65.0,
+    "protein_g": 1.0,
+    "carbs_g": 9.0,
+    "fats_g": 2.5,
+    "fiber_g": 0.5,
+    "sodium_mg": 150.0,
+    "glycemic_index": 70,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "variety_dosa",
+    "name": "Variety Dosa",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "piece",
+    "serving_grams": 80.0,
+    "portion_icon": "piece",
+    "kcal": 140.0,
+    "protein_g": 3.5,
+    "carbs_g": 20.0,
+    "fats_g": 5.0,
+    "fiber_g": 2.0,
+    "sodium_mg": 220.0,
+    "glycemic_index": 55,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "veg_biryani",
+    "name": "Veg Biryani",
+    "category": "rice",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 200.0,
+    "portion_icon": "katori",
+    "kcal": 290.0,
+    "protein_g": 6.0,
+    "carbs_g": 45.0,
+    "fats_g": 9.5,
+    "fiber_g": 4.0,
+    "sodium_mg": 450.0,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "veg_kadai",
+    "name": "Veg Kadai",
+    "category": "curry",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 185.0,
+    "protein_g": 5.0,
+    "carbs_g": 16.0,
+    "fats_g": 11.5,
+    "fiber_g": 5.0,
+    "sodium_mg": 350.0,
+    "glycemic_index": 50,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "high_fiber"
+    ]
+  },
+  {
+    "id": "veg_pulao",
+    "name": "Veg Pulao",
+    "category": "rice",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 220.0,
+    "protein_g": 4.5,
+    "carbs_g": 35.0,
+    "fats_g": 6.5,
+    "fiber_g": 3.0,
+    "sodium_mg": 300.0,
+    "glycemic_index": 65,
+    "allergens": [],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "veg_semiya_upma",
+    "name": "Veg Semiya Upma",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 210.0,
+    "protein_g": 5.0,
+    "carbs_g": 36.0,
+    "fats_g": 5.0,
+    "fiber_g": 3.0,
+    "sodium_mg": 300.0,
+    "glycemic_index": 60,
+    "allergens": [
+      "gluten"
+    ],
+    "tags": [
+      "vegan"
+    ]
+  },
+  {
+    "id": "watermelon",
+    "name": "Watermelon",
+    "category": "snack",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 45.0,
+    "protein_g": 0.9,
+    "carbs_g": 11.0,
+    "fats_g": 0.2,
+    "fiber_g": 0.6,
+    "sodium_mg": 2.0,
+    "glycemic_index": 72,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat",
+      "low_sodium"
+    ]
+  },
+  {
+    "id": "white_rice",
+    "name": "White Rice",
+    "category": "rice",
+    "diet_type": "vegan",
+    "serving_unit": "katori",
+    "serving_grams": 150.0,
+    "portion_icon": "katori",
+    "kcal": 195.0,
+    "protein_g": 4.0,
+    "carbs_g": 43.0,
+    "fats_g": 0.5,
+    "fiber_g": 1.0,
+    "sodium_mg": 5.0,
+    "glycemic_index": 73,
+    "allergens": [],
+    "tags": [
+      "vegan",
+      "low_fat"
+    ]
+  }
+]
