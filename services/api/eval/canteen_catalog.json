@@ -1,0 +1,7 @@
+[
+  { "dish_id": "boiled_egg", "cost_inr": 8 },
+  { "dish_id": "milk", "cost_inr": 15 },
+  { "dish_id": "sprouts", "cost_inr": 20 },
+  { "dish_id": "banana", "cost_inr": 10 },
+  { "dish_id": "curd", "cost_inr": 12 }
+]

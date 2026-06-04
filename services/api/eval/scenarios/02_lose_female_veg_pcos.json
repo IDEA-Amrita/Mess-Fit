@@ -1,0 +1,33 @@
+{
+  "id": "lose_female_veg_pcos",
+  "description": "Overweight 21y female with PCOS, fat-loss goal, lacto-vegetarian. PCOS bumps protein (2.1 g/kg) and shifts fats up; the plan must stay in a calorie deficit while favouring low-GI / high-fibre dishes. This is a deliberately HARD protein case: a veg mess on a deficit cannot reach the full protein target from food alone, so the plan should max mess protein and lean on the small canteen budget (sprouts/milk) for the rest — and still flag any remaining gap rather than failing.",
+  "user": {
+    "sex": "female",
+    "age": 21,
+    "height_cm": 160,
+    "weight_kg": 68,
+    "goal": "lose",
+    "target_rate_kg_per_week": -0.4,
+    "activity_level": 2,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": ["pcos"],
+    "canteen_budget_inr": 40
+  },
+  "menu": {
+    "breakfast": ["dosa", "sambar", "coconut_chutney", "buttermilk"],
+    "lunch": ["matta_rice", "sambar", "rasam", "cheera_poriyal", "curd", "kadala_curry"],
+    "snack": ["tea", "sprouts"],
+    "dinner": ["chapathi", "dal", "palak_paneer", "cut_vegetables", "curd"]
+  },
+  "canteen": ["sprouts", "milk", "curd"],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "max_portions_per_meal": 6,
+    "no_dish_more_than_2x": true,
+    "diet_respected": true,
+    "feasible": true
+  }
+}
