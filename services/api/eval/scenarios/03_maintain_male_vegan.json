@@ -1,0 +1,33 @@
+{
+  "id": "maintain_male_vegan",
+  "description": "Normal-BMI 22y vegan male, maintenance. Diet filter is the star here: every dairy dish on the menu (curd, milk, paneer, buttermilk) must be excluded, leaving only vegan dishes. Tests that diet_type='vegan' is the strictest filter.",
+  "user": {
+    "sex": "male",
+    "age": 22,
+    "height_cm": 172,
+    "weight_kg": 64,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "vegan",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 25
+  },
+  "menu": {
+    "breakfast": ["idly", "sambar", "coconut_chutney", "banana", "milk"],
+    "lunch": ["white_rice", "sambar", "rasam", "poriyal", "curd", "green_gram_curry"],
+    "snack": ["tea", "medu_vada", "sprouts"],
+    "dinner": ["chapathi", "dal", "aloo_masala", "matta_rice", "kadala_curry"]
+  },
+  "canteen": ["sprouts", "banana"],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": ["milk", "curd", "tea"],
+    "max_portions_per_meal": 6,
+    "no_dish_more_than_2x": true,
+    "diet_respected": true,
+    "feasible": true
+  }
+}

@@ -15,6 +15,7 @@ dependencies = [
     "opentelemetry-instrumentation-fastapi>=0.62b1",
     "opentelemetry-sdk>=1.41.1",
     "psycopg2-binary>=2.9.12",
+    "pulp>=3.3.2",
     "pydantic>=2.13.4",
     "pydantic-settings>=2.14.1",
     "pyjwt[crypto]>=2.12.1",
