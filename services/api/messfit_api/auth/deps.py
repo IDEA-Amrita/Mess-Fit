@@ -110,7 +110,7 @@ def _verify_token(token: str) -> dict[str, Any]:
 
 # ─── FastAPI dependency ───────────────────────────────────────────────
 
-K
+
 async def get_current_user_id(authorization: str = Header(...)) -> str:
     """Extract and validate the user ID from the Authorization header."""
     if not authorization.startswith("Bearer "):
