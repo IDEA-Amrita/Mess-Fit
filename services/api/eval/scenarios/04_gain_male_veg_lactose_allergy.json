@@ -1,0 +1,33 @@
+{
+  "id": "gain_male_veg_lactose_allergy",
+  "description": "20y male, lean-gain, lactose-intolerant lacto-vegetarian. The allergen filter must drop every lactose-containing dish (milk, curd, paneer, buttermilk, raitha) even though his diet would otherwise allow them. Protein then has to come from legumes + canteen eggs are NOT allowed (veg), so soya/dal/green-gram carry the load.",
+  "user": {
+    "sex": "male",
+    "age": 20,
+    "height_cm": 178,
+    "weight_kg": 60,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.25,
+    "activity_level": 4,
+    "diet_type": "veg",
+    "allergies": ["lactose"],
+    "conditions": [],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": ["dosa", "sambar", "coconut_chutney", "banana", "milk"],
+    "lunch": ["white_rice", "sambar", "rasam", "poriyal", "curd", "soya_masala"],
+    "snack": ["tea", "sprouts", "nentra_banana"],
+    "dinner": ["chapathi", "dal_fry", "green_gram_curry", "matta_rice", "buttermilk"]
+  },
+  "canteen": ["sprouts", "banana"],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": ["lactose"],
+    "must_exclude_dish_ids": ["milk", "curd", "buttermilk", "tea"],
+    "max_portions_per_meal": 6,
+    "no_dish_more_than_2x": true,
+    "diet_respected": true,
+    "feasible": true
+  }
+}

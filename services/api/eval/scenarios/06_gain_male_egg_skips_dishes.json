@@ -1,0 +1,33 @@
+{
+  "id": "gain_male_egg_skips_dishes",
+  "description": "Same lean-gain male as scenario 1, but today he marked three dishes 'not available' (the dish_exclusions flow from Phase 2). The optimizer must treat skip_dish_ids exactly like they were never on the menu and still build a valid plan from what remains.",
+  "user": {
+    "sex": "male",
+    "age": 19,
+    "height_cm": 175,
+    "weight_kg": 56,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.25,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 40
+  },
+  "menu": {
+    "breakfast": ["idly", "sambar", "coconut_chutney", "banana", "milk"],
+    "lunch": ["white_rice", "sambar", "rasam", "poriyal", "curd", "appalam", "kadala_curry"],
+    "snack": ["tea", "medu_vada"],
+    "dinner": ["chapathi", "dal", "aloo_masala", "white_rice", "curd", "green_gram_curry"]
+  },
+  "canteen": ["boiled_egg", "milk"],
+  "skip_dish_ids": ["kadala_curry", "medu_vada", "aloo_masala"],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": ["kadala_curry", "medu_vada", "aloo_masala"],
+    "max_portions_per_meal": 6,
+    "no_dish_more_than_2x": true,
+    "diet_respected": true,
+    "feasible": true
+  }
+}
