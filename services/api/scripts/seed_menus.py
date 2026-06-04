@@ -50,7 +50,7 @@ logger = logging.getLogger("seed_menus")
 # ---------------------------------------------------------------------------
 MENUS_DIR = _SCRIPT_DIR / "data" / "menus"
 
-VALID_MEAL_TYPES = {"breakfast", "lunch", "dinner", "snacks"}
+VALID_MEAL_TYPES = {"breakfast", "lunch", "dinner", "snack"}
 VALID_DAYS = set(range(7))  # 0=Monday … 6=Sunday
 
 
