@@ -134,12 +134,21 @@ class PlateItem:
 
 @dataclass
 class GapFill:
-    """A canteen suggestion to close a remaining macro gap."""
+    """A canteen suggestion to close a remaining macro gap.
+
+    Carries its own macro contribution so the output is self-contained — the
+    UI and the eval add gap-fills into the day's totals without re-reading
+    the canteen catalog.
+    """
 
     item_id: str
     name: str
     portions: float
     cost_inr: int
+    kcal: float
+    protein_g: float
+    carbs_g: float
+    fats_g: float
     text: str
 
 

@@ -10,24 +10,58 @@
     "target_rate_kg_per_week": 0.25,
     "activity_level": 4,
     "diet_type": "veg",
-    "allergies": ["lactose"],
+    "allergies": [
+      "lactose"
+    ],
     "conditions": [],
     "canteen_budget_inr": 30
   },
   "menu": {
-    "breakfast": ["dosa", "sambar", "coconut_chutney", "banana", "milk"],
-    "lunch": ["white_rice", "sambar", "rasam", "poriyal", "curd", "soya_masala"],
-    "snack": ["tea", "sprouts", "nentra_banana"],
-    "dinner": ["chapathi", "dal_fry", "green_gram_curry", "matta_rice", "buttermilk"]
+    "breakfast": [
+      "dosa",
+      "sambar",
+      "coconut_chutney",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "rasam",
+      "poriyal",
+      "curd",
+      "soya_masala"
+    ],
+    "snack": [
+      "tea",
+      "sprouts",
+      "nentra_banana"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal_fry",
+      "green_gram_curry",
+      "matta_rice",
+      "buttermilk"
+    ]
   },
-  "canteen": ["sprouts", "banana"],
+  "canteen": [
+    "sprouts",
+    "banana"
+  ],
   "skip_dish_ids": [],
   "expected_properties": {
-    "must_exclude_allergens": ["lactose"],
-    "must_exclude_dish_ids": ["milk", "curd", "buttermilk", "tea"],
-    "max_portions_per_meal": 6,
-    "no_dish_more_than_2x": true,
+    "must_exclude_allergens": [
+      "lactose"
+    ],
+    "must_exclude_dish_ids": [
+      "milk",
+      "curd",
+      "buttermilk",
+      "tea"
+    ],
     "diet_respected": true,
-    "feasible": true
+    "feasible": true,
+    "respects_portion_caps": true
   }
 }
