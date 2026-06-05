@@ -15,19 +15,48 @@
     "canteen_budget_inr": 25
   },
   "menu": {
-    "breakfast": ["idly", "sambar", "coconut_chutney", "banana", "milk"],
-    "lunch": ["white_rice", "sambar", "rasam", "poriyal", "curd", "green_gram_curry"],
-    "snack": ["tea", "medu_vada", "sprouts"],
-    "dinner": ["chapathi", "dal", "aloo_masala", "matta_rice", "kadala_curry"]
+    "breakfast": [
+      "idly",
+      "sambar",
+      "coconut_chutney",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "rasam",
+      "poriyal",
+      "curd",
+      "green_gram_curry"
+    ],
+    "snack": [
+      "tea",
+      "medu_vada",
+      "sprouts"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "aloo_masala",
+      "matta_rice",
+      "kadala_curry"
+    ]
   },
-  "canteen": ["sprouts", "banana"],
+  "canteen": [
+    "sprouts",
+    "banana"
+  ],
   "skip_dish_ids": [],
   "expected_properties": {
     "must_exclude_allergens": [],
-    "must_exclude_dish_ids": ["milk", "curd", "tea"],
-    "max_portions_per_meal": 6,
-    "no_dish_more_than_2x": true,
+    "must_exclude_dish_ids": [
+      "milk",
+      "curd",
+      "tea"
+    ],
     "diet_respected": true,
-    "feasible": true
+    "feasible": true,
+    "respects_portion_caps": true
   }
 }
