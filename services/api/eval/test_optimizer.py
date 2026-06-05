@@ -29,6 +29,7 @@ import pytest
 
 from messfit_api.optimizer import optimize
 from messfit_api.optimizer.contracts import DIET_ALLOWED
+from messfit_api.optimizer.solver import MAX_SERVINGS_PER_MEAL, portion_cap
 
 from .loader import LoadedScenario, all_scenario_paths, load_catalog, load_scenario_file
 
@@ -141,22 +142,29 @@ def test_excluded_dishes_absent(scenario: LoadedScenario, result):
     assert not leaked, f"{scenario.id}: plan contains excluded dishes {leaked}"
 
 
-def test_no_dish_more_than_twice(scenario: LoadedScenario, result):
-    if not scenario.expected.get("no_dish_more_than_2x", True):
+def test_respects_portion_caps(scenario: LoadedScenario, result):
+    """No dish exceeds its unit-aware per-day serving cap.
+
+    Replaces the old blunt "≤2× any dish" rule: a single idli (piece) and a
+    katori of curry are different "1 portions", so the cap is unit-aware and
+    comes straight from the solver (single source of truth).
+    """
+    if not scenario.expected.get("respects_portion_caps", True):
         return
+    catalog = load_catalog()
     per_dish: dict[str, float] = {}
     for item in _all_items(result.plan):
         per_dish[item.dish_id] = per_dish.get(item.dish_id, 0.0) + item.portions
     for dish_id, portions in per_dish.items():
-        assert portions <= 2.0 + 1e-6, (
-            f"{scenario.id}: {dish_id} served {portions} portions (>2× per day)"
+        cap = portion_cap(catalog[dish_id], scenario.input.conditions)
+        assert portions <= cap + 1e-6, (
+            f"{scenario.id}: {dish_id} served {portions} portions (cap {cap})"
         )
 
 
 def test_max_portions_per_meal(scenario: LoadedScenario, result):
-    cap = scenario.expected.get("max_portions_per_meal")
-    if cap is None:
-        return
+    # Scenario may tighten the cap; otherwise the solver's own limit applies.
+    cap = scenario.expected.get("max_portions_per_meal", MAX_SERVINGS_PER_MEAL)
     for meal_type, items in result.plan.items():
         total = sum(i.portions for i in items)
         assert total <= cap + 1e-6, (

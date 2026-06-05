@@ -11,23 +11,50 @@
     "activity_level": 2,
     "diet_type": "egg",
     "allergies": [],
-    "conditions": ["diabetes"],
+    "conditions": [
+      "diabetes"
+    ],
     "canteen_budget_inr": 25
   },
   "menu": {
-    "breakfast": ["idly", "sambar", "coconut_chutney", "egg_roast"],
-    "lunch": ["matta_rice", "white_rice", "sambar", "rasam", "cheera_poriyal", "curd", "chana_masala"],
-    "snack": ["tea", "sprouts"],
-    "dinner": ["chapathi", "dal", "green_gram_curry", "cut_vegetables", "curd"]
+    "breakfast": [
+      "idly",
+      "sambar",
+      "coconut_chutney",
+      "egg_roast"
+    ],
+    "lunch": [
+      "matta_rice",
+      "white_rice",
+      "sambar",
+      "rasam",
+      "cheera_poriyal",
+      "curd",
+      "chana_masala"
+    ],
+    "snack": [
+      "tea",
+      "sprouts"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "green_gram_curry",
+      "cut_vegetables",
+      "curd"
+    ]
   },
-  "canteen": ["boiled_egg", "sprouts"],
+  "canteen": [
+    "boiled_egg",
+    "sprouts"
+  ],
   "skip_dish_ids": [],
   "expected_properties": {
     "must_exclude_allergens": [],
     "must_exclude_dish_ids": [],
-    "max_portions_per_meal": 6,
-    "no_dish_more_than_2x": true,
     "diet_respected": true,
-    "feasible": true
+    "feasible": true,
+    "respects_portion_caps": true,
+    "protein_min_g": 90
   }
 }

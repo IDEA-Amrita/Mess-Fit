@@ -11,23 +11,50 @@
     "activity_level": 2,
     "diet_type": "veg",
     "allergies": [],
-    "conditions": ["pcos"],
+    "conditions": [
+      "pcos"
+    ],
     "canteen_budget_inr": 40
   },
   "menu": {
-    "breakfast": ["dosa", "sambar", "coconut_chutney", "buttermilk"],
-    "lunch": ["matta_rice", "sambar", "rasam", "cheera_poriyal", "curd", "kadala_curry"],
-    "snack": ["tea", "sprouts"],
-    "dinner": ["chapathi", "dal", "palak_paneer", "cut_vegetables", "curd"]
+    "breakfast": [
+      "dosa",
+      "sambar",
+      "coconut_chutney",
+      "buttermilk"
+    ],
+    "lunch": [
+      "matta_rice",
+      "sambar",
+      "rasam",
+      "cheera_poriyal",
+      "curd",
+      "kadala_curry"
+    ],
+    "snack": [
+      "tea",
+      "sprouts"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "palak_paneer",
+      "cut_vegetables",
+      "curd"
+    ]
   },
-  "canteen": ["sprouts", "milk", "curd"],
+  "canteen": [
+    "sprouts",
+    "milk",
+    "curd"
+  ],
   "skip_dish_ids": [],
   "expected_properties": {
     "must_exclude_allergens": [],
     "must_exclude_dish_ids": [],
-    "max_portions_per_meal": 6,
-    "no_dish_more_than_2x": true,
     "diet_respected": true,
-    "feasible": true
+    "feasible": true,
+    "respects_portion_caps": true,
+    "protein_min_g": 72
   }
 }
