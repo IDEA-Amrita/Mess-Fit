@@ -150,6 +150,7 @@ def build_scenario(raw: dict[str, Any]) -> LoadedScenario:
         diet_type=user["diet_type"],
         allergies=tuple(user.get("allergies", [])),
         conditions=tuple(user.get("conditions", [])),
+        goal=user.get("goal", "maintain"),
         menu=menu,
         canteen_items=canteen_items,
         canteen_budget_inr=int(user.get("canteen_budget_inr", 0)),

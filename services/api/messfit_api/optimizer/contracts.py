@@ -107,6 +107,7 @@ class OptimizationInput:
     diet_type: str
     allergies: tuple[str, ...]
     conditions: tuple[str, ...]
+    goal: str  # gain | lose | maintain — used by the reasons engine
 
     # What's available
     menu: dict[str, list[Dish]]
