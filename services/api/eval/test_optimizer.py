@@ -178,3 +178,12 @@ def test_canteen_budget_respected(scenario: LoadedScenario, result):
         f"{scenario.id}: canteen spend ₹{spent} exceeds budget "
         f"₹{scenario.input.canteen_budget_inr}"
     )
+
+
+def test_reasons_populated(scenario: LoadedScenario, result):
+    """Every plate item must carry a non-empty reason string."""
+    for meal_type, items in result.plan.items():
+        for item in items:
+            assert item.reason, (
+                f"{scenario.id}: {item.name} at {meal_type} has no reason"
+            )

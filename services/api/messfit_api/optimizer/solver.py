@@ -48,6 +48,7 @@ from .contracts import (
     OptimizationOutput,
     PlateItem,
 )
+from .reasons import annotate
 
 # ─── tunables ─────────────────────────────────────────────────────────
 
@@ -237,9 +238,9 @@ def optimize(inp: OptimizationInput) -> OptimizationOutput:
     status = prob.solve(solver)
     elapsed_ms = int((time.perf_counter() - t0) * 1000)
 
-    return _build_output(
-        x, y, dish_by_id, canteen_by_id, inp, status, elapsed_ms
-    )
+    output = _build_output(x, y, dish_by_id, canteen_by_id, inp, status, elapsed_ms)
+    annotate(output, inp, dish_by_id)
+    return output
 
 
 # ─── output assembly ──────────────────────────────────────────────────
