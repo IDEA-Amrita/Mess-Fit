@@ -7,6 +7,7 @@ import { Sunrise, Sun, Coffee, Moon, RefreshCw, AlertCircle, ShoppingBag } from 
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase";
 import { DashboardShell } from "@/components/DashboardShell";
+import { PortionIcon } from "@/components/PortionIcon";
 import {
   optimizeToday,
   type OptimizationResult,
@@ -107,9 +108,12 @@ function DishCard({ item }: { item: PlateItem }) {
         </span>
       </div>
 
-      <p className="text-xs" style={{ color: "#555" }}>
-        {portionsLabel} {item.serving_unit} · {Math.round(item.grams)}g
-      </p>
+      <div className="flex items-center gap-1.5">
+        <PortionIcon icon={item.portion_icon} size={14} color="#444" />
+        <p className="text-xs" style={{ color: "#555" }}>
+          {portionsLabel} {item.serving_unit} · {Math.round(item.grams)}g
+        </p>
+      </div>
 
       <div
         className="flex items-center gap-3 rounded-lg px-2.5 py-2 text-xs font-medium"
