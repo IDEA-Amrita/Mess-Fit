@@ -1,6 +1,6 @@
 {
   "id": "lose_female_veg_pcos",
-  "description": "Overweight 21y female with PCOS, fat-loss goal, lacto-vegetarian. PCOS bumps protein (2.1 g/kg) and shifts fats up; the plan must stay in a calorie deficit while favouring low-GI / high-fibre dishes. This is a deliberately HARD protein case: a veg mess on a deficit cannot reach the full protein target from food alone, so the plan should max mess protein and lean on the small canteen budget (sprouts/milk) for the rest — and still flag any remaining gap rather than failing.",
+  "description": "Overweight 21y female with PCOS, fat-loss goal, lacto-vegetarian. PCOS bumps protein (2.1 g/kg) and shifts fats up; the plan must stay in a calorie deficit while favouring low-GI / high-fibre dishes. This is a deliberately HARD protein case: a veg mess on a deficit cannot reach the full protein target from food alone, so the plan should max mess protein and lean on the small canteen budget (sprouts/milk) for the rest \u2014 and still flag any remaining gap rather than failing.",
   "user": {
     "sex": "female",
     "age": 21,
@@ -55,6 +55,6 @@
     "diet_respected": true,
     "feasible": true,
     "respects_portion_caps": true,
-    "protein_min_g": 72
+    "protein_min_g": 75
   }
 }
