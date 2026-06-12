@@ -52,15 +52,29 @@ from .reasons import annotate
 
 # ─── tunables ─────────────────────────────────────────────────────────
 
+# Bump on ANY change that alters solver output for the same input (weights,
+# constraints, caps). Part of the Redis cache key, so stale plates from the
+# previous solver are never served after a deploy.
+SOLVER_VERSION = 2
+
 # Objective weights (priority of matching each target). Protein leads — it's
 # the hardest macro to hit from an Indian veg mess and the one that protects
 # body composition. kcal next (bounded hard too); carbs/fats equal. These are
 # sane defaults; the nutritionist grading pass is what ultimately tunes them.
-W_PROTEIN = 3.0
+#
+# W_PROTEIN must outweigh the in-band kcal deviation for protein-efficient
+# canteen items (~6g protein per 100 kcal), otherwise a plate sitting at the
+# kcal target refuses cheap protein top-ups the calorie band still allows.
+W_PROTEIN = 4.0
 W_KCAL = 2.0
 W_CARBS = 1.0
 W_FATS = 1.0
 W_COST = 0.3  # mild preference against overspending the canteen
+
+# Cost penalty is normalised by this fixed scale, NOT the user's budget:
+# normalising by budget makes the same ₹15 purchase costlier for poorer
+# users, discouraging exactly the people who most need each rupee to count.
+COST_NORM_INR = 100.0
 
 # Hard calorie band around target.
 KCAL_LOWER = 0.9
@@ -216,7 +230,7 @@ def optimize(inp: OptimizationInput) -> OptimizationOutput:
         + W_KCAL * _rel(dev_k, inp.daily_kcal)
         + W_CARBS * _rel(dev_c, inp.daily_carbs_g)
         + W_FATS * _rel(dev_f, inp.daily_fats_g)
-        + (W_COST * spend / inp.canteen_budget_inr if inp.canteen_budget_inr > 0 else 0)
+        + (W_COST * spend / COST_NORM_INR if inp.canteen_budget_inr > 0 else 0)
     )
 
     # ── hard constraints ──

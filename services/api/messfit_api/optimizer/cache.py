@@ -1,6 +1,6 @@
 """Redis cache adapter for the plate optimizer.
 
-Cache key  : messfit:plate:{sha256 of canonical OptimizationInput}
+Cache key  : messfit:plate:v{SOLVER_VERSION}:{sha256 of canonical OptimizationInput}
 Cache value: JSON-serialised OptimizationOutput
 TTL        : 24 h (86 400 s)
 
@@ -35,10 +35,10 @@ from .contracts import (
     OptimizationOutput,
     PlateItem,
 )
-from .solver import optimize
+from .solver import SOLVER_VERSION, optimize
 
 _TTL = 86_400        # 24 h in seconds
-_KEY_PREFIX = "messfit:plate:"
+_KEY_PREFIX = f"messfit:plate:v{SOLVER_VERSION}:"
 
 logger = logging.getLogger(__name__)
 
