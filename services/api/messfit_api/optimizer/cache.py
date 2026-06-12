@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from dataclasses import asdict
 from typing import Any
 
@@ -38,6 +39,8 @@ from .solver import optimize
 
 _TTL = 86_400        # 24 h in seconds
 _KEY_PREFIX = "messfit:plate:"
+
+logger = logging.getLogger(__name__)
 
 
 # ── input hashing ──────────────────────────────────────────────────────
@@ -145,14 +148,25 @@ def get_or_optimize(
 ) -> OptimizationOutput:
     """Return a cached plate if available; otherwise solve, cache, and return.
 
-    The caller is responsible for passing a connected Redis client. On any
-    Redis error the exception propagates — the Celery task / endpoint layer
-    decides whether to fall back to an uncached solve or surface the error.
+    The cache is an optimisation, never a dependency: on any Redis error
+    (connection refused, bad credentials, timeout) we log a warning and fall
+    back to an uncached solve so the user still gets a plate.
     """
     key = _KEY_PREFIX + _inp_hash(inp)
-    cached = redis_client.get(key)
+    try:
+        cached = redis_client.get(key)
+    except _redis.RedisError:
+        logger.warning(
+            "Redis GET failed — solving without cache", exc_info=True
+        )
+        return optimize(inp)
     if cached is not None:
         return _output_from_json(cached)
     output = optimize(inp)
-    redis_client.setex(key, _TTL, _output_to_json(output))
+    try:
+        redis_client.setex(key, _TTL, _output_to_json(output))
+    except _redis.RedisError:
+        logger.warning(
+            "Redis SETEX failed — result not cached", exc_info=True
+        )
     return output
