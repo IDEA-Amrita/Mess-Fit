@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOnboardingStore } from "@/lib/onboarding-store";
 import { apiFetch } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
+import { getMesses, type Mess } from "@/lib/mess-api";
 import type { CanteenFreq, Equipment, ProfilePayload, HostelContextPayload } from "@/lib/types";
 
 const canteenOptions: { value: CanteenFreq; label: string }[] = [
@@ -26,6 +27,11 @@ export default function HostelStep() {
   const store = useOnboardingStore();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [messes, setMesses] = useState<Mess[]>([]);
+
+  useEffect(() => {
+    getMesses().then(setMesses).catch(() => {});
+  }, []);
 
   function toggleEquipment(eq: Equipment) {
     const list = store.equipment.includes(eq)
@@ -36,6 +42,10 @@ export default function HostelStep() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!store.mess_id) {
+      setError("Please select your mess to continue.");
+      return;
+    }
     setError(null);
     setSubmitting(true);
 
@@ -104,6 +114,37 @@ export default function HostelStep() {
         <p className="mt-1 text-sm" style={{ color: "#666" }}>
           Your mess, canteen access, and workout setup.
         </p>
+      </div>
+
+      {/* Mess selector */}
+      <div className="flex flex-col gap-2">
+        <label className="text-xs font-medium" style={{ color: "#9a9a9a" }}>
+          Your mess <span style={{ color: "#f87171" }}>*</span>
+        </label>
+        {messes.length === 0 ? (
+          <p className="text-xs" style={{ color: "#555" }}>Loading messes…</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {messes.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => store.setField("mess_id", m.id)}
+                className="rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all"
+                style={
+                  store.mess_id === m.id
+                    ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.4)" }
+                    : { background: "rgba(255,255,255,0.04)", color: "#888", border: "1px solid rgba(255,255,255,0.08)" }
+                }
+              >
+                {m.name}
+                <span className="block text-xs font-normal" style={{ color: store.mess_id === m.id ? "#c47a0b" : "#555" }}>
+                  {m.college}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Canteen frequency */}
