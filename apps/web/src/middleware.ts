@@ -101,10 +101,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Onboarded user trying to revisit onboarding → bounce to dashboard
-  // Exception: /onboarding/targets is the confirmation page shown right
-  // after onboarding completes — allow it.
-  if (onboarded && isOnboardingRoute(pathname) && pathname !== "/onboarding/targets") {
+  // Onboarded user trying to revisit onboarding → bounce to dashboard.
+  // Exceptions:
+  //   /onboarding/targets — shown right after onboarding completes
+  //   /onboarding/hostel  — doubles as "update mess / hostel context" for
+  //                         users who need to fix or change their mess
+  if (
+    onboarded &&
+    isOnboardingRoute(pathname) &&
+    pathname !== "/onboarding/targets" &&
+    pathname !== "/onboarding/hostel"
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
