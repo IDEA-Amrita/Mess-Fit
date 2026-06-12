@@ -31,6 +31,42 @@ export default function HostelStep() {
 
   useEffect(() => {
     getMesses().then(setMesses).catch(() => {});
+
+    // Pre-populate store from API so re-entry ("update mess") doesn't overwrite
+    // the user's real profile with store defaults.
+    async function loadExisting() {
+      const { setField } = useOnboardingStore.getState();
+      const [profileResult, hostelResult] = await Promise.allSettled([
+        apiFetch<ProfilePayload & { activity_level: number }>("/api/v1/profile/me"),
+        apiFetch<HostelContextPayload>("/api/v1/profile/hostel-context"),
+      ]);
+      if (profileResult.status === "fulfilled") {
+        const p = profileResult.value;
+        setField("dob", p.dob);
+        setField("sex", p.sex);
+        setField("height_cm", p.height_cm);
+        setField("current_weight_kg", p.current_weight_kg);
+        setField("target_weight_kg", p.target_weight_kg);
+        setField("target_rate_kg_per_week", p.target_rate_kg_per_week);
+        setField("goal", p.goal);
+        setField("activity_level", p.activity_level);
+        setField("diet_type", p.diet_type);
+        setField("allergies", p.allergies);
+        setField("conditions", p.conditions);
+      }
+      if (hostelResult.status === "fulfilled") {
+        const h = hostelResult.value;
+        setField("mess_id", h.mess_id);
+        setField("canteen_freq", h.canteen_freq);
+        setField("canteen_typical_spend_inr", h.canteen_typical_spend_inr);
+        setField("top_up_budget_inr_weekly", h.top_up_budget_inr_weekly);
+        setField("equipment", h.equipment as Equipment[]);
+        setField("workout_minutes_per_day", h.workout_minutes_per_day);
+        setField("workout_days_per_week", h.workout_days_per_week);
+        setField("gym_access_days", h.gym_access_days);
+      }
+    }
+    loadExisting().catch(() => {});
   }, []);
 
   function toggleEquipment(eq: Equipment) {
