@@ -1,0 +1,58 @@
+{
+  "id": "gain_male_egg_kerala_day",
+  "description": "Bulking 20y male on a Kerala day (puttu/kadala). Egg canteen items available to top up protein.",
+  "user": {
+    "sex": "male",
+    "age": 20,
+    "height_cm": 173,
+    "weight_kg": 57,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.35,
+    "activity_level": 4,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 50
+  },
+  "menu": {
+    "breakfast": [
+      "puttu",
+      "kadala_curry",
+      "banana",
+      "tea"
+    ],
+    "lunch": [
+      "matta_rice",
+      "aviyal",
+      "moru_kolumbu",
+      "cheera_poriyal",
+      "pickle",
+      "appalam"
+    ],
+    "snack": [
+      "tea",
+      "nentra_banana"
+    ],
+    "dinner": [
+      "dosa",
+      "green_gram_curry",
+      "sambar",
+      "white_rice"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

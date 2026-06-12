@@ -1,0 +1,51 @@
+{
+  "id": "lose_female_veg_breakfast_heavy",
+  "description": "Cutting female on a breakfast-heavy day (puttu+kadala+pongal) with thin lunch/dinner \u2014 checks kcal doesn't blow up early. Protein floor calibrated to menu reality (soft-floor design: goal-engine protein is unreachable inside the kcal band on this menu).",
+  "user": {
+    "sex": "female",
+    "age": 22,
+    "height_cm": 166,
+    "weight_kg": 73,
+    "goal": "lose",
+    "target_rate_kg_per_week": -0.4,
+    "activity_level": 2,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 20
+  },
+  "menu": {
+    "breakfast": [
+      "puttu",
+      "kadala_curry",
+      "pongal",
+      "milk",
+      "banana"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "poriyal"
+    ],
+    "snack": [
+      "tea"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal"
+    ]
+  },
+  "canteen": [
+    "curd",
+    "sprouts"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true,
+    "protein_min_g": 72
+  }
+}

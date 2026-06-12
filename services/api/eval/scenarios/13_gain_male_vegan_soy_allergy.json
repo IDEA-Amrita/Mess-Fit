@@ -1,0 +1,55 @@
+{
+  "id": "gain_male_vegan_soy_allergy",
+  "description": "Vegan bulker allergic to soy on a soya-masala day \u2014 the single best protein dish is banned; gap-fills limited to vegan canteen.",
+  "user": {
+    "sex": "male",
+    "age": 20,
+    "height_cm": 180,
+    "weight_kg": 60,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.3,
+    "activity_level": 4,
+    "diet_type": "vegan",
+    "allergies": [
+      "soy"
+    ],
+    "conditions": [],
+    "canteen_budget_inr": 40
+  },
+  "menu": {
+    "breakfast": [
+      "semiya_upma",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "soya_masala",
+      "rasam",
+      "poriyal"
+    ],
+    "snack": [
+      "tea",
+      "watermelon"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal_fry",
+      "veg_kadai"
+    ]
+  },
+  "canteen": [
+    "sprouts",
+    "banana"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [
+      "soy"
+    ],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

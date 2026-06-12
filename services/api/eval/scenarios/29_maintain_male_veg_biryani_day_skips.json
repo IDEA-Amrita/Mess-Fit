@@ -1,0 +1,55 @@
+{
+  "id": "maintain_male_veg_biryani_day_skips",
+  "description": "Maintain on biryani day while skipping gobi manchurian and porotta \u2014 the two most calorie-dense items.",
+  "user": {
+    "sex": "male",
+    "age": 21,
+    "height_cm": 171,
+    "weight_kg": 66,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 25
+  },
+  "menu": {
+    "breakfast": [
+      "variety_dosa",
+      "coconut_chutney",
+      "milk"
+    ],
+    "lunch": [
+      "veg_biryani",
+      "raitha",
+      "appalam",
+      "gobi_manchurian"
+    ],
+    "snack": [
+      "tea",
+      "vadakam"
+    ],
+    "dinner": [
+      "porotta",
+      "veg_kadai",
+      "white_rice",
+      "curd"
+    ]
+  },
+  "canteen": [
+    "milk",
+    "curd"
+  ],
+  "skip_dish_ids": [
+    "gobi_manchurian",
+    "porotta"
+  ],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

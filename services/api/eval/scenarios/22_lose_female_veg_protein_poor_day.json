@@ -1,0 +1,53 @@
+{
+  "id": "lose_female_veg_protein_poor_day",
+  "description": "Cutting female on a protein-poor day (no dal at lunch, no paneer). Stresses the soft protein floor + canteen gap-fills. Protein floor calibrated to menu reality (soft-floor design: goal-engine protein is unreachable inside the kcal band on this menu).",
+  "user": {
+    "sex": "female",
+    "age": 21,
+    "height_cm": 163,
+    "weight_kg": 71,
+    "goal": "lose",
+    "target_rate_kg_per_week": -0.35,
+    "activity_level": 2,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 35
+  },
+  "menu": {
+    "breakfast": [
+      "dosa",
+      "coconut_chutney",
+      "tea"
+    ],
+    "lunch": [
+      "white_rice",
+      "rasam",
+      "poriyal",
+      "appalam"
+    ],
+    "snack": [
+      "tea",
+      "vadakam"
+    ],
+    "dinner": [
+      "chapathi",
+      "aloo_masala",
+      "ulli_theeyal"
+    ]
+  },
+  "canteen": [
+    "milk",
+    "curd",
+    "sprouts"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true,
+    "protein_min_g": 38
+  }
+}

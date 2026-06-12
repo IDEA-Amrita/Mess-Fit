@@ -1,0 +1,48 @@
+{
+  "id": "gain_male_egg_zero_budget",
+  "description": "Bulking 19y male with NO canteen budget \u2014 surplus and protein must come entirely from the mess.",
+  "user": {
+    "sex": "male",
+    "age": 19,
+    "height_cm": 174,
+    "weight_kg": 55,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.3,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 0
+  },
+  "menu": {
+    "breakfast": [
+      "pongal",
+      "medu_vada",
+      "sambar"
+    ],
+    "lunch": [
+      "sambar_sadham",
+      "curd",
+      "appalam",
+      "poriyal"
+    ],
+    "snack": [
+      "tea",
+      "pineapple"
+    ],
+    "dinner": [
+      "variety_dosa",
+      "kadala_curry",
+      "white_rice"
+    ]
+  },
+  "canteen": [],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

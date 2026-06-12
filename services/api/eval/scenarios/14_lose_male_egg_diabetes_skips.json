@@ -1,0 +1,65 @@
+{
+  "id": "lose_male_egg_diabetes_skips",
+  "description": "24y male, diabetes, cutting hard, skips white rice and medu vada. Low-GI pressure plus user skips together. Protein floor calibrated to menu reality (soft-floor design: goal-engine protein is unreachable inside the kcal band on this menu).",
+  "user": {
+    "sex": "male",
+    "age": 24,
+    "height_cm": 170,
+    "weight_kg": 85,
+    "goal": "lose",
+    "target_rate_kg_per_week": -0.5,
+    "activity_level": 2,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [
+      "diabetes"
+    ],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "idly",
+      "sambar",
+      "coconut_chutney",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "rasam",
+      "poriyal",
+      "curd",
+      "appalam",
+      "kadala_curry"
+    ],
+    "snack": [
+      "tea",
+      "medu_vada"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "aloo_masala",
+      "white_rice",
+      "curd",
+      "green_gram_curry"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "sprouts"
+  ],
+  "skip_dish_ids": [
+    "white_rice",
+    "medu_vada"
+  ],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true,
+    "protein_min_g": 99
+  }
+}

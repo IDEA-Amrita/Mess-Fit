@@ -1,0 +1,50 @@
+{
+  "id": "gain_male_veg_sparse_menu",
+  "description": "Bulking on an exam-week sparse menu (3 meals, 7 dishes total). Even with a generous canteen budget the mess physically cannot reach the 0.9x surplus band, so the solver returns its best honest under-shoot; kcal range calibrated to menu reality.",
+  "user": {
+    "sex": "male",
+    "age": 20,
+    "height_cm": 177,
+    "weight_kg": 58,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.3,
+    "activity_level": 3,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 60
+  },
+  "menu": {
+    "breakfast": [
+      "idly",
+      "sambar"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "poriyal"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal"
+    ]
+  },
+  "canteen": [
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true,
+    "kcal_within_range": [
+      1950,
+      3080
+    ]
+  }
+}

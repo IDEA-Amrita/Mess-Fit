@@ -1,0 +1,59 @@
+{
+  "id": "maintain_female_veg_sedentary",
+  "description": "Sedentary 19y female (activity 1), maintain. Smallest kcal target in the suite; checks the solver can build a SMALL plate.",
+  "user": {
+    "sex": "female",
+    "age": 19,
+    "height_cm": 157,
+    "weight_kg": 50,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 1,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 20
+  },
+  "menu": {
+    "breakfast": [
+      "idly",
+      "sambar",
+      "coconut_chutney",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "rasam",
+      "poriyal",
+      "curd",
+      "appalam",
+      "kadala_curry"
+    ],
+    "snack": [
+      "tea",
+      "medu_vada"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "aloo_masala",
+      "white_rice",
+      "curd",
+      "green_gram_curry"
+    ]
+  },
+  "canteen": [
+    "milk",
+    "banana"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

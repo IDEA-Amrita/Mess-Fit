@@ -1,0 +1,47 @@
+{
+  "id": "maintain_female_nonveg_sparse",
+  "description": "Non-veg female on the sparse exam-week menu; canteen has to fill real gaps even at maintenance.",
+  "user": {
+    "sex": "female",
+    "age": 21,
+    "height_cm": 160,
+    "weight_kg": 55,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 2,
+    "diet_type": "non_veg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 40
+  },
+  "menu": {
+    "breakfast": [
+      "idly",
+      "sambar"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "poriyal"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

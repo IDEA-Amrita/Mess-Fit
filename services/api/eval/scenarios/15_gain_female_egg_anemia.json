@@ -1,0 +1,56 @@
+{
+  "id": "gain_female_egg_anemia",
+  "description": "19y underweight female with anemia, lean-gain, on an iron-rich day (cheera, palak). Checks high-iron menu works for gain.",
+  "user": {
+    "sex": "female",
+    "age": 19,
+    "height_cm": 155,
+    "weight_kg": 44,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.25,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [
+      "anemia"
+    ],
+    "canteen_budget_inr": 40
+  },
+  "menu": {
+    "breakfast": [
+      "rava_idly",
+      "sambar",
+      "milk"
+    ],
+    "lunch": [
+      "matta_rice",
+      "cheera_poriyal",
+      "cheera_aviyal",
+      "dal"
+    ],
+    "snack": [
+      "tea",
+      "sprouts"
+    ],
+    "dinner": [
+      "chapathi",
+      "palak_paneer",
+      "green_gram_curry"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

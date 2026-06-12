@@ -1,0 +1,58 @@
+{
+  "id": "maintain_female_egg_ibs",
+  "description": "20y female with IBS, maintain, Kerala day. Fibre-heavy menu; plan should stay in band without blowing portions.",
+  "user": {
+    "sex": "female",
+    "age": 20,
+    "height_cm": 159,
+    "weight_kg": 52,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [
+      "ibs"
+    ],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "puttu",
+      "kadala_curry",
+      "banana",
+      "tea"
+    ],
+    "lunch": [
+      "matta_rice",
+      "aviyal",
+      "moru_kolumbu",
+      "cheera_poriyal",
+      "pickle",
+      "appalam"
+    ],
+    "snack": [
+      "tea",
+      "nentra_banana"
+    ],
+    "dinner": [
+      "dosa",
+      "green_gram_curry",
+      "sambar",
+      "white_rice"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "curd",
+    "banana"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}
