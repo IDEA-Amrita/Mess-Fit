@@ -1,0 +1,66 @@
+{
+  "id": "gain_male_egg_eggs_allergy",
+  "description": "Egg-diet user who is ALLERGIC to eggs (diet permits, allergy bans). egg_roast on menu and boiled_egg in canteen must both be excluded.",
+  "user": {
+    "sex": "male",
+    "age": 20,
+    "height_cm": 176,
+    "weight_kg": 59,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.3,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [
+      "eggs"
+    ],
+    "conditions": [],
+    "canteen_budget_inr": 40
+  },
+  "menu": {
+    "breakfast": [
+      "idly",
+      "sambar",
+      "coconut_chutney",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "rasam",
+      "poriyal",
+      "curd",
+      "appalam",
+      "kadala_curry"
+    ],
+    "snack": [
+      "tea",
+      "medu_vada"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "egg_roast",
+      "white_rice",
+      "curd",
+      "green_gram_curry"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [
+      "eggs"
+    ],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

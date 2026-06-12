@@ -1,0 +1,61 @@
+{
+  "id": "lose_male_vegan_gluten_soy",
+  "description": "Vegan cutting with gluten AND soy allergies on a North day \u2014 chapathi/poori/bread/noodles all out; rice+chana must carry it. Protein floor calibrated to menu reality (soft-floor design: goal-engine protein is unreachable inside the kcal band on this menu).",
+  "user": {
+    "sex": "male",
+    "age": 22,
+    "height_cm": 177,
+    "weight_kg": 83,
+    "goal": "lose",
+    "target_rate_kg_per_week": -0.45,
+    "activity_level": 3,
+    "diet_type": "vegan",
+    "allergies": [
+      "gluten",
+      "soy"
+    ],
+    "conditions": [],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "poha",
+      "milk",
+      "banana"
+    ],
+    "lunch": [
+      "chapathi",
+      "chana_masala",
+      "jeera_rice",
+      "raitha",
+      "cut_vegetables"
+    ],
+    "snack": [
+      "tea",
+      "bread",
+      "jam"
+    ],
+    "dinner": [
+      "poori",
+      "palak_paneer",
+      "white_rice",
+      "dal_fry"
+    ]
+  },
+  "canteen": [
+    "sprouts",
+    "banana"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [
+      "gluten",
+      "soy"
+    ],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true,
+    "protein_min_g": 68
+  }
+}

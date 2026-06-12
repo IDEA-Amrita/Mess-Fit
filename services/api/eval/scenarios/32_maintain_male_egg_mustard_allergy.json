@@ -1,0 +1,62 @@
+{
+  "id": "maintain_male_egg_mustard_allergy",
+  "description": "Rare mustard allergy on a Kerala day \u2014 pickle is the only mustard carrier; verifies small-allergen exclusion.",
+  "user": {
+    "sex": "male",
+    "age": 23,
+    "height_cm": 178,
+    "weight_kg": 72,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [
+      "mustard"
+    ],
+    "conditions": [],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "puttu",
+      "kadala_curry",
+      "banana",
+      "tea"
+    ],
+    "lunch": [
+      "matta_rice",
+      "aviyal",
+      "moru_kolumbu",
+      "cheera_poriyal",
+      "pickle",
+      "appalam"
+    ],
+    "snack": [
+      "tea",
+      "nentra_banana"
+    ],
+    "dinner": [
+      "dosa",
+      "green_gram_curry",
+      "sambar",
+      "white_rice"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [
+      "mustard"
+    ],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

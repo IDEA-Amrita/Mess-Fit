@@ -1,0 +1,56 @@
+{
+  "id": "gain_male_veg_age25_active",
+  "description": "25y active male (act 4) bulking on a North day \u2014 top of the age range, large kcal target.",
+  "user": {
+    "sex": "male",
+    "age": 25,
+    "height_cm": 180,
+    "weight_kg": 65,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.35,
+    "activity_level": 4,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 50
+  },
+  "menu": {
+    "breakfast": [
+      "poha",
+      "milk",
+      "banana"
+    ],
+    "lunch": [
+      "chapathi",
+      "chana_masala",
+      "jeera_rice",
+      "raitha",
+      "cut_vegetables"
+    ],
+    "snack": [
+      "tea",
+      "bread",
+      "jam"
+    ],
+    "dinner": [
+      "poori",
+      "palak_paneer",
+      "white_rice",
+      "dal_fry"
+    ]
+  },
+  "canteen": [
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

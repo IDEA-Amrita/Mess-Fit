@@ -1,0 +1,62 @@
+{
+  "id": "maintain_male_nonveg_typical",
+  "description": "Non-veg 22y male, maintain, ordinary South day. Baseline for the most permissive diet.",
+  "user": {
+    "sex": "male",
+    "age": 22,
+    "height_cm": 175,
+    "weight_kg": 70,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "non_veg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "idly",
+      "sambar",
+      "coconut_chutney",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "rasam",
+      "poriyal",
+      "curd",
+      "appalam",
+      "kadala_curry"
+    ],
+    "snack": [
+      "tea",
+      "medu_vada"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "aloo_masala",
+      "white_rice",
+      "curd",
+      "green_gram_curry"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

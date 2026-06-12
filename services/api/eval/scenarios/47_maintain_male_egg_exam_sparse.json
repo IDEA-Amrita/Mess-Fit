@@ -1,0 +1,49 @@
+{
+  "id": "maintain_male_egg_exam_sparse",
+  "description": "Exam-day skeleton menu (bread/jam breakfast, tiny lunch) \u2014 solver must lean on canteen and still hit band.",
+  "user": {
+    "sex": "male",
+    "age": 20,
+    "height_cm": 175,
+    "weight_kg": 64,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 2,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "bread",
+      "jam",
+      "tea",
+      "boiled_egg"
+    ],
+    "lunch": [
+      "white_rice",
+      "dal",
+      "pickle"
+    ],
+    "dinner": [
+      "semiya_upma",
+      "banana"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

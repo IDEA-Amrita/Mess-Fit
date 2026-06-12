@@ -1,0 +1,52 @@
+{
+  "id": "gain_male_vegan_high_activity",
+  "description": "Vegan athlete (act 5) bulking at 0.4 kg/wk \u2014 the hardest protein scenario in the suite; soya + dal + vegan canteen only.",
+  "user": {
+    "sex": "male",
+    "age": 21,
+    "height_cm": 183,
+    "weight_kg": 66,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.4,
+    "activity_level": 5,
+    "diet_type": "vegan",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 60
+  },
+  "menu": {
+    "breakfast": [
+      "semiya_upma",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "soya_masala",
+      "rasam",
+      "poriyal",
+      "green_gram_curry"
+    ],
+    "snack": [
+      "tea",
+      "watermelon"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal_fry",
+      "veg_kadai"
+    ]
+  },
+  "canteen": [
+    "sprouts",
+    "banana"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}
