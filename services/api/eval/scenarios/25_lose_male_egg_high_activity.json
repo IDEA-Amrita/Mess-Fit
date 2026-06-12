@@ -1,0 +1,62 @@
+{
+  "id": "lose_male_egg_high_activity",
+  "description": "Athletic 21y male (activity 5) cutting at max rate. High TDEE means a wide band; checks the plan scales up.",
+  "user": {
+    "sex": "male",
+    "age": 21,
+    "height_cm": 182,
+    "weight_kg": 88,
+    "goal": "lose",
+    "target_rate_kg_per_week": -0.5,
+    "activity_level": 5,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 40
+  },
+  "menu": {
+    "breakfast": [
+      "idly",
+      "sambar",
+      "coconut_chutney",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "rasam",
+      "poriyal",
+      "curd",
+      "appalam",
+      "kadala_curry"
+    ],
+    "snack": [
+      "tea",
+      "medu_vada"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "aloo_masala",
+      "white_rice",
+      "curd",
+      "green_gram_curry"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

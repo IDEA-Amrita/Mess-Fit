@@ -1,0 +1,48 @@
+{
+  "id": "maintain_male_vegan_zero_budget",
+  "description": "Vegan, maintain, zero canteen budget on a soya day \u2014 soya masala is the protein anchor and must carry the plan.",
+  "user": {
+    "sex": "male",
+    "age": 22,
+    "height_cm": 174,
+    "weight_kg": 63,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "vegan",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 0
+  },
+  "menu": {
+    "breakfast": [
+      "semiya_upma",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "soya_masala",
+      "rasam",
+      "poriyal"
+    ],
+    "snack": [
+      "tea",
+      "watermelon"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal_fry",
+      "veg_kadai"
+    ]
+  },
+  "canteen": [],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

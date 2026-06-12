@@ -1,0 +1,58 @@
+{
+  "id": "maintain_male_veg_gerd",
+  "description": "21y male with GERD, maintain, Kerala day. Fried/spicy items present; plan must still land in band.",
+  "user": {
+    "sex": "male",
+    "age": 21,
+    "height_cm": 176,
+    "weight_kg": 68,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": [
+      "gerd"
+    ],
+    "canteen_budget_inr": 25
+  },
+  "menu": {
+    "breakfast": [
+      "puttu",
+      "kadala_curry",
+      "banana",
+      "tea"
+    ],
+    "lunch": [
+      "matta_rice",
+      "aviyal",
+      "moru_kolumbu",
+      "cheera_poriyal",
+      "pickle",
+      "appalam"
+    ],
+    "snack": [
+      "tea",
+      "nentra_banana"
+    ],
+    "dinner": [
+      "dosa",
+      "green_gram_curry",
+      "sambar",
+      "white_rice"
+    ]
+  },
+  "canteen": [
+    "milk",
+    "curd",
+    "banana"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

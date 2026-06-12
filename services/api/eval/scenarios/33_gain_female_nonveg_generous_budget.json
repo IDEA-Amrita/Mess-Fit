@@ -1,0 +1,54 @@
+{
+  "id": "gain_female_nonveg_generous_budget",
+  "description": "Underweight non-veg female with a generous \u20b9100 budget \u2014 checks the solver doesn't overspend just because it can.",
+  "user": {
+    "sex": "female",
+    "age": 21,
+    "height_cm": 167,
+    "weight_kg": 49,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.3,
+    "activity_level": 4,
+    "diet_type": "non_veg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 100
+  },
+  "menu": {
+    "breakfast": [
+      "pongal",
+      "medu_vada",
+      "sambar"
+    ],
+    "lunch": [
+      "sambar_sadham",
+      "curd",
+      "appalam",
+      "poriyal"
+    ],
+    "snack": [
+      "tea",
+      "pineapple"
+    ],
+    "dinner": [
+      "variety_dosa",
+      "kadala_curry",
+      "white_rice"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

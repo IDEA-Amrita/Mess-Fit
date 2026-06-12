@@ -1,0 +1,68 @@
+{
+  "id": "maintain_male_egg_many_skips",
+  "description": "User skips five dishes from an ordinary day \u2014 heavy personal exclusions while staying feasible.",
+  "user": {
+    "sex": "male",
+    "age": 21,
+    "height_cm": 173,
+    "weight_kg": 67,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "idly",
+      "sambar",
+      "coconut_chutney",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "rasam",
+      "poriyal",
+      "curd",
+      "appalam",
+      "kadala_curry"
+    ],
+    "snack": [
+      "tea",
+      "medu_vada"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "aloo_masala",
+      "white_rice",
+      "curd",
+      "green_gram_curry"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [
+    "kadala_curry",
+    "medu_vada",
+    "aloo_masala",
+    "appalam",
+    "coconut_chutney"
+  ],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "id": "lose_female_vegan_pcos_gluten",
+  "description": "Vegan 22y female, PCOS plus gluten allergy, cutting, North day. Hardest female cut in the suite \u2014 tiny feasible set. Protein floor calibrated to menu reality (soft-floor design: goal-engine protein is unreachable inside the kcal band on this menu).",
+  "user": {
+    "sex": "female",
+    "age": 22,
+    "height_cm": 165,
+    "weight_kg": 74,
+    "goal": "lose",
+    "target_rate_kg_per_week": -0.4,
+    "activity_level": 2,
+    "diet_type": "vegan",
+    "allergies": [
+      "gluten"
+    ],
+    "conditions": [
+      "pcos"
+    ],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "poha",
+      "milk",
+      "banana"
+    ],
+    "lunch": [
+      "chapathi",
+      "chana_masala",
+      "jeera_rice",
+      "raitha",
+      "cut_vegetables"
+    ],
+    "snack": [
+      "tea",
+      "bread",
+      "jam"
+    ],
+    "dinner": [
+      "poori",
+      "palak_paneer",
+      "white_rice",
+      "dal_fry"
+    ]
+  },
+  "canteen": [
+    "sprouts",
+    "banana"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [
+      "gluten"
+    ],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true,
+    "protein_min_g": 56
+  }
+}

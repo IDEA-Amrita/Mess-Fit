@@ -1,0 +1,54 @@
+{
+  "id": "gain_male_veg_hypothyroid",
+  "description": "Hypothyroid male bulking \u2014 condition trims the surplus; checks gain still lands in the adjusted band.",
+  "user": {
+    "sex": "male",
+    "age": 20,
+    "height_cm": 170,
+    "weight_kg": 54,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.25,
+    "activity_level": 3,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": [
+      "hypothyroid"
+    ],
+    "canteen_budget_inr": 35
+  },
+  "menu": {
+    "breakfast": [
+      "pongal",
+      "medu_vada",
+      "sambar"
+    ],
+    "lunch": [
+      "sambar_sadham",
+      "curd",
+      "appalam",
+      "poriyal"
+    ],
+    "snack": [
+      "tea",
+      "pineapple"
+    ],
+    "dinner": [
+      "variety_dosa",
+      "kadala_curry",
+      "white_rice"
+    ]
+  },
+  "canteen": [
+    "milk",
+    "curd",
+    "sprouts"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

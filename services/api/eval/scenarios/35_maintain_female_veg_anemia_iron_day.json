@@ -1,0 +1,54 @@
+{
+  "id": "maintain_female_veg_anemia_iron_day",
+  "description": "Anemic female on the iron-rich day; the plan should be feasible and lean on high-iron dishes naturally.",
+  "user": {
+    "sex": "female",
+    "age": 20,
+    "height_cm": 158,
+    "weight_kg": 51,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": [
+      "anemia"
+    ],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "rava_idly",
+      "sambar",
+      "milk"
+    ],
+    "lunch": [
+      "matta_rice",
+      "cheera_poriyal",
+      "cheera_aviyal",
+      "dal"
+    ],
+    "snack": [
+      "tea",
+      "sprouts"
+    ],
+    "dinner": [
+      "chapathi",
+      "palak_paneer",
+      "green_gram_curry"
+    ]
+  },
+  "canteen": [
+    "milk",
+    "curd",
+    "sprouts"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}
