@@ -89,7 +89,10 @@ def test_kcal_within_band(scenario: LoadedScenario, result):
         "kcal_within_range",
         [KCAL_BAND[0] * scenario.daily_kcal, KCAL_BAND[1] * scenario.daily_kcal],
     )
+    # Canteen gap-fills count toward energy — the user eats them too, and the
+    # solver's hard band is enforced over mess + canteen combined.
     total = _totals(result.plan)["kcal"]
+    total += sum(getattr(g, "kcal", 0.0) for g in result.gap_fills)
     assert lo <= total <= hi, (
         f"{scenario.id}: kcal {total:.0f} not in [{lo:.0f},{hi:.0f}]"
     )
