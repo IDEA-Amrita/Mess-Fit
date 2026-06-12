@@ -52,6 +52,11 @@ from .reasons import annotate
 
 # ─── tunables ─────────────────────────────────────────────────────────
 
+# Bump on ANY change that alters solver output for the same input (weights,
+# constraints, caps). Part of the Redis cache key, so stale plates from the
+# previous solver are never served after a deploy.
+SOLVER_VERSION = 2
+
 # Objective weights (priority of matching each target). Protein leads — it's
 # the hardest macro to hit from an Indian veg mess and the one that protects
 # body composition. kcal next (bounded hard too); carbs/fats equal. These are
