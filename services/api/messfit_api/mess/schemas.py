@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Any
+from typing import Any, Literal
 import uuid
 
 from pydantic import BaseModel, Field, ConfigDict
@@ -21,6 +21,7 @@ class DishBase(BaseModel):
     name: str
     name_local: dict[str, Any] = Field(default_factory=dict)
     category: str
+    diet_type: Literal["vegan", "veg", "egg", "non_veg"] = "veg"
     default_serving_unit: str
     default_serving_grams: float
     kcal: float
