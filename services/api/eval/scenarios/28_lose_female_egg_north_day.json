@@ -1,0 +1,55 @@
+{
+  "id": "lose_female_egg_north_day",
+  "description": "Cutting 23y female on a North day. Paneer and dal fry give protein density inside a deficit. Protein floor calibrated to menu reality (soft-floor design: goal-engine protein is unreachable inside the kcal band on this menu).",
+  "user": {
+    "sex": "female",
+    "age": 23,
+    "height_cm": 164,
+    "weight_kg": 76,
+    "goal": "lose",
+    "target_rate_kg_per_week": -0.4,
+    "activity_level": 2,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 25
+  },
+  "menu": {
+    "breakfast": [
+      "poha",
+      "milk",
+      "banana"
+    ],
+    "lunch": [
+      "chapathi",
+      "chana_masala",
+      "jeera_rice",
+      "raitha",
+      "cut_vegetables"
+    ],
+    "snack": [
+      "tea",
+      "bread",
+      "jam"
+    ],
+    "dinner": [
+      "poori",
+      "palak_paneer",
+      "white_rice",
+      "dal_fry"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true,
+    "protein_min_g": 77
+  }
+}

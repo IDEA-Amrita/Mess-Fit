@@ -1,0 +1,53 @@
+{
+  "id": "gain_male_egg_no_snack_meal",
+  "description": "Mess serves only 3 meals today (no snack). The surplus must be packed into fewer, larger meals.",
+  "user": {
+    "sex": "male",
+    "age": 19,
+    "height_cm": 175,
+    "weight_kg": 56,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.3,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 45
+  },
+  "menu": {
+    "breakfast": [
+      "idly",
+      "sambar",
+      "milk",
+      "banana"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "dal",
+      "poriyal",
+      "curd"
+    ],
+    "dinner": [
+      "chapathi",
+      "green_gram_curry",
+      "curd",
+      "white_rice"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

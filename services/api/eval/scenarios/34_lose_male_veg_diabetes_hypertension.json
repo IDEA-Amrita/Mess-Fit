@@ -1,0 +1,63 @@
+{
+  "id": "lose_male_veg_diabetes_hypertension",
+  "description": "25y male with diabetes AND hypertension cutting at max rate \u2014 stacked conditions tighten GI and sodium at once. Protein floor calibrated to menu reality (soft-floor design: goal-engine protein is unreachable inside the kcal band on this menu).",
+  "user": {
+    "sex": "male",
+    "age": 25,
+    "height_cm": 172,
+    "weight_kg": 90,
+    "goal": "lose",
+    "target_rate_kg_per_week": -0.5,
+    "activity_level": 2,
+    "diet_type": "veg",
+    "allergies": [],
+    "conditions": [
+      "diabetes",
+      "hypertension"
+    ],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "idly",
+      "sambar",
+      "coconut_chutney",
+      "banana",
+      "milk"
+    ],
+    "lunch": [
+      "white_rice",
+      "sambar",
+      "rasam",
+      "poriyal",
+      "curd",
+      "appalam",
+      "kadala_curry"
+    ],
+    "snack": [
+      "tea",
+      "medu_vada"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "aloo_masala",
+      "white_rice",
+      "curd",
+      "green_gram_curry"
+    ]
+  },
+  "canteen": [
+    "curd",
+    "sprouts"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true,
+    "protein_min_g": 98
+  }
+}

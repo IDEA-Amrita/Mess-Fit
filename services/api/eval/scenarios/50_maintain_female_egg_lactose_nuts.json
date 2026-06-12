@@ -1,0 +1,58 @@
+{
+  "id": "maintain_female_egg_lactose_nuts",
+  "description": "Egg-diet female allergic to lactose AND nuts \u2014 milk/curd/tea/pongal and lemon rice all banned on a Pongal day.",
+  "user": {
+    "sex": "female",
+    "age": 22,
+    "height_cm": 161,
+    "weight_kg": 53,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [
+      "lactose",
+      "nuts"
+    ],
+    "conditions": [],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "pongal",
+      "medu_vada",
+      "sambar"
+    ],
+    "lunch": [
+      "sambar_sadham",
+      "lemon_rice",
+      "appalam",
+      "poriyal"
+    ],
+    "snack": [
+      "tea",
+      "pineapple"
+    ],
+    "dinner": [
+      "variety_dosa",
+      "kadala_curry",
+      "white_rice"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "sprouts",
+    "banana"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [
+      "lactose",
+      "nuts"
+    ],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

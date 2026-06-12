@@ -1,0 +1,60 @@
+{
+  "id": "gain_female_egg_pcos",
+  "description": "PCOS with a GAIN goal (unusual but valid: underweight PCOS). Low-GI pressure while in surplus.",
+  "user": {
+    "sex": "female",
+    "age": 20,
+    "height_cm": 159,
+    "weight_kg": 47,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.25,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [],
+    "conditions": [
+      "pcos"
+    ],
+    "canteen_budget_inr": 40
+  },
+  "menu": {
+    "breakfast": [
+      "puttu",
+      "kadala_curry",
+      "banana",
+      "tea"
+    ],
+    "lunch": [
+      "matta_rice",
+      "aviyal",
+      "moru_kolumbu",
+      "cheera_poriyal",
+      "pickle",
+      "appalam"
+    ],
+    "snack": [
+      "tea",
+      "nentra_banana"
+    ],
+    "dinner": [
+      "dosa",
+      "green_gram_curry",
+      "sambar",
+      "white_rice"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

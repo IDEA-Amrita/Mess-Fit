@@ -1,0 +1,63 @@
+{
+  "id": "maintain_male_egg_nuts_allergy",
+  "description": "22y male, maintain, egg diet, nuts allergy. Menu deliberately contains poha and lemon rice (nuts) to verify exclusion.",
+  "user": {
+    "sex": "male",
+    "age": 22,
+    "height_cm": 172,
+    "weight_kg": 65,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "egg",
+    "allergies": [
+      "nuts"
+    ],
+    "conditions": [],
+    "canteen_budget_inr": 30
+  },
+  "menu": {
+    "breakfast": [
+      "poha",
+      "milk",
+      "banana"
+    ],
+    "lunch": [
+      "lemon_rice",
+      "white_rice",
+      "sambar",
+      "poriyal",
+      "curd",
+      "kadala_curry"
+    ],
+    "snack": [
+      "tea",
+      "medu_vada"
+    ],
+    "dinner": [
+      "chapathi",
+      "dal",
+      "aloo_masala",
+      "white_rice",
+      "curd",
+      "green_gram_curry"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [
+      "nuts"
+    ],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

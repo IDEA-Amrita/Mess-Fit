@@ -1,0 +1,55 @@
+{
+  "id": "gain_male_nonveg_biryani_day",
+  "description": "Non-veg 21y male bulking on biryani day. Most permissive diet; checks portion caps on calorie-dense rice.",
+  "user": {
+    "sex": "male",
+    "age": 21,
+    "height_cm": 178,
+    "weight_kg": 62,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.4,
+    "activity_level": 4,
+    "diet_type": "non_veg",
+    "allergies": [],
+    "conditions": [],
+    "canteen_budget_inr": 50
+  },
+  "menu": {
+    "breakfast": [
+      "variety_dosa",
+      "coconut_chutney",
+      "milk"
+    ],
+    "lunch": [
+      "veg_biryani",
+      "raitha",
+      "appalam",
+      "gobi_manchurian"
+    ],
+    "snack": [
+      "tea",
+      "vadakam"
+    ],
+    "dinner": [
+      "porotta",
+      "veg_kadai",
+      "white_rice",
+      "curd"
+    ]
+  },
+  "canteen": [
+    "boiled_egg",
+    "milk",
+    "sprouts",
+    "banana",
+    "curd"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "id": "maintain_female_vegan_gluten",
+  "description": "Vegan 21y female with gluten allergy on a North-Indian day \u2014 chapathi/poori/bread all banned; plan must survive on rice + chana.",
+  "user": {
+    "sex": "female",
+    "age": 21,
+    "height_cm": 162,
+    "weight_kg": 54,
+    "goal": "maintain",
+    "target_rate_kg_per_week": 0.0,
+    "activity_level": 3,
+    "diet_type": "vegan",
+    "allergies": [
+      "gluten"
+    ],
+    "conditions": [],
+    "canteen_budget_inr": 20
+  },
+  "menu": {
+    "breakfast": [
+      "poha",
+      "milk",
+      "banana"
+    ],
+    "lunch": [
+      "chapathi",
+      "chana_masala",
+      "jeera_rice",
+      "raitha",
+      "cut_vegetables"
+    ],
+    "snack": [
+      "tea",
+      "bread",
+      "jam"
+    ],
+    "dinner": [
+      "poori",
+      "palak_paneer",
+      "white_rice",
+      "dal_fry"
+    ]
+  },
+  "canteen": [
+    "sprouts",
+    "banana"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [
+      "gluten"
+    ],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "id": "gain_female_veg_lactose_gluten",
+  "description": "Lean-gain female allergic to BOTH lactose and gluten on a North day \u2014 kills milk/curd/paneer/roti at once.",
+  "user": {
+    "sex": "female",
+    "age": 20,
+    "height_cm": 160,
+    "weight_kg": 46,
+    "goal": "gain",
+    "target_rate_kg_per_week": 0.25,
+    "activity_level": 3,
+    "diet_type": "veg",
+    "allergies": [
+      "lactose",
+      "gluten"
+    ],
+    "conditions": [],
+    "canteen_budget_inr": 40
+  },
+  "menu": {
+    "breakfast": [
+      "poha",
+      "milk",
+      "banana"
+    ],
+    "lunch": [
+      "chapathi",
+      "chana_masala",
+      "jeera_rice",
+      "raitha",
+      "cut_vegetables"
+    ],
+    "snack": [
+      "tea",
+      "bread",
+      "jam"
+    ],
+    "dinner": [
+      "poori",
+      "palak_paneer",
+      "white_rice",
+      "dal_fry"
+    ]
+  },
+  "canteen": [
+    "sprouts",
+    "banana"
+  ],
+  "skip_dish_ids": [],
+  "expected_properties": {
+    "must_exclude_allergens": [
+      "lactose",
+      "gluten"
+    ],
+    "must_exclude_dish_ids": [],
+    "diet_respected": true,
+    "feasible": true,
+    "respects_portion_caps": true
+  }
+}
