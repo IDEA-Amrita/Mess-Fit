@@ -328,7 +328,7 @@ function ErrorState({ error }: { error: { message: string; status?: number } }) 
       </div>
       {isOnboarding && (
         <Link
-          href="/onboarding"
+          href="/onboarding/hostel"
           className="rounded-lg px-4 py-2 text-sm font-medium"
           style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b" }}
         >
