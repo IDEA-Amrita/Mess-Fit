@@ -47,6 +47,73 @@ _TestSessionLocal = async_sessionmaker(
 db_module.SessionLocal = _TestSessionLocal
 
 
+# ─── test-data hygiene ────────────────────────────────────────────────
+#
+# The suite runs against the shared dev database (same DATABASE_URL as the
+# app), so catalog rows created by tests would otherwise leak into the
+# app's mess picker. Every test-created mess/dish name must match one of
+# these patterns — add new prefixes here if a test introduces one.
+
+_TEST_MESS_PATTERNS = ("TestMess-%", "Test Mess %", "EmptyMess-%")
+_TEST_DISH_PATTERNS = ("TestDish-%", "Test Dish %", "ScopeDish-%")
+
+
+def _like_any(column: str, patterns: tuple[str, ...]) -> tuple[str, dict[str, str]]:
+    """Build an OR-of-LIKEs clause and its bind params."""
+    clauses = " OR ".join(
+        f"{column} LIKE :{column}_p{i}" for i in range(len(patterns))
+    )
+    params = {f"{column}_p{i}": p for i, p in enumerate(patterns)}
+    return clauses, params
+
+
+async def _purge_test_catalog() -> None:
+    """Delete every mess/dish row the suite created.
+
+    Deletion order respects the FK graph: hostel_contexts.mess_id and
+    mess_menus.dish_id are ON DELETE RESTRICT, so referencing rows must be
+    detached/removed before the catalog rows themselves.
+    """
+    mess_clause, mess_params = _like_any("name", _TEST_MESS_PATTERNS)
+    dish_clause, dish_params = _like_any("name", _TEST_DISH_PATTERNS)
+
+    async with _TestSessionLocal() as session:
+        await session.execute(
+            text(
+                "UPDATE hostel_contexts SET mess_id = NULL WHERE mess_id IN "
+                f"(SELECT id FROM messes WHERE {mess_clause})"
+            ),
+            mess_params,
+        )
+        await session.execute(
+            text(
+                "DELETE FROM mess_menus WHERE mess_id IN "
+                f"(SELECT id FROM messes WHERE {mess_clause}) "
+                "OR dish_id IN "
+                f"(SELECT id FROM dishes WHERE {dish_clause})"
+            ),
+            {**mess_params, **dish_params},
+        )
+        await session.execute(
+            text(f"DELETE FROM dishes WHERE {dish_clause}"), dish_params
+        )
+        await session.execute(
+            text(f"DELETE FROM messes WHERE {mess_clause}"), mess_params
+        )
+        await session.commit()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def purge_test_catalog_after_suite() -> Any:
+    """Run the catalog purge once, after the whole suite finishes.
+
+    Synchronous fixture + asyncio.run keeps it independent of pytest-asyncio
+    loop scoping; NullPool means the fresh event loop gets a fresh connection.
+    """
+    yield
+    asyncio.run(_purge_test_catalog())
+
+
 # ─── auth override ────────────────────────────────────────────────────
 
 

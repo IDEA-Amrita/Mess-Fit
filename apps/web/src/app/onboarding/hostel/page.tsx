@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOnboardingStore } from "@/lib/onboarding-store";
 import { apiFetch } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
+import { getMesses, type Mess } from "@/lib/mess-api";
 import type { CanteenFreq, Equipment, ProfilePayload, HostelContextPayload } from "@/lib/types";
 
 const canteenOptions: { value: CanteenFreq; label: string }[] = [
@@ -26,6 +27,47 @@ export default function HostelStep() {
   const store = useOnboardingStore();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [messes, setMesses] = useState<Mess[]>([]);
+
+  useEffect(() => {
+    getMesses().then(setMesses).catch(() => {});
+
+    // Pre-populate store from API so re-entry ("update mess") doesn't overwrite
+    // the user's real profile with store defaults.
+    async function loadExisting() {
+      const { setField } = useOnboardingStore.getState();
+      const [profileResult, hostelResult] = await Promise.allSettled([
+        apiFetch<ProfilePayload & { activity_level: number }>("/api/v1/profile/me"),
+        apiFetch<HostelContextPayload>("/api/v1/profile/hostel-context"),
+      ]);
+      if (profileResult.status === "fulfilled") {
+        const p = profileResult.value;
+        setField("dob", p.dob);
+        setField("sex", p.sex);
+        setField("height_cm", p.height_cm);
+        setField("current_weight_kg", p.current_weight_kg);
+        setField("target_weight_kg", p.target_weight_kg);
+        setField("target_rate_kg_per_week", p.target_rate_kg_per_week);
+        setField("goal", p.goal);
+        setField("activity_level", p.activity_level);
+        setField("diet_type", p.diet_type);
+        setField("allergies", p.allergies);
+        setField("conditions", p.conditions);
+      }
+      if (hostelResult.status === "fulfilled") {
+        const h = hostelResult.value;
+        setField("mess_id", h.mess_id);
+        setField("canteen_freq", h.canteen_freq);
+        setField("canteen_typical_spend_inr", h.canteen_typical_spend_inr);
+        setField("top_up_budget_inr_weekly", h.top_up_budget_inr_weekly);
+        setField("equipment", h.equipment as Equipment[]);
+        setField("workout_minutes_per_day", h.workout_minutes_per_day);
+        setField("workout_days_per_week", h.workout_days_per_week);
+        setField("gym_access_days", h.gym_access_days);
+      }
+    }
+    loadExisting().catch(() => {});
+  }, []);
 
   function toggleEquipment(eq: Equipment) {
     const list = store.equipment.includes(eq)
@@ -36,6 +78,10 @@ export default function HostelStep() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!store.mess_id) {
+      setError("Please select your mess to continue.");
+      return;
+    }
     setError(null);
     setSubmitting(true);
 
@@ -104,6 +150,37 @@ export default function HostelStep() {
         <p className="mt-1 text-sm" style={{ color: "#666" }}>
           Your mess, canteen access, and workout setup.
         </p>
+      </div>
+
+      {/* Mess selector */}
+      <div className="flex flex-col gap-2">
+        <label className="text-xs font-medium" style={{ color: "#9a9a9a" }}>
+          Your mess <span style={{ color: "#f87171" }}>*</span>
+        </label>
+        {messes.length === 0 ? (
+          <p className="text-xs" style={{ color: "#555" }}>Loading messes…</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {messes.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => store.setField("mess_id", m.id)}
+                className="rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all"
+                style={
+                  store.mess_id === m.id
+                    ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.4)" }
+                    : { background: "rgba(255,255,255,0.04)", color: "#888", border: "1px solid rgba(255,255,255,0.08)" }
+                }
+              >
+                {m.name}
+                <span className="block text-xs font-normal" style={{ color: store.mess_id === m.id ? "#c47a0b" : "#555" }}>
+                  {m.college}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Canteen frequency */}
