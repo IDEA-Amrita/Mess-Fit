@@ -22,7 +22,9 @@ from .schemas import NutritionEstimate, ParsedMenu
 logger = logging.getLogger(__name__)
 
 GEMINI_MODEL = "gemini-2.0-flash"
-GROQ_VISION_MODEL = "llama-3.2-90b-vision-preview"
+# Groq's llama-3.2-*-vision-preview models were decommissioned; Llama 4 Scout
+# is the current multimodal model on Groq (verified against the live models list).
+GROQ_VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 _PROMPT = """\
 Extract this Indian college mess menu into structured JSON.
