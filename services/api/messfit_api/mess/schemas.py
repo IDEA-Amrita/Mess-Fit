@@ -78,3 +78,125 @@ class DishExclusionIn(BaseModel):
 
 class DishExclusionOut(DishExclusionIn):
     model_config = ConfigDict(from_attributes=True)
+
+
+# ─── OCR (Phase 4) ────────────────────────────────────────────────────
+
+MealTypeLiteral = Literal["breakfast", "lunch", "snack", "dinner"]
+OcrStatus = Literal[
+    "pending", "processing", "ready_for_review", "approved", "rejected", "failed"
+]
+
+
+class ParsedDish(BaseModel):
+    """One dish as the vision model read it off the menu board."""
+
+    name: str
+    # The model flags cells it wasn't sure about; the review UI highlights these.
+    confidence_low: bool = False
+
+
+class ParsedMeal(BaseModel):
+    type: MealTypeLiteral
+    dishes: list[ParsedDish] = Field(default_factory=list)
+
+
+class ParsedDay(BaseModel):
+    # Day name as printed ("Monday"); the approve step maps it to 0-6.
+    day: str
+    meals: list[ParsedMeal] = Field(default_factory=list)
+
+
+class ParsedMenu(BaseModel):
+    """The structured weekly menu the vision model returns. The strict shape
+    the LLM output is validated against — anything off-schema fails parsing."""
+
+    weekly: list[ParsedDay] = Field(default_factory=list)
+
+
+class DishMatch(BaseModel):
+    """A fuzzy-match candidate for a parsed dish name against the catalog."""
+
+    dish_id: uuid.UUID
+    name: str
+    score: float  # 0.0–1.0; higher is closer
+
+
+# DB CHECK-constrained vocabularies (migration 004/006) — Literals so an
+# off-enum LLM estimate fails validation and falls back to a safe default.
+DishCategory = Literal[
+    "rice", "roti", "curry", "sabzi", "dal", "snack", "sweet",
+    "beverage", "protein", "salad", "other",
+]
+PortionIcon = Literal[
+    "katori", "small_katori", "fist", "palm", "thumb",
+    "cupped_hand", "plate_quarter", "piece", "glass",
+]
+DietTypeLiteral = Literal["vegan", "veg", "egg", "non_veg"]
+
+
+class NutritionEstimate(BaseModel):
+    """Gemini-estimated nutrition for an unmatched dish, created as a draft
+    (confidence='estimated') at approve time and queued for verification."""
+
+    category: DishCategory = "other"
+    default_serving_unit: str = "katori"
+    default_serving_grams: float = Field(default=150, gt=0)
+    kcal: float = Field(default=150, ge=0)
+    protein_g: float = Field(default=4, ge=0)
+    carbs_g: float = Field(default=25, ge=0)
+    fats_g: float = Field(default=4, ge=0)
+    diet_type: DietTypeLiteral = "veg"
+    portion_icon: PortionIcon = "katori"
+
+
+class ReviewedDish(BaseModel):
+    """A dish in the admin-reviewed menu at approve time.
+
+    ``dish_id`` set ⇒ matched to an existing catalog dish. ``dish_id`` null ⇒
+    a new dish to create as a draft (Gemini-estimated nutrition, confidence
+    'estimated') before linking into mess_menus.
+    """
+
+    name: str
+    dish_id: uuid.UUID | None = None
+
+
+class ReviewedMeal(BaseModel):
+    type: MealTypeLiteral
+    dishes: list[ReviewedDish] = Field(default_factory=list)
+
+
+class ReviewedDay(BaseModel):
+    day_of_week: int = Field(ge=0, le=6)
+    meals: list[ReviewedMeal] = Field(default_factory=list)
+
+
+class OcrApproveIn(BaseModel):
+    """Body for approving an OCR job into mess_menus."""
+
+    effective_from: date
+    weekly: list[ReviewedDay] = Field(default_factory=list)
+
+
+class OcrJobOut(BaseModel):
+    id: uuid.UUID
+    mess_id: uuid.UUID
+    status: OcrStatus
+    parsed_result: dict[str, Any] | None = None
+    error_message: str | None = None
+    # Short-lived signed URL for the review UI; minted on read, not stored.
+    image_url: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OcrJobSummary(BaseModel):
+    """Lighter shape for the job list (no parsed_result blob)."""
+
+    id: uuid.UUID
+    mess_id: uuid.UUID
+    status: OcrStatus
+    error_message: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
