@@ -122,6 +122,34 @@ class DishMatch(BaseModel):
     score: float  # 0.0–1.0; higher is closer
 
 
+# DB CHECK-constrained vocabularies (migration 004/006) — Literals so an
+# off-enum LLM estimate fails validation and falls back to a safe default.
+DishCategory = Literal[
+    "rice", "roti", "curry", "sabzi", "dal", "snack", "sweet",
+    "beverage", "protein", "salad", "other",
+]
+PortionIcon = Literal[
+    "katori", "small_katori", "fist", "palm", "thumb",
+    "cupped_hand", "plate_quarter", "piece", "glass",
+]
+DietTypeLiteral = Literal["vegan", "veg", "egg", "non_veg"]
+
+
+class NutritionEstimate(BaseModel):
+    """Gemini-estimated nutrition for an unmatched dish, created as a draft
+    (confidence='estimated') at approve time and queued for verification."""
+
+    category: DishCategory = "other"
+    default_serving_unit: str = "katori"
+    default_serving_grams: float = Field(default=150, gt=0)
+    kcal: float = Field(default=150, ge=0)
+    protein_g: float = Field(default=4, ge=0)
+    carbs_g: float = Field(default=25, ge=0)
+    fats_g: float = Field(default=4, ge=0)
+    diet_type: DietTypeLiteral = "veg"
+    portion_icon: PortionIcon = "katori"
+
+
 class ReviewedDish(BaseModel):
     """A dish in the admin-reviewed menu at approve time.
 
