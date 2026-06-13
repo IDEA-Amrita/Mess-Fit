@@ -17,7 +17,7 @@ import json
 import logging
 
 from ..config import settings
-from .schemas import ParsedMenu
+from .schemas import NutritionEstimate, ParsedMenu
 
 logger = logging.getLogger(__name__)
 
@@ -148,3 +148,43 @@ async def ocr_menu_image(image_bytes: bytes, mime: str = "image/jpeg") -> Parsed
             raise OcrError(
                 f"both vision backends failed — gemini: {gemini_err}; groq: {groq_err}"
             ) from groq_err
+
+
+# ─── draft-dish nutrition estimate ────────────────────────────────────
+
+_NUTRITION_PROMPT = """\
+Estimate per-serving nutrition for the Indian dish "{name}". Return ONLY JSON:
+{{"category": one of [rice,roti,curry,sabzi,dal,snack,sweet,beverage,protein,salad,other],
+  "default_serving_unit": e.g. "katori"|"piece"|"glass",
+  "default_serving_grams": number,
+  "kcal": number, "protein_g": number, "carbs_g": number, "fats_g": number,
+  "diet_type": one of [vegan,veg,egg,non_veg],
+  "portion_icon": one of [katori,small_katori,fist,palm,thumb,cupped_hand,plate_quarter,piece,glass]}}
+Values are for one typical serving. No markdown, no commentary."""
+
+
+async def _call_gemini_text(prompt: str) -> str:
+    from google import genai
+
+    client = genai.Client(api_key=settings.gemini_api_key)
+    response = await client.aio.models.generate_content(
+        model=GEMINI_MODEL, contents=[prompt]
+    )
+    return response.text or ""
+
+
+async def estimate_dish_nutrition(name: str) -> NutritionEstimate:
+    """Best-effort per-serving nutrition for an unmatched dish.
+
+    Always returns a usable estimate: on any LLM/parse/validation failure we
+    fall back to NutritionEstimate's conservative defaults rather than block
+    the approve flow or write a zero-kcal dish. Either way the dish is created
+    with confidence='estimated' and queued for verification.
+    """
+    try:
+        raw = await _call_gemini_text(_NUTRITION_PROMPT.format(name=name))
+        data = json.loads(_strip_fences(raw))
+        return NutritionEstimate.model_validate(data)
+    except Exception as e:
+        logger.warning("nutrition estimate for %r failed, using defaults: %s", name, e)
+        return NutritionEstimate()

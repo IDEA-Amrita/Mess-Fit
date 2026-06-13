@@ -25,6 +25,10 @@ celery_app = Celery(
     "messfit",
     broker=settings.redis_url,
     backend=settings.redis_url,
+    # Modules a worker process must import so their @task decorators register.
+    # The optimizer runs inline (imported via its router), but OCR runs on a
+    # real worker, which only sees tasks listed here.
+    include=["messfit_api.mess.tasks", "messfit_api.optimizer.tasks"],
 )
 
 celery_app.conf.update(
