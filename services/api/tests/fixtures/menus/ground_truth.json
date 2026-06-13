@@ -1,0 +1,16 @@
+{
+  "_comment": "Hand-labelled ground truth for the OCR accuracy gate. Each key is an image filename in this directory; its value is the correct weekly menu. Keys starting with '_' are ignored by the test loader. Replace this sample with ~20 real labelled mess-menu photos to run the >=85% accuracy gate (RUN_OCR_ACCURACY=1).",
+  "_example.jpg": {
+    "weekly": [
+      {
+        "day": "Monday",
+        "meals": [
+          { "type": "breakfast", "dishes": ["Idli", "Sambar", "Coconut Chutney"] },
+          { "type": "lunch", "dishes": ["White Rice", "Sambar", "Rasam", "Poriyal", "Curd"] },
+          { "type": "snack", "dishes": ["Tea", "Medu Vada"] },
+          { "type": "dinner", "dishes": ["Chapathi", "Dal", "White Rice"] }
+        ]
+      }
+    ]
+  }
+}
