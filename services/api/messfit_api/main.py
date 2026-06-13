@@ -6,6 +6,7 @@ from .config import settings
 from .mess.routes import router as mess_router
 from .optimizer.routes import router as optimizer_router
 from .profile.router import router as profile_router
+from .workouts.router import router as workouts_router
 
 app = FastAPI(title="MessFit API", version="0.1.0")
 
@@ -31,3 +32,4 @@ async def me(user_id: str = Depends(get_current_user_id)):
 app.include_router(profile_router)
 app.include_router(mess_router)
 app.include_router(optimizer_router)
+app.include_router(workouts_router)
