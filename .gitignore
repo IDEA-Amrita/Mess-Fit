@@ -54,5 +54,8 @@ pnpm-debug.log*
 coverage/
 *.lcov
 
+# --- Generated eval artifacts (regenerate via eval/grading_report.py) ---
+services/api/eval/reports/
+
 # --- Local Docker volumes ---
 pgdata/
