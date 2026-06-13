@@ -81,6 +81,35 @@ class MessMenuORM(Base):
     dish: Mapped["DishORM"] = relationship("DishORM")
 
 
+class OCRJobORM(Base):
+    """An async OCR job: a menu photo being parsed into a structured menu.
+
+    Admin-only (Phase 4). The Celery worker walks the row through the status
+    machine (pending → processing → ready_for_review / failed); an admin then
+    approves (→ writes mess_menus) or rejects it.
+    """
+
+    __tablename__ = "ocr_jobs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    mess_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("messes.id", ondelete="CASCADE")
+    )
+    uploaded_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    photo_url: Mapped[str] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(Text, server_default="pending")
+    parsed_result: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[dt.datetime] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[dt.datetime] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.now()
+    )
+
+
 class DishExclusionORM(Base):
     """Per-user, per-date, per-meal dish exclusions.
 
