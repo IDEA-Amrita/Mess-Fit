@@ -290,6 +290,14 @@ CREATE TABLE meal_logs (
               CHECK (status IN ('as_planned', 'different', 'skipped')),
   notes       TEXT,
   photo_url   TEXT,                                       -- V2 use
+  -- Macro snapshot of the planned meal (Phase 6, migration 009).
+  -- The optimizer plan lives only in Redis, so the client supplies these
+  -- when status='as_planned'; NULL for 'different'/'skipped'. Powers the
+  -- progress dashboard's macro-hit rate.
+  kcal        NUMERIC(7,2),
+  protein_g   NUMERIC(6,2),
+  carbs_g     NUMERIC(6,2),
+  fats_g      NUMERIC(6,2),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (user_id, date, meal_type)
 );
