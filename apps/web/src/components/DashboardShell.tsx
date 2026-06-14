@@ -8,8 +8,9 @@ import {
   DashboardSquare01Icon,
   PlateIcon,
   Dumbbell01Icon,
+  CheckListIcon,
+  Analytics01Icon,
   Target01Icon,
-  Calendar01Icon,
   Settings01Icon,
 } from "@hugeicons/core-free-icons";
 import { supabase } from "@/lib/supabase";
@@ -19,8 +20,9 @@ const NAV_ITEMS = [
   { icon: PlateIcon, label: "Menu", href: "/menu", comingSoon: false },
   { icon: PlateIcon, label: "Today's Plate", href: "/dashboard/plate", comingSoon: false },
   { icon: Dumbbell01Icon, label: "Workout", href: "/dashboard/workout", comingSoon: false },
+  { icon: CheckListIcon, label: "Log", href: "/dashboard/log", comingSoon: false },
+  { icon: Analytics01Icon, label: "Progress", href: "/dashboard/progress", comingSoon: false },
   { icon: Target01Icon, label: "Goals", href: "/dashboard/goals", comingSoon: true },
-  { icon: Calendar01Icon, label: "History", href: "/dashboard/history", comingSoon: true },
   { icon: Settings01Icon, label: "Settings", href: "/dashboard/settings", comingSoon: true },
 ];
 
