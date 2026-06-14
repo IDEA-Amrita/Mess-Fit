@@ -7,6 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   DashboardSquare01Icon,
   PlateIcon,
+  Dumbbell01Icon,
   Target01Icon,
   Calendar01Icon,
   Settings01Icon,
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { icon: DashboardSquare01Icon, label: "Dashboard", href: "/dashboard", comingSoon: false },
   { icon: PlateIcon, label: "Menu", href: "/menu", comingSoon: false },
   { icon: PlateIcon, label: "Today's Plate", href: "/dashboard/plate", comingSoon: false },
+  { icon: Dumbbell01Icon, label: "Workout", href: "/dashboard/workout", comingSoon: false },
   { icon: Target01Icon, label: "Goals", href: "/dashboard/goals", comingSoon: true },
   { icon: Calendar01Icon, label: "History", href: "/dashboard/history", comingSoon: true },
   { icon: Settings01Icon, label: "Settings", href: "/dashboard/settings", comingSoon: true },
