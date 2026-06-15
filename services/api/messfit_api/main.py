@@ -2,6 +2,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .auth.deps import get_current_user_id
+from .chatbot.router import router as chatbot_router
 from .config import settings
 from .mess.routes import router as mess_router
 from .optimizer.routes import router as optimizer_router
@@ -35,3 +36,4 @@ app.include_router(mess_router)
 app.include_router(optimizer_router)
 app.include_router(workouts_router)
 app.include_router(tracking_router)
+app.include_router(chatbot_router)
