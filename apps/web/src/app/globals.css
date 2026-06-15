@@ -1,40 +1,118 @@
 @import "tailwindcss";
 
+/*
+ * MessFit design tokens (pre-pilot UI refresh).
+ * Dark + amber identity, elevated into a real system. Components consume these
+ * via Tailwind utilities (bg-card, text-muted-foreground, rounded-lg, …) and the
+ * `var(--token)` form — so a change here re-themes the whole app.
+ */
 :root {
-  --bg: #080808;
-  --surface-1: #111111;
-  --surface-2: #1a1a1a;
-  --surface-3: #242424;
+  /* ── base palette ── */
+  --bg: #08080a;
+  --surface-1: #101014;
+  --surface-2: #17171c;
+  --surface-3: #202027;
+
   --border-subtle: rgba(255, 255, 255, 0.05);
   --border-default: rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
   --accent: #f59e0b;
   --accent-light: #fbbf24;
   --accent-dark: #d97706;
-  --accent-muted: rgba(245, 158, 11, 0.1);
-  --accent-glow: rgba(245, 158, 11, 0.18);
-  --text-primary: #f0f0f0;
-  --text-secondary: #9a9a9a;
-  --text-muted: #555555;
+  --accent-muted: rgba(245, 158, 11, 0.12);
+  --accent-glow: rgba(245, 158, 11, 0.2);
+
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #5e5e68;
+
   --glass: rgba(255, 255, 255, 0.04);
   --glass-border: rgba(255, 255, 255, 0.08);
+
+  --success: #22c55e;
+  --warning: #f59e0b;
   --destructive: #ef4444;
+
+  /* ── semantic aliases (consumed by the shadcn-style primitives) ── */
+  --card: var(--surface-1);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-2);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent);
+  --primary-foreground: #1b1304;
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-secondary);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: var(--accent);
+
+  /* ── radius scale ── */
+  --radius: 0.85rem;
 }
 
 @theme inline {
+  /* colors */
   --color-background: var(--bg);
   --color-foreground: var(--text-primary);
+
   --color-surface-1: var(--surface-1);
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
-  --color-border: var(--border-default);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
   --color-accent: var(--accent);
   --color-accent-light: var(--accent-light);
+  --color-accent-foreground: var(--primary-foreground);
   --color-accent-muted: var(--accent-muted);
-  --color-muted-foreground: var(--text-secondary);
+
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-border: var(--border-default);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-destructive: var(--destructive);
-  --color-primary: var(--accent);
-  --color-primary-foreground: #000000;
+  --color-destructive-foreground: #ffffff;
+
+  /* radius scale (shadcn convention) */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* elevation + accent glow */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 20px -8px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 18px 40px -16px rgba(0, 0, 0, 0.65);
+  --shadow-glow: 0 0 0 1px var(--accent-glow), 0 10px 34px -14px var(--accent-glow);
+
+  /* type scale */
+  --text-display: 2.5rem;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+  --text-h1: 1.75rem;
+  --text-h1--line-height: 1.15;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h1--font-weight: 600;
+  --text-h2: 1.25rem;
+  --text-h2--line-height: 1.25;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h2--font-weight: 600;
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -45,14 +123,36 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
+/* Page-level entrance: content fades/rises in slightly for a more "product" feel. */
+@keyframes mf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.mf-rise {
+  animation: mf-rise 0.28s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mf-rise {
+    animation: none;
+  }
+}
+
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.16);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
