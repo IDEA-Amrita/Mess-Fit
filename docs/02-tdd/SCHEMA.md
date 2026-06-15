@@ -442,10 +442,30 @@ CREATE TABLE kb_chunks (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   document_id   UUID NOT NULL REFERENCES kb_documents(id) ON DELETE CASCADE,
   content       TEXT NOT NULL,
-  embedding     VECTOR(384) NOT NULL,                          -- bge-small-en-v1.5 dim
+  embedding     VECTOR(768) NOT NULL,                          -- Gemini text-embedding-004 dim (Phase 7)
   metadata      JSONB NOT NULL DEFAULT '{}'::jsonb,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- HNSW cosine index for ANN search (migration 010).
+CREATE INDEX idx_kb_chunks_embedding ON kb_chunks USING hnsw (embedding vector_cosine_ops);
+```
+
+### 5.17b `chat_cache`
+
+Server-managed semantic response cache (Phase 7, migration 010). Only
+non-personalized queries are cached; profile-referencing queries bypass it.
+
+```sql
+CREATE TABLE chat_cache (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  query_embedding  VECTOR(768) NOT NULL,                       -- Gemini text-embedding-004 dim
+  response         TEXT NOT NULL,
+  citations        JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_chat_cache_embedding ON chat_cache USING hnsw (query_embedding vector_cosine_ops);
 ```
 
 ### 5.18 `ocr_jobs`
