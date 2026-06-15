@@ -5,12 +5,16 @@ from .auth.deps import get_current_user_id
 from .chatbot.router import router as chatbot_router
 from .config import settings
 from .mess.routes import router as mess_router
+from .observability.setup import setup_otel
 from .optimizer.routes import router as optimizer_router
 from .profile.router import router as profile_router
 from .tracking.router import router as tracking_router
 from .workouts.router import router as workouts_router
 
 app = FastAPI(title="MessFit API", version="0.1.0")
+
+# Tracing — no-op unless OTEL_EXPORTER_OTLP_ENDPOINT is configured.
+setup_otel(app)
 
 app.add_middleware(
     CORSMiddleware,
