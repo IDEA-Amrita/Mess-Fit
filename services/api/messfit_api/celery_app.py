@@ -18,6 +18,7 @@ from __future__ import annotations
 import os
 
 from celery import Celery
+from celery.schedules import crontab
 
 from .config import settings
 
@@ -26,9 +27,13 @@ celery_app = Celery(
     broker=settings.redis_url,
     backend=settings.redis_url,
     # Modules a worker process must import so their @task decorators register.
-    # The optimizer runs inline (imported via its router), but OCR runs on a
-    # real worker, which only sees tasks listed here.
-    include=["messfit_api.mess.tasks", "messfit_api.optimizer.tasks"],
+    # The optimizer runs inline (imported via its router), but OCR + the account
+    # hard-delete sweep run on a real worker, which only sees tasks listed here.
+    include=[
+        "messfit_api.mess.tasks",
+        "messfit_api.optimizer.tasks",
+        "messfit_api.account.tasks",
+    ],
 )
 
 celery_app.conf.update(
@@ -40,4 +45,11 @@ celery_app.conf.update(
     in {"1", "true", "yes"},
     timezone="UTC",
     enable_utc=True,
+    # Daily DPDP hard-delete sweep (Phase 9, task 9.8). Runs at 03:30 UTC.
+    beat_schedule={
+        "account-hard-delete-pending": {
+            "task": "messfit.account.hard_delete_pending",
+            "schedule": crontab(hour=3, minute=30),
+        },
+    },
 )

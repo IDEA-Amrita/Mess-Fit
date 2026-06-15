@@ -125,6 +125,26 @@ async def get_current_user_id(authorization: str = Header(...)) -> str:
     return user_id
 
 
+async def get_active_user_id(
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> str:
+    """Like get_current_user_id, but rejects accounts marked for deletion.
+
+    Composes the JWT identity check with a cheap indexed lookup of
+    users.deleted_at (Phase 9, task 9.8). Use this on endpoints that must be
+    closed to a user who has requested deletion within the grace window.
+    """
+    from ..account.repository import is_user_deleted  # local import avoids cycle
+
+    if await is_user_deleted(db, uuid.UUID(user_id)):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account scheduled for deletion",
+        )
+    return user_id
+
+
 async def require_admin(
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session),
