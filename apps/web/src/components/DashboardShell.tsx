@@ -11,6 +11,7 @@ import {
   CheckListIcon,
   Analytics01Icon,
   AiChat01Icon,
+  Book02Icon,
   Target01Icon,
   Settings01Icon,
 } from "@hugeicons/core-free-icons";
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { icon: CheckListIcon, label: "Log", href: "/dashboard/log", comingSoon: false },
   { icon: Analytics01Icon, label: "Progress", href: "/dashboard/progress", comingSoon: false },
   { icon: AiChat01Icon, label: "Coach", href: "/dashboard/chat", comingSoon: false },
+  { icon: Book02Icon, label: "Learn", href: "/learn", comingSoon: false },
   { icon: Target01Icon, label: "Goals", href: "/dashboard/goals", comingSoon: true },
   { icon: Settings01Icon, label: "Settings", href: "/dashboard/settings", comingSoon: true },
 ];
