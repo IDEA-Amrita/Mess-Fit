@@ -38,8 +38,13 @@ function isLearn(pathname: string): boolean {
   return pathname === "/learn" || pathname.startsWith("/learn/");
 }
 
+// Legal pages must be reachable by anyone, including not-onboarded users.
+function isLegal(pathname: string): boolean {
+  return pathname === "/privacy" || pathname === "/terms";
+}
+
 function isPublic(pathname: string): boolean {
-  return PUBLIC_ROUTES.has(pathname) || isLearn(pathname);
+  return PUBLIC_ROUTES.has(pathname) || isLearn(pathname) || isLegal(pathname);
 }
 
 function isAuthRoute(pathname: string): boolean {
@@ -124,7 +129,13 @@ export async function middleware(request: NextRequest) {
 
   // NOT-onboarded user trying to access anything other than onboarding
   // → bounce to onboarding/profile
-  if (!onboarded && !isOnboardingRoute(pathname) && pathname !== "/" && !isLearn(pathname)) {
+  if (
+    !onboarded &&
+    !isOnboardingRoute(pathname) &&
+    pathname !== "/" &&
+    !isLearn(pathname) &&
+    !isLegal(pathname)
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/onboarding/profile";
     return NextResponse.redirect(url);
