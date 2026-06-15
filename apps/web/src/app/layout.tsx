@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/Footer";
@@ -36,6 +36,14 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
   robots: { index: true, follow: true },
+  manifest: "/manifest.webmanifest",
+  icons: { icon: "/icon.svg", shortcut: "/icon.svg" },
+  appleWebApp: { capable: true, title: "MessFit", statusBarStyle: "black-translucent" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#08080a",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
