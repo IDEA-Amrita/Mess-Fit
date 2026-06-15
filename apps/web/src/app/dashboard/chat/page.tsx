@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Send, Sparkles, BookOpen, X } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { DashboardShell } from "@/components/DashboardShell";
 import { toast } from "@/lib/toast-store";
 import { ApiError } from "@/lib/api";
@@ -38,7 +36,6 @@ function dedupeCitations(citations: Citation[]): Citation[] {
 }
 
 export default function ChatPage() {
-  const router = useRouter();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [streaming, setStreaming] = useState("");
   const [busy, setBusy] = useState(false);
@@ -50,11 +47,6 @@ export default function ChatPage() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, streaming]);
-
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.replace("/auth/login");
-  }
 
   async function send(text: string) {
     const content = text.trim();
@@ -106,13 +98,6 @@ export default function ChatPage() {
             AI assistant · not medical advice
           </p>
         </div>
-        <button
-          onClick={handleLogout}
-          className="rounded-lg border px-3 py-1.5 text-xs font-medium lg:hidden"
-          style={{ borderColor: "rgba(255,255,255,0.1)", color: "#666" }}
-        >
-          Sign out
-        </button>
       </header>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-6">
