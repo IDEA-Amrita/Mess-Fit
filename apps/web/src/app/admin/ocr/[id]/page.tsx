@@ -261,7 +261,12 @@ export default function OcrReviewPage() {
           <div className="sticky top-4 rounded-lg border p-2">
             {job.image_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={job.image_url} alt="menu" className="w-full rounded" />
+              <img
+                src={job.image_url}
+                alt="Uploaded mess menu photo being reviewed for OCR"
+                loading="lazy"
+                className="w-full rounded"
+              />
             ) : (
               <p className="p-8 text-center text-sm text-muted-foreground">
                 Image unavailable

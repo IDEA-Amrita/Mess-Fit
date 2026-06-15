@@ -13,10 +13,28 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://messfit.app";
+const TITLE = "MessFit — Eat right from what your mess serves";
+const DESCRIPTION =
+  "Constraint-based plate optimizer for Indian hostel students. Hit your calorie and macro targets from what your mess actually serves.";
+
 export const metadata: Metadata = {
-  title: "MessFit — Eat right from what your mess serves",
-  description:
-    "Constraint-based plate optimizer for Indian hostel students. Hit your calorie and macro targets from what your mess actually serves.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: TITLE,
+    template: "%s · MessFit",
+  },
+  description: DESCRIPTION,
+  applicationName: "MessFit",
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: "MessFit",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
