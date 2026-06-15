@@ -12,13 +12,14 @@ import datetime
 import uuid
 from typing import Any, Sequence
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..auth.deps import get_current_user_id
 from ..db import get_session
+from ..observability.ratelimit import limiter
 from ..profile.repository import get_hostel_context, get_profile
 from .models import ExerciseORM, WorkoutLogORM, WorkoutTemplateORM
 from .schemas import (
@@ -143,7 +144,9 @@ async def get_exercise(
 
 
 @router.post("/logs/workout", response_model=WorkoutLogOut, status_code=status.HTTP_201_CREATED)
+@limiter.limit("30/minute")
 async def log_workout(
+    request: Request,
     payload: WorkoutLogIn,
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session),

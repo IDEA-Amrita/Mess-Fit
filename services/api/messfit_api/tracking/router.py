@@ -15,13 +15,14 @@ import datetime as dt
 import uuid
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..auth.deps import get_current_user_id
 from ..db import get_session
+from ..observability.ratelimit import limiter
 from ..profile.goal_engine import compute_targets
 from ..profile.repository import get_hostel_context, get_profile
 from ..workouts.models import WorkoutLogORM
@@ -52,7 +53,9 @@ router = APIRouter(prefix="/api/v1", tags=["logging"])
 
 
 @router.post("/logs/meals", response_model=MealLogOut, status_code=201)
+@limiter.limit("30/minute")
 async def log_meal(
+    request: Request,
     payload: MealLogIn,
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session),
@@ -76,7 +79,9 @@ async def log_meal(
 
 
 @router.post("/logs/weight", response_model=WeightLogOut, status_code=201)
+@limiter.limit("30/minute")
 async def log_weight(
+    request: Request,
     payload: WeightLogIn,
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session),
@@ -97,7 +102,9 @@ async def log_weight(
 
 
 @router.post("/logs/subjective", response_model=SubjectiveLogOut, status_code=201)
+@limiter.limit("30/minute")
 async def log_subjective(
+    request: Request,
     payload: SubjectiveLogIn,
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session),
