@@ -14,6 +14,7 @@ export interface Citation {
   chunk_id: string;
   source: string | null;
   title: string | null;
+  slug?: string | null;
 }
 
 export interface ChatMessage {

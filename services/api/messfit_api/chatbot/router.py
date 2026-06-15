@@ -132,6 +132,7 @@ async def post_message(
                     "chunk_id": str(c.id),
                     "source": c.metadata.get("source"),
                     "title": c.metadata.get("title"),
+                    "slug": c.metadata.get("slug"),  # deep-link to /learn/<slug>
                 }
                 for c in chunks
             ]

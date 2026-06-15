@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Send, Sparkles, BookOpen, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { DashboardShell } from "@/components/DashboardShell";
@@ -22,6 +23,19 @@ const SUGGESTIONS = [
 ];
 
 type Msg = { role: "user" | "assistant"; content: string; citations?: Citation[] };
+
+// Multiple retrieved chunks can come from the same article; show each source once.
+function dedupeCitations(citations: Citation[]): Citation[] {
+  const seen = new Set<string>();
+  const out: Citation[] = [];
+  for (const c of citations) {
+    const key = c.slug ?? c.title ?? c.chunk_id;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(c);
+  }
+  return out;
+}
 
 export default function ChatPage() {
   const router = useRouter();
@@ -186,17 +200,36 @@ function ChatBubble({
         </p>
         {msg.citations && msg.citations.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
-            {msg.citations.map((c, i) => (
-              <button
-                key={c.chunk_id}
-                onClick={() => onCitation(c)}
-                className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
-                style={{ background: "rgba(129,140,248,0.12)", color: "#818cf8" }}
-              >
-                <BookOpen className="h-3 w-3" />
-                {i + 1}. {c.title ?? c.source ?? "Source"}
-              </button>
-            ))}
+            {dedupeCitations(msg.citations).map((c, i) => {
+              const label = `${i + 1}. ${c.title ?? c.source ?? "Source"}`;
+              const chipStyle = {
+                background: "rgba(129,140,248,0.12)",
+                color: "#818cf8",
+              };
+              // Curated articles deep-link to their /learn page; anything else
+              // opens the lightweight source modal.
+              return c.slug ? (
+                <Link
+                  key={c.chunk_id}
+                  href={`/learn/${c.slug}`}
+                  className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
+                  style={chipStyle}
+                >
+                  <BookOpen className="h-3 w-3" />
+                  {label}
+                </Link>
+              ) : (
+                <button
+                  key={c.chunk_id}
+                  onClick={() => onCitation(c)}
+                  className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
+                  style={chipStyle}
+                >
+                  <BookOpen className="h-3 w-3" />
+                  {label}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
