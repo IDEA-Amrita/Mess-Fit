@@ -11,6 +11,7 @@ deleted (its chunks CASCADE) and re-inserted, so re-running picks up edits.
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -53,9 +54,19 @@ def chunk_text(body: str, target_chars: int = _TARGET_CHARS,
 
 
 async def ingest_document(
-    db: AsyncSession, *, source: str, title: str, body: str,
+    db: AsyncSession,
+    *,
+    source: str,
+    title: str,
+    body: str,
+    extra_meta: dict[str, Any] | None = None,
 ) -> int:
-    """Ingest one document. Returns the number of chunks written."""
+    """Ingest one document. Returns the number of chunks written.
+
+    ``extra_meta`` (e.g. ``{"slug": ..., "tags": [...]}``) is merged into every
+    chunk's metadata so retrieval/citations can carry it through (used for
+    deep-linking chat citations to /learn/<slug>).
+    """
     chunks = chunk_text(body)
     if not chunks:
         return 0
@@ -91,7 +102,7 @@ async def ingest_document(
                 "doc": doc_id,
                 "content": chunk,
                 "emb": to_pgvector(emb),
-                "meta": _meta_json(source, title, idx),
+                "meta": _meta_json(source, title, idx, extra_meta),
             },
         )
     await db.commit()
@@ -99,7 +110,12 @@ async def ingest_document(
     return len(chunks)
 
 
-def _meta_json(source: str, title: str, idx: int) -> str:
+def _meta_json(
+    source: str, title: str, idx: int, extra: dict[str, Any] | None = None
+) -> str:
     import json
 
-    return json.dumps({"source": source, "title": title, "chunk_index": idx})
+    meta: dict[str, Any] = {"source": source, "title": title, "chunk_index": idx}
+    if extra:
+        meta.update(extra)
+    return json.dumps(meta)
