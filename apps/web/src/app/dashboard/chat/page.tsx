@@ -261,6 +261,7 @@ function ChatInput({
             }
           }}
           rows={1}
+          aria-label="Message"
           placeholder="Ask about nutrition or training…"
           className="flex-1 resize-none rounded-xl px-4 py-3 text-sm outline-none"
           style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#e8e8e8", maxHeight: 120 }}
