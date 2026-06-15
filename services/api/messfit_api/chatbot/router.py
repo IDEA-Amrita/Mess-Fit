@@ -13,6 +13,7 @@ response — the request-scoped session is used only for the ownership check.
 from __future__ import annotations
 
 import json
+import time
 import uuid
 from collections.abc import AsyncIterator
 from datetime import date
@@ -24,6 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .. import db as db_module
 from ..auth.deps import get_current_user_id
 from ..db import get_session
+from ..observability.setup import get_tracer
 from ..profile.goal_engine import compute_age, compute_targets
 from ..profile.repository import get_profile
 from . import cache, embeddings, llm, repository, retrieval
@@ -124,9 +126,13 @@ async def post_message(
                     yield _sse({"done": True, "citations": citations})
                     return
 
-            chunks = (
-                await retrieval.retrieve_by_vector(sdb, emb) if emb is not None else []
-            )
+            with get_tracer().start_as_current_span("chat.retrieve") as rspan:
+                chunks = (
+                    await retrieval.retrieve_by_vector(sdb, emb)
+                    if emb is not None
+                    else []
+                )
+                rspan.set_attribute("chat.retrieved_chunks", len(chunks))
             citations = [
                 {
                     "chunk_id": str(c.id),
@@ -144,9 +150,17 @@ async def post_message(
                 for m in await repository.list_messages(sdb, conv_id, limit=_HISTORY_LIMIT)
             ]
 
-            async for token in llm.generate_response(query, summary, chunks, history):
-                full += token
-                yield _sse({"token": token})
+            with get_tracer().start_as_current_span("chat.generate") as gspan:
+                started = time.perf_counter()
+                first_token_ms: float | None = None
+                async for token in llm.generate_response(
+                    query, summary, chunks, history
+                ):
+                    if first_token_ms is None:
+                        first_token_ms = (time.perf_counter() - started) * 1000
+                        gspan.set_attribute("chat.first_token_ms", first_token_ms)
+                    full += token
+                    yield _sse({"token": token})
 
             full = llm.validate_citations(full, len(chunks))
             await _persist(sdb, conv_id, query, full, citations)

@@ -31,6 +31,7 @@ import redis as _redis
 
 from ..celery_app import celery_app
 from ..config import settings
+from ..observability.setup import get_tracer
 from .cache import get_or_optimize
 from .contracts import (
     CanteenItem,
@@ -178,5 +179,10 @@ def run_optimizer(inp_payload: dict[str, Any]) -> dict[str, Any]:
     monkeypatched in unit tests without a real Redis connection.
     """
     inp = _inp_from_dict(inp_payload)
-    output = get_or_optimize(inp, _get_redis())
+    dish_count = sum(len(dishes) for dishes in inp.menu.values())
+    with get_tracer().start_as_current_span("optimizer.solve") as span:
+        span.set_attribute("optimizer.dish_count", dish_count)
+        output = get_or_optimize(inp, _get_redis())
+        span.set_attribute("optimizer.solver_status", output.solver_status)
+        span.set_attribute("optimizer.solve_time_ms", output.solve_time_ms)
     return output_to_dict(output)

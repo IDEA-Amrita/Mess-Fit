@@ -17,6 +17,11 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     cors_origins: List[str] = ["http://localhost:3000"]
     environment: str = "development"
+    # Observability (Phase 9) — all optional; empty values disable the integration.
+    # OTLP/HTTP traces endpoint (e.g. Grafana Cloud Tempo). No endpoint => no export.
+    otel_exporter_otlp_endpoint: str = ""
+    # OTLP headers in W3C "key=value,key=value" form (e.g. Authorization=Basic%20...).
+    otel_exporter_otlp_headers: str = ""
 
 
 settings = Settings()
