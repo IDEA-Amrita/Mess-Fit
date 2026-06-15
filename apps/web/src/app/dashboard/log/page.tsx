@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Pencil, SkipForward, Dumbbell, Scale, Smile, UtensilsCrossed } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/lib/supabase";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 import { DashboardShell } from "@/components/DashboardShell";
 import { toast } from "@/lib/toast-store";
+import { cn } from "@/lib/utils";
 import { optimizeToday, type OptimizationResult, type PlateItem } from "@/lib/optimizer-api";
 import {
   getTodayLogs,
@@ -29,6 +30,10 @@ import {
 const TODAY_KEY = ["logs", "today"] as const;
 const MEAL_ORDER: MealType[] = ["breakfast", "lunch", "snack", "dinner"];
 
+const CARD = "rounded-xl border border-border bg-card";
+const CHOICE_ACTIVE = "bg-accent-muted text-accent";
+const CHOICE_IDLE = "bg-white/5 text-muted-foreground hover:text-foreground";
+
 type Tab = "meal" | "weight" | "workout" | "mood";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -41,63 +46,34 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 // ── page ─────────────────────────────────────────────────────────────────────
 
 export default function LogPage() {
-  const router = useRouter();
   const [tab, setTab] = useState<Tab>("meal");
-
   const today = useQuery({ queryKey: TODAY_KEY, queryFn: getTodayLogs });
-
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.replace("/auth/login");
-  }
+  const dateStr = new Date().toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
   return (
     <DashboardShell>
-      <header
-        className="flex h-16 shrink-0 items-center justify-between border-b px-6"
-        style={{ borderColor: "rgba(255,255,255,0.07)" }}
-      >
-        <div>
-          <h1 className="text-base font-semibold" style={{ color: "#f0f0f0" }}>
-            Log
-          </h1>
-          <p className="text-xs" style={{ color: "#444" }}>
-            {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
-          </p>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="rounded-lg border px-3 py-1.5 text-xs font-medium lg:hidden"
-          style={{ borderColor: "rgba(255,255,255,0.1)", color: "#666" }}
-        >
-          Sign out
-        </button>
-      </header>
+      <div className="mf-rise mx-auto w-full max-w-3xl flex-1 space-y-5 p-5 sm:p-6">
+        <PageHeader title="Log" description={dateStr} />
 
-      <div className="flex-1 space-y-5 p-6">
         {/* Tab bar */}
-        <div
-          className="flex gap-1 rounded-2xl p-1"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
-        >
-          {TABS.map((t) => {
-            const active = t.id === tab;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-medium transition-colors"
-                style={
-                  active
-                    ? { background: "rgba(245,158,11,0.14)", color: "#f59e0b" }
-                    : { color: "#666" }
-                }
-              >
-                {t.icon}
-                <span className="hidden sm:inline">{t.label}</span>
-              </button>
-            );
-          })}
+        <div className={cn("flex gap-1 p-1", CARD)}>
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={cn(
+                "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-medium transition-colors",
+                t.id === tab ? CHOICE_ACTIVE : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t.icon}
+              <span className="hidden sm:inline">{t.label}</span>
+            </button>
+          ))}
         </div>
 
         {tab === "meal" && <MealTab today={today.data} />}
@@ -215,56 +191,46 @@ function MealSlot({
   ];
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
-    >
+    <div className={cn("p-4", CARD)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold capitalize" style={{ color: "#c0c0c0" }}>
-          {meal}
-        </h3>
+        <h3 className="text-sm font-semibold capitalize text-foreground">{meal}</h3>
         {plateLoading ? (
           <Skeleton className="h-3 w-24 bg-white/5" />
         ) : !plateError && items.length > 0 ? (
-          <span className="text-xs" style={{ color: "#555" }}>
+          <span className="text-xs text-muted-foreground">
             {Math.round(slotMacros(items).kcal)} kcal planned
           </span>
         ) : null}
       </div>
 
       {!plateLoading && !plateError && items.length > 0 && (
-        <p className="mt-1 text-xs leading-relaxed" style={{ color: "#555" }}>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           {items.map((d) => d.name).join(" · ")}
         </p>
       )}
       {plateError && (
-        <p className="mt-1 text-xs" style={{ color: "#3a3a3a" }}>
+        <p className="mt-1 text-xs text-muted-foreground/60">
           No plan available — you can still log this meal.
         </p>
       )}
 
       <div className="mt-3 flex gap-2">
-        {options.map((o) => {
-          const active = status === o.value;
-          return (
-            <button
-              key={o.value}
-              onClick={() => {
-                if (o.value === "different") setShowNotes(true);
-                onRecord(meal, o.value, o.value === "different" ? notes : undefined);
-              }}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors"
-              style={
-                active
-                  ? { background: "rgba(245,158,11,0.16)", color: "#f59e0b" }
-                  : { background: "rgba(255,255,255,0.04)", color: "#888" }
-              }
-            >
-              {o.icon}
-              {o.label}
-            </button>
-          );
-        })}
+        {options.map((o) => (
+          <button
+            key={o.value}
+            onClick={() => {
+              if (o.value === "different") setShowNotes(true);
+              onRecord(meal, o.value, o.value === "different" ? notes : undefined);
+            }}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition-colors",
+              status === o.value ? CHOICE_ACTIVE : CHOICE_IDLE,
+            )}
+          >
+            {o.icon}
+            {o.label}
+          </button>
+        ))}
       </div>
 
       {showNotes && status === "different" && (
@@ -273,8 +239,7 @@ function MealSlot({
           onChange={(e) => setNotes(e.target.value)}
           onBlur={() => notes && onRecord(meal, "different", notes)}
           placeholder="What did you eat instead? (optional)"
-          className="mt-3 w-full rounded-xl px-3 py-2 text-sm outline-none"
-          style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.08)", color: "#e8e8e8" }}
+          className="mt-3 w-full rounded-lg border border-border bg-black/25 px-3 py-2 text-sm text-foreground outline-none focus:border-ring"
         />
       )}
     </div>
@@ -287,7 +252,6 @@ function WeightTab({ today, loading }: { today?: TodayLogs; loading: boolean }) 
   const qc = useQueryClient();
   const [value, setValue] = useState<string>("");
 
-  // Prefill once today's value is known.
   const todaysWeight = today?.weight?.weight_kg;
   useEffect(() => {
     if (todaysWeight != null) setValue((v) => (v === "" ? String(todaysWeight) : v));
@@ -312,14 +276,11 @@ function WeightTab({ today, loading }: { today?: TodayLogs; loading: boolean }) 
     mutation.mutate({ date: todayIso(), weight_kg: kg });
   }
 
-  if (loading) return <Skeleton className="h-48 rounded-2xl bg-white/5" />;
+  if (loading) return <Skeleton className="h-48 rounded-xl bg-white/5" />;
 
   return (
-    <div
-      className="rounded-2xl p-6"
-      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
-    >
-      <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#555" }}>
+    <div className={cn("p-6", CARD)}>
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         Today&apos;s weight
       </p>
       <div className="mt-3 flex items-end gap-2">
@@ -330,21 +291,14 @@ function WeightTab({ today, loading }: { today?: TodayLogs; loading: boolean }) 
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="—"
-          className="w-40 bg-transparent text-5xl font-bold outline-none"
-          style={{ color: "#f0f0f0" }}
+          aria-label="Weight in kilograms"
+          className="w-40 bg-transparent text-5xl font-bold text-foreground outline-none"
         />
-        <span className="pb-2 text-lg font-medium" style={{ color: "#555" }}>
-          kg
-        </span>
+        <span className="pb-2 text-lg font-medium text-muted-foreground">kg</span>
       </div>
-      <button
-        onClick={save}
-        disabled={mutation.isPending}
-        className="mt-5 w-full rounded-xl px-4 py-3 text-sm font-semibold transition-colors disabled:opacity-50"
-        style={{ background: "#f59e0b", color: "#1a1300" }}
-      >
+      <Button onClick={save} disabled={mutation.isPending} size="lg" className="mt-5 w-full">
         {mutation.isPending ? "Saving…" : "Save weight"}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -368,15 +322,12 @@ function WorkoutTab({ today }: { today?: TodayLogs }) {
     onError: () => toast.error("Couldn't save — try again"),
   });
 
-  if (workout.isLoading) return <Skeleton className="h-44 rounded-2xl bg-white/5" />;
+  if (workout.isLoading) return <Skeleton className="h-44 rounded-xl bg-white/5" />;
 
   if (workout.isError || !workout.data) {
     return (
-      <div
-        className="rounded-2xl p-6 text-center"
-        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
-      >
-        <p className="text-sm" style={{ color: "#666" }}>
+      <div className={cn("p-6 text-center", CARD)}>
+        <p className="text-sm text-muted-foreground">
           No workout scheduled today, or onboarding incomplete.
         </p>
       </div>
@@ -401,34 +352,24 @@ function WorkoutTab({ today }: { today?: TodayLogs }) {
   }
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
-    >
-      <h3 className="text-sm font-semibold capitalize" style={{ color: "#c0c0c0" }}>
-        {w.template_name}
-      </h3>
-      <p className="mt-0.5 text-xs" style={{ color: "#555" }}>
+    <div className={cn("p-4", CARD)}>
+      <h3 className="text-sm font-semibold capitalize text-foreground">{w.template_name}</h3>
+      <p className="mt-0.5 text-xs text-muted-foreground">
         {w.day_name} · {w.exercises.length} exercises · Week {w.week}, Day {w.day}
       </p>
       <div className="mt-3 flex gap-2">
-        {opts.map((o) => {
-          const active = today?.workout_status === o.value;
-          return (
-            <button
-              key={o.value}
-              onClick={() => record(o.value)}
-              className="flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors"
-              style={
-                active
-                  ? { background: "rgba(245,158,11,0.16)", color: "#f59e0b" }
-                  : { background: "rgba(255,255,255,0.04)", color: "#888" }
-              }
-            >
-              {o.label}
-            </button>
-          );
-        })}
+        {opts.map((o) => (
+          <button
+            key={o.value}
+            onClick={() => record(o.value)}
+            className={cn(
+              "flex-1 rounded-lg py-2.5 text-sm font-medium transition-colors",
+              today?.workout_status === o.value ? CHOICE_ACTIVE : CHOICE_IDLE,
+            )}
+          >
+            {o.label}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -463,14 +404,14 @@ function MoodTab({ today }: { today?: TodayLogs }) {
       <Scale5 label="Energy" value={energy} onChange={setEnergy} />
       <Scale5 label="Hunger" value={hunger} onChange={setHunger} />
       <Scale5 label="Mood" value={mood} onChange={setMood} />
-      <button
+      <Button
         onClick={save}
         disabled={mutation.isPending || (energy == null && hunger == null && mood == null)}
-        className="w-full rounded-xl px-4 py-3 text-sm font-semibold transition-colors disabled:opacity-50"
-        style={{ background: "#f59e0b", color: "#1a1300" }}
+        size="lg"
+        className="w-full"
       >
         {mutation.isPending ? "Saving…" : "Save"}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -485,13 +426,8 @@ function Scale5({
   onChange: (v: number) => void;
 }) {
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
-    >
-      <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#555" }}>
-        {label}
-      </p>
+    <div className={cn("p-4", CARD)}>
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
       <div className="mt-2 flex justify-between gap-2">
         {EMOJI.map((e, i) => {
           const level = i + 1;
@@ -501,12 +437,11 @@ function Scale5({
               key={level}
               onClick={() => onChange(level)}
               aria-label={`${label} ${level}`}
-              className="flex h-12 flex-1 items-center justify-center rounded-xl text-2xl transition-all"
-              style={{
-                background: active ? "rgba(245,158,11,0.16)" : "rgba(255,255,255,0.04)",
-                outline: active ? "1px solid rgba(245,158,11,0.4)" : "none",
-                opacity: active || value == null ? 1 : 0.4,
-              }}
+              className={cn(
+                "flex h-12 flex-1 items-center justify-center rounded-lg text-2xl transition-all",
+                active ? "bg-accent-muted ring-1 ring-accent/40" : "bg-white/5",
+                active || value == null ? "opacity-100" : "opacity-40",
+              )}
             >
               {e}
             </button>
