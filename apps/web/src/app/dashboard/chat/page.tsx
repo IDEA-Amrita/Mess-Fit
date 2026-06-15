@@ -86,17 +86,10 @@ export default function ChatPage() {
 
   return (
     <DashboardShell>
-      <header
-        className="flex h-16 shrink-0 items-center justify-between border-b px-6"
-        style={{ borderColor: "rgba(255,255,255,0.07)" }}
-      >
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-border px-6">
         <div>
-          <h1 className="text-base font-semibold" style={{ color: "#f0f0f0" }}>
-            Coach
-          </h1>
-          <p className="text-xs" style={{ color: "#444" }}>
-            AI assistant · not medical advice
-          </p>
+          <h1 className="text-base font-semibold text-foreground">Coach</h1>
+          <p className="text-xs text-muted-foreground">AI assistant · not medical advice</p>
         </div>
       </header>
 
