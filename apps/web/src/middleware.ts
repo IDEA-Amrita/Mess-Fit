@@ -33,8 +33,13 @@ import { NextResponse, type NextRequest } from "next/server";
 // Routes anyone can access without authentication.
 const PUBLIC_ROUTES = new Set(["/", "/auth/login", "/auth/signup", "/auth/callback"]);
 
+// The /learn articles are public and deep-linkable (chatbot citations link here).
+function isLearn(pathname: string): boolean {
+  return pathname === "/learn" || pathname.startsWith("/learn/");
+}
+
 function isPublic(pathname: string): boolean {
-  return PUBLIC_ROUTES.has(pathname);
+  return PUBLIC_ROUTES.has(pathname) || isLearn(pathname);
 }
 
 function isAuthRoute(pathname: string): boolean {
@@ -119,7 +124,7 @@ export async function middleware(request: NextRequest) {
 
   // NOT-onboarded user trying to access anything other than onboarding
   // → bounce to onboarding/profile
-  if (!onboarded && !isOnboardingRoute(pathname) && pathname !== "/") {
+  if (!onboarded && !isOnboardingRoute(pathname) && pathname !== "/" && !isLearn(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/onboarding/profile";
     return NextResponse.redirect(url);
