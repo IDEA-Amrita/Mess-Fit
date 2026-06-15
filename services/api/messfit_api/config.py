@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     otel_exporter_otlp_endpoint: str = ""
     # OTLP headers in W3C "key=value,key=value" form (e.g. Authorization=Basic%20...).
     otel_exporter_otlp_headers: str = ""
+    # Sentry DSN — empty disables error reporting (no events shipped).
+    sentry_dsn: str = ""
 
 
 settings = Settings()
