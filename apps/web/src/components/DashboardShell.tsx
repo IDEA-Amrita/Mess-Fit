@@ -27,7 +27,7 @@ const NAV_ITEMS = [
   { icon: AiChat01Icon, label: "Coach", href: "/dashboard/chat", comingSoon: false },
   { icon: Book02Icon, label: "Learn", href: "/learn", comingSoon: false },
   { icon: Target01Icon, label: "Goals", href: "/dashboard/goals", comingSoon: true },
-  { icon: Settings01Icon, label: "Settings", href: "/dashboard/settings", comingSoon: true },
+  { icon: Settings01Icon, label: "Settings", href: "/dashboard/settings", comingSoon: false },
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {

@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from .auth.deps import get_current_user_id
+from .account.router import router as account_router
+from .auth.deps import get_active_user_id
 from .chatbot.router import router as chatbot_router
 from .config import settings
 from .mess.routes import router as mess_router
@@ -45,7 +46,7 @@ async def health():
 
 
 @app.get("/api/v1/me")
-async def me(user_id: str = Depends(get_current_user_id)):
+async def me(user_id: str = Depends(get_active_user_id)):
     return {"user_id": user_id}
 
 
@@ -55,3 +56,4 @@ app.include_router(optimizer_router)
 app.include_router(workouts_router)
 app.include_router(tracking_router)
 app.include_router(chatbot_router)
+app.include_router(account_router)
