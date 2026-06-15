@@ -3,6 +3,9 @@ packages:
   - 'packages/*'
 
 allowBuilds:
+  # @sentry/cli's postinstall only fetches a binary needed for source-map
+  # upload (CI). Local/dev builds don't need it, so skip the build script.
+  '@sentry/cli': false
   msw: true
   sharp: true
   unrs-resolver: true
