@@ -40,8 +40,10 @@ async def test_log_meal_idempotent(client, db_session: AsyncSession):
         await db_session.execute(
             text(
                 "SELECT count(*) FROM meal_logs "
-                "WHERE date = '2026-06-15' AND meal_type = 'lunch'"
-            )
+                "WHERE date = '2026-06-15' AND meal_type = 'lunch' "
+                "AND user_id = :uid"
+            ),
+            {"uid": "00000000-0000-0000-0000-000000000001"},
         )
     ).scalar()
     assert count == 1
@@ -71,7 +73,11 @@ async def test_log_weight_idempotent(client, db_session: AsyncSession):
 
     count = (
         await db_session.execute(
-            text("SELECT count(*) FROM weight_logs WHERE date = '2026-06-15'")
+            text(
+                "SELECT count(*) FROM weight_logs "
+                "WHERE date = '2026-06-15' AND user_id = :uid"
+            ),
+            {"uid": "00000000-0000-0000-0000-000000000001"},
         )
     ).scalar()
     assert count == 1

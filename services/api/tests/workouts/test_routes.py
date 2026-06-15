@@ -126,6 +126,10 @@ async def test_log_workout_idempotent(
     assert r2.json()["status"] == "partial"
 
     count = (await db_session.execute(
-        text("SELECT count(*) FROM workout_logs WHERE template_id = 'bw_hostel_gain_30min'")
+        text(
+            "SELECT count(*) FROM workout_logs "
+            "WHERE template_id = 'bw_hostel_gain_30min' AND user_id = :uid"
+        ),
+        {"uid": "00000000-0000-0000-0000-000000000001"},
     )).scalar()
     assert count == 1
