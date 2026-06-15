@@ -12,11 +12,16 @@ export default function SignupPage() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!accepted) {
+      setError("Please accept the Terms and Privacy Policy to continue.");
+      return;
+    }
     setError(null);
     setSubmitting(true);
 
@@ -166,6 +171,30 @@ export default function SignupPage() {
               />
             </div>
 
+            <label
+              className="flex items-start gap-2 text-xs"
+              style={{ color: "#888" }}
+            >
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={(e) => setAccepted(e.target.checked)}
+                className="mt-0.5 accent-amber-500"
+                style={{ accentColor: "#f59e0b" }}
+              />
+              <span>
+                I agree to the{" "}
+                <Link href="/terms" target="_blank" style={{ color: "#f59e0b" }}>
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" target="_blank" style={{ color: "#f59e0b" }}>
+                  Privacy Policy
+                </Link>
+                .
+              </span>
+            </label>
+
             {error && (
               <p
                 className="rounded-lg px-3 py-2 text-xs"
@@ -181,7 +210,7 @@ export default function SignupPage() {
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !accepted}
               className="mt-1 rounded-xl py-2.5 text-sm font-semibold transition-all hover:brightness-110 disabled:opacity-60"
               style={{
                 background: "linear-gradient(135deg, #d97706, #f59e0b)",
