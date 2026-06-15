@@ -10,6 +10,7 @@ import {
   Dumbbell01Icon,
   CheckListIcon,
   Analytics01Icon,
+  AiChat01Icon,
   Target01Icon,
   Settings01Icon,
 } from "@hugeicons/core-free-icons";
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { icon: Dumbbell01Icon, label: "Workout", href: "/dashboard/workout", comingSoon: false },
   { icon: CheckListIcon, label: "Log", href: "/dashboard/log", comingSoon: false },
   { icon: Analytics01Icon, label: "Progress", href: "/dashboard/progress", comingSoon: false },
+  { icon: AiChat01Icon, label: "Coach", href: "/dashboard/chat", comingSoon: false },
   { icon: Target01Icon, label: "Goals", href: "/dashboard/goals", comingSoon: true },
   { icon: Settings01Icon, label: "Settings", href: "/dashboard/settings", comingSoon: true },
 ];
