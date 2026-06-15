@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     otel_exporter_otlp_headers: str = ""
     # Sentry DSN — empty disables error reporting (no events shipped).
     sentry_dsn: str = ""
+    # Rate limiting (Phase 9). Storage defaults to in-memory; set to the Redis
+    # URL in production so limits are shared across workers.
+    rate_limit_enabled: bool = True
+    rate_limit_storage_uri: str = "memory://"
 
 
 settings = Settings()

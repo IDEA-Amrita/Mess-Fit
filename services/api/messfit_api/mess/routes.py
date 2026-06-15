@@ -10,6 +10,7 @@ from fastapi import (
     Form,
     HTTPException,
     Query,
+    Request,
     UploadFile,
     status,
 )
@@ -20,6 +21,7 @@ from sqlalchemy.orm import selectinload
 
 from messfit_api.auth.deps import get_current_user_id, require_admin
 from messfit_api.db import get_session
+from messfit_api.observability.ratelimit import limiter
 from messfit_api.mess.models import (
     DishExclusionORM,
     DishORM,
@@ -221,7 +223,9 @@ async def unexclude_dish(
     response_model=OcrJobSummary,
     status_code=status.HTTP_202_ACCEPTED,
 )
+@limiter.limit("10/minute")
 async def create_ocr_job(
+    request: Request,
     mess_id: uuid.UUID = Form(...),
     file: UploadFile = File(...),
     admin_user_id: str = Depends(require_admin),

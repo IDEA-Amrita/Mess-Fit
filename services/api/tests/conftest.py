@@ -47,6 +47,14 @@ _TestSessionLocal = async_sessionmaker(
 db_module.SessionLocal = _TestSessionLocal
 
 
+# Rate limiting uses process-global in-memory storage, so leave it OFF for the
+# suite — otherwise rapid-fire tests would trip the limits. The dedicated
+# rate-limit test flips it on for its own window.
+from messfit_api.observability.ratelimit import limiter as _limiter  # noqa: E402
+
+_limiter.enabled = False
+
+
 # ─── test-data hygiene ────────────────────────────────────────────────
 #
 # The suite runs against the shared dev database (same DATABASE_URL as the

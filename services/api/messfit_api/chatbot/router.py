@@ -18,13 +18,14 @@ import uuid
 from collections.abc import AsyncIterator
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .. import db as db_module
 from ..auth.deps import get_current_user_id
 from ..db import get_session
+from ..observability.ratelimit import limiter
 from ..observability.setup import get_tracer
 from ..profile.goal_engine import compute_age, compute_targets
 from ..profile.repository import get_profile
@@ -61,7 +62,9 @@ def _profile_summary(profile: object | None, today: date) -> str:
 
 
 @router.post("/conversations", response_model=ConversationOut, status_code=201)
+@limiter.limit("10/minute")
 async def create_conversation(
+    request: Request,
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session),
 ):
@@ -89,7 +92,9 @@ async def conversation_messages(
 
 
 @router.post("/conversations/{conv_id}/messages")
+@limiter.limit("30/minute")
 async def post_message(
+    request: Request,
     conv_id: uuid.UUID,
     payload: MessageIn,
     user_id: str = Depends(get_current_user_id),

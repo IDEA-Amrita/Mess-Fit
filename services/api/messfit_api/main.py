@@ -1,10 +1,13 @@
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from .auth.deps import get_current_user_id
 from .chatbot.router import router as chatbot_router
 from .config import settings
 from .mess.routes import router as mess_router
+from .observability.ratelimit import limiter
 from .observability.sentry import init_sentry
 from .observability.setup import setup_otel
 from .optimizer.routes import router as optimizer_router
@@ -20,6 +23,12 @@ app = FastAPI(title="MessFit API", version="0.1.0")
 
 # Tracing — no-op unless OTEL_EXPORTER_OTLP_ENDPOINT is configured.
 setup_otel(app)
+
+# Rate limiting (slowapi): expose the shared limiter and return 429 on overflow.
+app.state.limiter = limiter
+# slowapi's handler is typed (Request, RateLimitExceeded); Starlette wants
+# (Request, Exception). Compatible at runtime — the registry keys on the type.
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
 app.add_middleware(
     CORSMiddleware,
