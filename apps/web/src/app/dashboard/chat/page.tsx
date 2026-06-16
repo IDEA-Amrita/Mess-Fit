@@ -122,17 +122,12 @@ export default function ChatPage() {
 function EmptyState({ onPick }: { onPick: (t: string) => void }) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-5 pt-16 text-center">
-      <div
-        className="flex h-14 w-14 items-center justify-center rounded-2xl"
-        style={{ background: "rgba(245,158,11,0.1)" }}
-      >
-        <Sparkles className="h-7 w-7" style={{ color: "#f59e0b" }} />
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-muted text-accent">
+        <Sparkles className="h-7 w-7" />
       </div>
       <div>
-        <p className="font-semibold" style={{ color: "#d0d0d0" }}>
-          Ask your nutrition & fitness coach
-        </p>
-        <p className="mt-1 text-sm" style={{ color: "#555" }}>
+        <p className="font-semibold text-foreground">Ask your nutrition &amp; fitness coach</p>
+        <p className="mt-1 text-sm text-muted-foreground">
           Grounded in curated sources. Not a substitute for a doctor.
         </p>
       </div>
@@ -141,8 +136,7 @@ function EmptyState({ onPick }: { onPick: (t: string) => void }) {
           <button
             key={s}
             onClick={() => onPick(s)}
-            className="rounded-xl px-4 py-3 text-left text-sm transition-colors"
-            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "#aaa" }}
+            className="rounded-xl border border-border bg-surface-2 px-4 py-3 text-left text-sm text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
           >
             {s}
           </button>
@@ -165,44 +159,32 @@ function ChatBubble({
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className="max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
-        style={
+        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
           isUser
-            ? { background: "rgba(245,158,11,0.14)", color: "#f0e0c0" }
-            : { background: "rgba(255,255,255,0.04)", color: "#d8d8d8", border: "1px solid rgba(255,255,255,0.06)" }
-        }
+            ? "border border-accent/20 bg-accent-muted text-foreground"
+            : "border border-border bg-surface-2 text-foreground/90"
+        }`}
       >
         <p className="whitespace-pre-wrap">
           {msg.content}
-          {streaming && <span className="ml-0.5 animate-pulse">▌</span>}
+          {streaming && <span className="ml-0.5 animate-pulse text-accent">▌</span>}
         </p>
         {msg.citations && msg.citations.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
             {dedupeCitations(msg.citations).map((c, i) => {
               const label = `${i + 1}. ${c.title ?? c.source ?? "Source"}`;
-              const chipStyle = {
-                background: "rgba(129,140,248,0.12)",
-                color: "#818cf8",
-              };
+              // Citations use indigo to read as "source", distinct from the amber UI.
+              const chipClass =
+                "flex items-center gap-1 rounded-full bg-indigo-500/10 px-2 py-0.5 text-[11px] font-medium text-indigo-400 transition-colors hover:bg-indigo-500/20";
               // Curated articles deep-link to their /learn page; anything else
               // opens the lightweight source modal.
               return c.slug ? (
-                <Link
-                  key={c.chunk_id}
-                  href={`/learn/${c.slug}`}
-                  className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
-                  style={chipStyle}
-                >
+                <Link key={c.chunk_id} href={`/learn/${c.slug}`} className={chipClass}>
                   <BookOpen className="h-3 w-3" />
                   {label}
                 </Link>
               ) : (
-                <button
-                  key={c.chunk_id}
-                  onClick={() => onCitation(c)}
-                  className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
-                  style={chipStyle}
-                >
+                <button key={c.chunk_id} onClick={() => onCitation(c)} className={chipClass}>
                   <BookOpen className="h-3 w-3" />
                   {label}
                 </button>
@@ -227,7 +209,7 @@ function ChatInput({
   busy: boolean;
 }) {
   return (
-    <div className="shrink-0 border-t p-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+    <div className="shrink-0 border-t border-border p-4">
       <div className="mx-auto flex max-w-2xl items-end gap-2">
         <textarea
           value={value}
@@ -241,15 +223,13 @@ function ChatInput({
           rows={1}
           aria-label="Message"
           placeholder="Ask about nutrition or training…"
-          className="flex-1 resize-none rounded-xl px-4 py-3 text-sm outline-none"
-          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#e8e8e8", maxHeight: 120 }}
+          className="max-h-30 flex-1 resize-none rounded-xl border border-border bg-surface-2 px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-ring"
         />
         <button
           onClick={onSend}
           disabled={busy || !value.trim()}
           aria-label="Send"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors disabled:opacity-40"
-          style={{ background: "#f59e0b", color: "#1a1300" }}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground transition-colors hover:brightness-110 disabled:opacity-40"
         >
           <Send className="h-4 w-4" />
         </button>
@@ -261,32 +241,34 @@ function ChatInput({
 function CitationModal({ citation, onClose }: { citation: Citation; onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.8)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
       onClick={onClose}
       role="dialog"
       aria-label="Source"
     >
       <div
-        className="w-full max-w-md rounded-2xl p-5"
-        style={{ background: "#0d0d0d", border: "1px solid rgba(255,255,255,0.1)" }}
+        className="mf-rise w-full max-w-md rounded-2xl border border-border bg-popover p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" style={{ color: "#818cf8" }} />
-            <p className="text-sm font-semibold" style={{ color: "#e8e8e8" }}>
+            <BookOpen className="h-4 w-4 text-indigo-400" />
+            <p className="text-sm font-semibold text-foreground">
               {citation.title ?? "Source"}
             </p>
           </div>
-          <button onClick={onClose} aria-label="Close" style={{ color: "#888" }}>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="text-muted-foreground transition-colors hover:text-foreground"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
-        <p className="mt-2 text-xs uppercase tracking-wider" style={{ color: "#555" }}>
+        <p className="mt-2 text-xs uppercase tracking-wider text-muted-foreground/60">
           {citation.source ?? "knowledge base"}
         </p>
-        <p className="mt-3 text-xs leading-relaxed" style={{ color: "#666" }}>
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           This answer drew on the curated MessFit knowledge base. Full article text is
           available in the knowledge base under this title.
         </p>
