@@ -7,6 +7,13 @@ import { apiFetch } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { getMesses, type Mess } from "@/lib/mess-api";
 import type { CanteenFreq, Equipment, ProfilePayload, HostelContextPayload } from "@/lib/types";
+import {
+  Field,
+  OptionButton,
+  RangeInput,
+  StepActions,
+  StepHeading,
+} from "@/components/onboarding/controls";
 
 const canteenOptions: { value: CanteenFreq; label: string }[] = [
   { value: "never", label: "Never" },
@@ -143,82 +150,70 @@ export default function HostelStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <div>
-        <h2 className="text-xl font-bold" style={{ color: "#f0f0f0" }}>
-          Hostel context
-        </h2>
-        <p className="mt-1 text-sm" style={{ color: "#666" }}>
-          Your mess, canteen access, and workout setup.
-        </p>
-      </div>
+      <StepHeading
+        title="Hostel context"
+        description="Your mess, canteen access, and workout setup."
+      />
 
       {/* Mess selector */}
       <div className="flex flex-col gap-2">
-        <label className="text-xs font-medium" style={{ color: "#9a9a9a" }}>
-          Your mess <span style={{ color: "#f87171" }}>*</span>
+        <label className="text-xs font-medium text-muted-foreground">
+          Your mess <span className="text-destructive">*</span>
         </label>
         {messes.length === 0 ? (
-          <p className="text-xs" style={{ color: "#555" }}>Loading messes…</p>
+          <p className="text-xs text-muted-foreground/60">Loading messes…</p>
         ) : (
           <div className="flex flex-col gap-2">
-            {messes.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => store.setField("mess_id", m.id)}
-                className="rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all"
-                style={
-                  store.mess_id === m.id
-                    ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.4)" }
-                    : { background: "rgba(255,255,255,0.04)", color: "#888", border: "1px solid rgba(255,255,255,0.08)" }
-                }
-              >
-                {m.name}
-                <span className="block text-xs font-normal" style={{ color: store.mess_id === m.id ? "#c47a0b" : "#555" }}>
-                  {m.college}
-                </span>
-              </button>
-            ))}
+            {messes.map((m) => {
+              const active = store.mess_id === m.id;
+              return (
+                <OptionButton
+                  key={m.id}
+                  active={active}
+                  onClick={() => store.setField("mess_id", m.id)}
+                  className="text-left"
+                >
+                  {m.name}
+                  <span
+                    className={`block text-xs font-normal ${active ? "text-accent/80" : "text-muted-foreground/60"}`}
+                  >
+                    {m.college}
+                  </span>
+                </OptionButton>
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* Canteen frequency */}
       <div className="flex flex-col gap-2">
-        <label className="text-xs font-medium" style={{ color: "#9a9a9a" }}>
+        <label className="text-xs font-medium text-muted-foreground">
           How often do you eat at the canteen?
         </label>
         <div className="grid grid-cols-2 gap-2">
           {canteenOptions.map((c) => (
-            <button
+            <OptionButton
               key={c.value}
-              type="button"
+              active={store.canteen_freq === c.value}
               onClick={() => store.setField("canteen_freq", c.value)}
-              className="rounded-xl px-3 py-2.5 text-sm font-medium transition-all"
-              style={
-                store.canteen_freq === c.value
-                  ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.4)" }
-                  : { background: "rgba(255,255,255,0.04)", color: "#888", border: "1px solid rgba(255,255,255,0.08)" }
-              }
             >
               {c.label}
-            </button>
+            </OptionButton>
           ))}
         </div>
       </div>
 
       {/* Budget */}
       <Field label={`Weekly top-up budget — ₹${store.top_up_budget_inr_weekly}`}>
-        <input
-          type="range"
+        <RangeInput
           min={0}
           max={1000}
           step={50}
           value={store.top_up_budget_inr_weekly}
           onChange={(e) => store.setField("top_up_budget_inr_weekly", Number(e.target.value))}
-          className="w-full accent-amber-500"
         />
-        <div className="flex justify-between text-xs" style={{ color: "#444" }}>
+        <div className="flex justify-between text-xs text-muted-foreground/60">
           <span>₹0</span>
           <span>₹1000</span>
         </div>
@@ -226,91 +221,55 @@ export default function HostelStep() {
 
       {/* Equipment */}
       <div className="flex flex-col gap-2">
-        <label className="text-xs font-medium" style={{ color: "#9a9a9a" }}>
+        <label className="text-xs font-medium text-muted-foreground">
           Workout equipment available
         </label>
         <div className="flex flex-wrap gap-2">
           {equipmentOptions.map((eq) => (
-            <button
+            <OptionButton
               key={eq.value}
-              type="button"
+              active={store.equipment.includes(eq.value)}
               onClick={() => toggleEquipment(eq.value)}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
-              style={
-                store.equipment.includes(eq.value)
-                  ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.4)" }
-                  : { background: "rgba(255,255,255,0.04)", color: "#666", border: "1px solid rgba(255,255,255,0.08)" }
-              }
+              className="rounded-lg px-3 py-1.5 text-xs"
             >
               {eq.label}
-            </button>
+            </OptionButton>
           ))}
         </div>
       </div>
 
       {/* Workout days */}
       <Field label={`Workout days/week — ${store.workout_days_per_week}`}>
-        <input
-          type="range"
+        <RangeInput
           min={0}
           max={7}
           value={store.workout_days_per_week}
           onChange={(e) => store.setField("workout_days_per_week", Number(e.target.value))}
-          className="w-full accent-amber-500"
         />
       </Field>
 
       {/* Workout minutes */}
       <Field label={`Minutes per session — ${store.workout_minutes_per_day}`}>
-        <input
-          type="range"
+        <RangeInput
           min={0}
           max={120}
           step={5}
           value={store.workout_minutes_per_day}
           onChange={(e) => store.setField("workout_minutes_per_day", Number(e.target.value))}
-          className="w-full accent-amber-500"
         />
       </Field>
 
       {error && (
-        <p
-          className="rounded-lg px-3 py-2 text-xs"
-          style={{ background: "rgba(239,68,68,0.1)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }}
-        >
+        <p className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
           {error}
         </p>
       )}
 
-      <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => router.push("/onboarding/diet")}
-          className="flex-1 rounded-xl py-3 text-sm font-medium"
-          style={{ border: "1px solid rgba(255,255,255,0.1)", color: "#888" }}
-        >
-          ← Back
-        </button>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="flex-1 rounded-xl py-3 text-sm font-semibold transition-all hover:brightness-110 disabled:opacity-50"
-          style={{ background: "linear-gradient(135deg, #d97706, #f59e0b)", color: "#000" }}
-        >
-          {submitting ? "Saving…" : "See my targets →"}
-        </button>
-      </div>
+      <StepActions
+        onBack={() => router.push("/onboarding/diet")}
+        disabled={submitting}
+        nextLabel={submitting ? "Saving…" : "See my targets →"}
+      />
     </form>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label className="text-xs font-medium" style={{ color: "#9a9a9a" }}>
-        {label}
-      </label>
-      {children}
-    </div>
   );
 }

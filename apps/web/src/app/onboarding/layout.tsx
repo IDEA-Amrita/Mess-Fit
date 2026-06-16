@@ -28,42 +28,41 @@ export default function OnboardingLayout({
   const currentIdx = steps.findIndex((s) => pathname.startsWith(s.path));
 
   return (
-    <div
-      className="flex min-h-screen flex-col items-center px-4 py-10"
-      style={{ background: "#080808" }}
-    >
+    <div className="relative flex min-h-screen flex-col items-center bg-background px-4 py-10">
+      {/* Amber glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 0%, var(--accent-muted) 0%, transparent 70%)",
+        }}
+      />
+
       {/* Logo */}
-      <Link href="/" className="mb-8 text-2xl font-bold">
-        <span style={{ color: "#f0f0f0" }}>Mess</span>
-        <span style={{ color: "#f59e0b" }}>Fit</span>
+      <Link href="/" className="relative mb-8 text-2xl font-bold">
+        <span className="text-foreground">Mess</span>
+        <span className="text-accent">Fit</span>
       </Link>
 
       {/* Step indicator */}
-      <div className="mb-8 flex items-center gap-2">
+      <div className="relative mb-8 flex items-center gap-2">
         {steps.map((step, i) => (
           <div key={step.path} className="flex items-center gap-2">
             <div
-              className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-colors"
-              style={
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-colors ${
                 i <= currentIdx
-                  ? { background: "rgba(245,158,11,0.2)", color: "#f59e0b" }
-                  : {
-                      background: "rgba(255,255,255,0.05)",
-                      color: "#444",
-                    }
-              }
+                  ? "bg-accent-muted text-accent"
+                  : "bg-surface-2 text-muted-foreground/60"
+              }`}
             >
               {i + 1}
             </div>
             {i < steps.length - 1 && (
               <div
-                className="h-px w-6"
-                style={{
-                  background:
-                    i < currentIdx
-                      ? "rgba(245,158,11,0.4)"
-                      : "rgba(255,255,255,0.08)",
-                }}
+                className={`h-px w-6 transition-colors ${
+                  i < currentIdx ? "bg-accent/40" : "bg-border"
+                }`}
               />
             )}
           </div>
@@ -71,7 +70,7 @@ export default function OnboardingLayout({
       </div>
 
       {/* Step content */}
-      <div className="w-full max-w-md">{children}</div>
+      <div className="relative w-full max-w-md mf-rise">{children}</div>
     </div>
   );
 }
