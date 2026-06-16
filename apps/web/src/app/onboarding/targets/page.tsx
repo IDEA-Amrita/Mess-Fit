@@ -23,11 +23,8 @@ export default function TargetsPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center gap-4 py-20">
-        <div
-          className="h-8 w-8 animate-spin rounded-full border-2"
-          style={{ borderColor: "rgba(255,255,255,0.12)", borderTopColor: "#f59e0b" }}
-        />
-        <p className="text-sm" style={{ color: "#555" }}>Computing your targets…</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent" />
+        <p className="text-sm text-muted-foreground/60">Computing your targets…</p>
       </div>
     );
   }
@@ -35,11 +32,10 @@ export default function TargetsPage() {
   if (error || !targets) {
     return (
       <div className="flex flex-col items-center gap-4 py-20">
-        <p className="text-sm" style={{ color: "#f87171" }}>{error ?? "Failed to load targets"}</p>
+        <p className="text-sm text-destructive">{error ?? "Failed to load targets"}</p>
         <button
           onClick={() => router.push("/onboarding/hostel")}
-          className="text-sm font-medium"
-          style={{ color: "#f59e0b" }}
+          className="text-sm font-medium text-accent"
         >
           ← Go back
         </button>
@@ -47,6 +43,7 @@ export default function TargetsPage() {
     );
   }
 
+  // Data-viz colors (mirror the progress charts) — kept as hex, not chrome tokens.
   const bmiColors: Record<string, string> = {
     underweight: "#60a5fa",
     normal: "#34d399",
@@ -57,10 +54,8 @@ export default function TargetsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="text-center">
-        <h2 className="text-xl font-bold" style={{ color: "#f0f0f0" }}>
-          Your daily targets
-        </h2>
-        <p className="mt-1 text-sm" style={{ color: "#666" }}>
+        <h2 className="text-h2 text-foreground">Your daily targets</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
           Personalized for your body, goal, and conditions.
         </p>
       </div>
@@ -88,27 +83,19 @@ export default function TargetsPage() {
       </div>
 
       {/* Why these numbers? */}
-      <div
-        className="rounded-2xl overflow-hidden"
-        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
-      >
+      <div className="overflow-hidden rounded-2xl border border-border bg-surface-1">
         <button
           onClick={() => setShowMath(!showMath)}
           className="flex w-full items-center justify-between px-5 py-4 text-left"
         >
-          <span className="text-sm font-semibold" style={{ color: "#d0d0d0" }}>
-            Why these numbers?
-          </span>
-          <span className="text-xs" style={{ color: "#555" }}>
+          <span className="text-sm font-semibold text-foreground">Why these numbers?</span>
+          <span className="text-xs text-muted-foreground/60">
             {showMath ? "▲ Hide" : "▼ Show math"}
           </span>
         </button>
 
         {showMath && (
-          <div
-            className="border-t px-5 py-4 space-y-3"
-            style={{ borderColor: "rgba(255,255,255,0.06)" }}
-          >
+          <div className="space-y-3 border-t border-border px-5 py-4">
             <MathRow label="Age" value={String(targets.rationale.age)} />
             <MathRow label="BMI" value={String(targets.rationale.bmi_formula)} />
             <MathRow label="Classification" value={String(targets.rationale.bmi_classification_basis)} />
@@ -132,15 +119,13 @@ export default function TargetsPage() {
       <div className="flex gap-3">
         <button
           onClick={() => router.push("/onboarding/profile")}
-          className="flex-1 rounded-xl py-3 text-sm font-medium"
-          style={{ border: "1px solid rgba(255,255,255,0.1)", color: "#888" }}
+          className="flex-1 rounded-xl border border-border py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           ← Adjust
         </button>
         <Link
           href="/dashboard"
-          className="flex flex-1 items-center justify-center rounded-xl py-3 text-sm font-semibold transition-all hover:brightness-110"
-          style={{ background: "linear-gradient(135deg, #d97706, #f59e0b)", color: "#000" }}
+          className="flex flex-1 items-center justify-center rounded-xl bg-[linear-gradient(135deg,var(--accent-dark),var(--accent))] py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
         >
           Looks good →
         </Link>
@@ -161,18 +146,13 @@ function TargetCard({
   accent: string;
 }) {
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
-    >
-      <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "#555" }}>
+    <div className="rounded-2xl border border-border bg-surface-1 p-4">
+      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
         {label}
       </p>
       <p className="mt-1 text-2xl font-bold" style={{ color: accent }}>
         {value}
-        <span className="ml-1 text-sm font-normal" style={{ color: "#666" }}>
-          {unit}
-        </span>
+        <span className="ml-1 text-sm font-normal text-muted-foreground">{unit}</span>
       </p>
     </div>
   );
@@ -181,12 +161,8 @@ function TargetCard({
 function MathRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs font-medium" style={{ color: "#888" }}>
-        {label}
-      </span>
-      <span className="text-xs font-mono" style={{ color: "#d0d0d0" }}>
-        {value}
-      </span>
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="font-mono text-xs text-foreground/80">{value}</span>
     </div>
   );
 }
