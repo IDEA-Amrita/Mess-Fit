@@ -101,10 +101,13 @@ function slotMacros(items: PlateItem[]) {
 
 function MealTab({ today }: { today?: TodayLogs }) {
   const qc = useQueryClient();
+  // Plate data is *optional context* — meal logging works without it.
+  // If the optimizer fails (no mess, infeasible), users can still log meals.
   const plate = useQuery<OptimizationResult>({
     queryKey: ["plate", "today"],
     queryFn: optimizeToday,
     retry: 0,
+    // Don't let a plate failure block the tab; just treat it as missing.
   });
 
   const statusByMeal = useMemo(() => {
@@ -136,6 +139,10 @@ function MealTab({ today }: { today?: TodayLogs }) {
       });
       return { prev };
     },
+    onSuccess: (_data, vars) => {
+      const label = vars.meal_type.charAt(0).toUpperCase() + vars.meal_type.slice(1);
+      toast.success(`${label} logged ✓`);
+    },
     onError: (_e, _v, ctx) => {
       if (ctx?.prev) qc.setQueryData(TODAY_KEY, ctx.prev);
       toast.error("Couldn't save — try again");
@@ -145,9 +152,12 @@ function MealTab({ today }: { today?: TodayLogs }) {
 
   function record(meal: MealType, status: MealStatus, notes?: string) {
     const items = plate.data?.plan[meal] ?? [];
-    const macros = status === "as_planned" ? slotMacros(items) : {};
+    const macros = status === "as_planned" && items.length > 0 ? slotMacros(items) : {};
     mutation.mutate({ date: todayIso(), meal_type: meal, status, notes, ...macros });
   }
+
+  // Plate data is supplemental: show dish names when available, but always show meal slots.
+  const plateAvailable = plate.isSuccess && plate.data;
 
   return (
     <div className="space-y-3">
@@ -155,9 +165,9 @@ function MealTab({ today }: { today?: TodayLogs }) {
         <MealSlot
           key={meal}
           meal={meal}
-          items={plate.data?.plan[meal] ?? []}
+          items={plateAvailable ? (plate.data.plan[meal] ?? []) : []}
           plateLoading={plate.isLoading}
-          plateError={plate.isError}
+          plateError={false}
           status={statusByMeal[meal]}
           onRecord={record}
         />

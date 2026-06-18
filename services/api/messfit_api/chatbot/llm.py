@@ -11,6 +11,7 @@ from __future__ import annotations
 import logging
 import re
 from collections.abc import AsyncIterator
+from functools import lru_cache
 
 from ..config import settings
 from .retrieval import RetrievedChunk
@@ -109,11 +110,17 @@ def build_messages(
 # ─── streaming generation (network) ───────────────────────────────────────
 
 
-async def _stream_gemini(messages: list[dict[str, str]]) -> AsyncIterator[str]:
+@lru_cache(maxsize=1)
+def _gemini_client():
+    """Singleton Gemini client — reuses the HTTP connection pool."""
     from google import genai
+    return genai.Client(api_key=settings.gemini_api_key)
+
+
+async def _stream_gemini(messages: list[dict[str, str]]) -> AsyncIterator[str]:
     from google.genai import types
 
-    client = genai.Client(api_key=settings.gemini_api_key)
+    client = _gemini_client()
     system = "\n\n".join(m["content"] for m in messages if m["role"] == "system")
     contents = [
         types.Content(
@@ -132,10 +139,15 @@ async def _stream_gemini(messages: list[dict[str, str]]) -> AsyncIterator[str]:
             yield chunk.text
 
 
-async def _complete_groq(messages: list[dict[str, str]]) -> str:
+@lru_cache(maxsize=1)
+def _groq_client():
+    """Singleton Groq client — reuses the HTTP connection pool."""
     from groq import AsyncGroq
+    return AsyncGroq(api_key=settings.groq_api_key)
 
-    client = AsyncGroq(api_key=settings.groq_api_key)
+
+async def _complete_groq(messages: list[dict[str, str]]) -> str:
+    client = _groq_client()
     resp = await client.chat.completions.create(
         model=GROQ_MODEL, messages=messages, temperature=0.3  # type: ignore[arg-type]
     )
