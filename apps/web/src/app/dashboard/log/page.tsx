@@ -387,7 +387,13 @@ function WorkoutTab({ today }: { today?: TodayLogs }) {
 
 // ── mood tab ───────────────────────────────────────────────────────────────────
 
-const EMOJI = ["🥱", "😪", "😐", "😊", "🚀"];
+const EMOJI_SCALE = [
+  { emoji: "🥱", label: "Very low" },
+  { emoji: "😪", label: "Low" },
+  { emoji: "😐", label: "Moderate" },
+  { emoji: "😊", label: "Good" },
+  { emoji: "🚀", label: "Excellent" },
+];
 
 function MoodTab({ today }: { today?: TodayLogs }) {
   const qc = useQueryClient();
@@ -439,21 +445,22 @@ function Scale5({
     <div className={cn("p-4", CARD)}>
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
       <div className="mt-2 flex justify-between gap-2">
-        {EMOJI.map((e, i) => {
+        {EMOJI_SCALE.map((item, i) => {
           const level = i + 1;
           const active = value === level;
           return (
             <button
               key={level}
               onClick={() => onChange(level)}
-              aria-label={`${label} ${level}`}
+              aria-label={`${label}: ${item.label}`}
               className={cn(
-                "flex h-12 flex-1 items-center justify-center rounded-lg text-2xl transition-all",
+                "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2 transition-all",
                 active ? "bg-accent-muted ring-1 ring-accent/40" : "bg-white/5",
                 active || value == null ? "opacity-100" : "opacity-40",
               )}
             >
-              {e}
+              <span className="text-2xl">{item.emoji}</span>
+              <span className="text-[9px] font-medium text-muted-foreground">{item.label}</span>
             </button>
           );
         })}

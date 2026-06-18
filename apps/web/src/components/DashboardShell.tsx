@@ -86,13 +86,21 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-background">
+      {/* Skip to content — keyboard a11y (WCAG 2.4.1) */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
+      >
+        Skip to content
+      </a>
+
       {/* ── Desktop sidebar (≥lg) ── */}
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-border bg-surface-1 lg:flex">
         <div className="flex h-16 shrink-0 items-center border-b border-border px-5">
           <Logo />
         </div>
 
-        <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3">
+        <nav aria-label="Main navigation" className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3">
           {NAV_ITEMS.map((item) => (
             <NavRow key={item.label} item={item} active={isActive(item.href)} />
           ))}
@@ -123,7 +131,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ── Main ── */}
-      <main className="flex min-h-screen flex-1 flex-col pb-20 pt-14 lg:ml-60 lg:pb-0 lg:pt-0">
+      <main id="main-content" className="flex min-h-screen flex-1 flex-col pb-20 pt-14 lg:ml-60 lg:pb-0 lg:pt-0">
         {children}
       </main>
 

@@ -25,7 +25,7 @@
 
   --text-primary: #f4f4f5;
   --text-secondary: #a1a1aa;
-  --text-muted: #5e5e68;
+  --text-muted: #76767f;
 
   --glass: rgba(255, 255, 255, 0.04);
   --glass-border: rgba(255, 255, 255, 0.08);
@@ -141,6 +141,15 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .mf-rise {
     animation: none;
+  }
+
+  /* Disable all CSS transitions for users who prefer reduced motion (WCAG 2.3.3) */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 
