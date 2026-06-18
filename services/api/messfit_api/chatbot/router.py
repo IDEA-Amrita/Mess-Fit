@@ -28,6 +28,7 @@ from ..db import get_session
 from ..observability.ratelimit import limiter
 from ..observability.setup import get_tracer
 from ..profile.goal_engine import compute_age, compute_targets
+from ..profile.models import ProfileORM
 from ..profile.repository import get_profile
 from . import cache, embeddings, llm, repository, retrieval
 from .schemas import ConversationOut, MessageIn, MessageOut
@@ -37,25 +38,25 @@ router = APIRouter(prefix="/api/v1/chat", tags=["chatbot"])
 _HISTORY_LIMIT = 10
 
 
-def _profile_summary(profile: object | None, today: date) -> str:
+def _profile_summary(profile: ProfileORM | None, today: date) -> str:
     """A pseudonymized one-line profile summary for the prompt (no name/email)."""
     if profile is None:
         return "User profile: not set up yet."
     targets = compute_targets(
-        dob=profile.dob,  # type: ignore[attr-defined]
-        sex=profile.sex,  # type: ignore[attr-defined]
-        height_cm=float(profile.height_cm),  # type: ignore[attr-defined]
-        current_weight_kg=float(profile.current_weight_kg),  # type: ignore[attr-defined]
-        target_rate_kg_per_week=float(profile.target_rate_kg_per_week),  # type: ignore[attr-defined]
-        goal=profile.goal,  # type: ignore[attr-defined]
-        activity_level=profile.activity_level,  # type: ignore[attr-defined]
-        conditions=list(profile.conditions or []),  # type: ignore[attr-defined]
+        dob=profile.dob,
+        sex=profile.sex,
+        height_cm=float(profile.height_cm),
+        current_weight_kg=float(profile.current_weight_kg),
+        target_rate_kg_per_week=float(profile.target_rate_kg_per_week),
+        goal=profile.goal,
+        activity_level=profile.activity_level,
+        conditions=list(profile.conditions or []),
         today=today,
     )
-    age = compute_age(profile.dob, today)  # type: ignore[attr-defined]
-    conditions = ", ".join(profile.conditions or []) or "none"  # type: ignore[attr-defined]
+    age = compute_age(profile.dob, today)
+    conditions = ", ".join(profile.conditions or []) or "none"
     return (
-        f"User profile: {age}y {profile.sex}, goal: {profile.goal}, "  # type: ignore[attr-defined]
+        f"User profile: {age}y {profile.sex}, goal: {profile.goal}, "
         f"daily targets: {targets.daily_kcal} kcal, {targets.daily_protein_g}g protein. "
         f"Conditions: {conditions}."
     )

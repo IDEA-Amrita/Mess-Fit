@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Sunrise, Sun, Coffee, Moon, RefreshCw, AlertCircle, ShoppingBag } from "lucide-react";
+import { Sunrise, Sun, Coffee, Moon, RefreshCw, AlertCircle, ShoppingBag, Check } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -15,6 +16,8 @@ import {
   type PlateItem,
   type GapFill,
 } from "@/lib/optimizer-api";
+import { logMeal, todayIso, type MealType } from "@/lib/tracking-api";
+import { toast } from "@/lib/toast-store";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -117,6 +120,35 @@ function DishCard({ item }: { item: PlateItem }) {
 function MealSection({ meal, items }: { meal: string; items: PlateItem[] }) {
   const meta = getMealMeta(meal);
   const mealKcal = items.reduce((s, d) => s + d.kcal, 0);
+  const qc = useQueryClient();
+
+  const logMutation = useMutation({
+    mutationFn: logMeal,
+    onSuccess: () => {
+      const label = meal.charAt(0).toUpperCase() + meal.slice(1);
+      toast.success(`${label} logged as planned ✓`);
+      qc.invalidateQueries({ queryKey: ["logs", "today"] });
+    },
+    onError: () => toast.error("Couldn't log — try again"),
+  });
+
+  function handleLogAsPlanned() {
+    const macros = items.reduce(
+      (acc, d) => ({
+        kcal: acc.kcal + d.kcal,
+        protein_g: acc.protein_g + d.protein_g,
+        carbs_g: acc.carbs_g + d.carbs_g,
+        fats_g: acc.fats_g + d.fats_g,
+      }),
+      { kcal: 0, protein_g: 0, carbs_g: 0, fats_g: 0 },
+    );
+    logMutation.mutate({
+      date: todayIso(),
+      meal_type: meal as MealType,
+      status: "as_planned",
+      ...macros,
+    });
+  }
 
   return (
     <section className="space-y-3">
@@ -129,6 +161,14 @@ function MealSection({ meal, items }: { meal: string; items: PlateItem[] }) {
         </div>
         <h3 className="text-sm font-semibold text-foreground">{meta.label}</h3>
         <span className="text-xs text-muted-foreground">{Math.round(mealKcal)} kcal</span>
+        <button
+          onClick={handleLogAsPlanned}
+          disabled={logMutation.isPending}
+          className="ml-auto flex items-center gap-1 rounded-lg bg-accent-muted px-2.5 py-1 text-[11px] font-semibold text-accent transition-colors hover:bg-accent/20 disabled:opacity-40"
+        >
+          <Check className="h-3 w-3" />
+          {logMutation.isPending ? "Logging…" : "Log as planned"}
+        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -229,6 +269,7 @@ export default function PlatePage() {
             <button
               onClick={fetchPlate}
               disabled={loading}
+              aria-label="Refresh plate"
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
             >
               <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
