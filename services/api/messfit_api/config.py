@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     # URL in production so limits are shared across workers.
     rate_limit_enabled: bool = True
     rate_limit_storage_uri: str = "memory://"
+    
+    # Push Notifications
+    vapid_private_key: str = ""
+    vapid_subscriber: str = "mailto:admin@example.com"
 
 
 settings = Settings()

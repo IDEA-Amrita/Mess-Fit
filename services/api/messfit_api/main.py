@@ -18,6 +18,7 @@ from .optimizer.routes import router as optimizer_router
 from .profile.router import router as profile_router
 from .tracking.router import router as tracking_router
 from .workouts.router import router as workouts_router
+from .notifications.router import router as notifications_router
 
 # Error reporting — no-op unless SENTRY_DSN is set. Init before the app so the
 # Sentry FastAPI/Starlette integrations patch correctly.
@@ -68,3 +69,4 @@ app.include_router(workouts_router)
 app.include_router(tracking_router)
 app.include_router(chatbot_router)
 app.include_router(account_router)
+app.include_router(notifications_router)
