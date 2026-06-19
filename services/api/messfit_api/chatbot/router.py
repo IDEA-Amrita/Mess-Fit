@@ -18,7 +18,7 @@ import uuid
 from collections.abc import AsyncIterator
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -74,10 +74,12 @@ async def create_conversation(
 
 @router.get("/conversations", response_model=list[ConversationOut])
 async def list_conversations(
+    limit: int = Query(50, le=100),
+    offset: int = Query(0, ge=0),
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session),
 ):
-    return await repository.list_conversations(db, uuid.UUID(user_id))
+    return await repository.list_conversations(db, uuid.UUID(user_id), limit=limit, offset=offset)
 
 
 @router.get("/conversations/{conv_id}/messages", response_model=list[MessageOut])
