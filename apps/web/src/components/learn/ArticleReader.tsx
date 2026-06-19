@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowLeft, Clock } from "lucide-react";
+import { ArrowLeft01Icon, Clock01Icon } from "@hugeicons/core-free-icons";
 
 interface Meta {
   slug: string;
@@ -76,7 +76,7 @@ export function ArticleReader({ article, related }: ArticleReaderProps) {
           href="/learn"
           className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft01Icon className="h-4 w-4" />
           Learn
         </Link>
         <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white/5">
@@ -116,7 +116,7 @@ export function ArticleReader({ article, related }: ArticleReaderProps) {
           <h1 className="text-h1 text-foreground">{article.title}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
-              <Clock className="h-3 w-3" />
+              <Clock01Icon className="h-3 w-3" />
               {article.reading_time_min} min read
             </span>
             {article.tags.map((t) => (

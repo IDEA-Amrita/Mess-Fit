@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Send, Sparkles, BookOpen, X } from "lucide-react";
+import { SentIcon, SparklesIcon, BookOpen01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import { DashboardShell } from "@/components/DashboardShell";
 import { toast } from "@/lib/toast-store";
 import { ApiError } from "@/lib/api";
@@ -123,7 +123,7 @@ function EmptyState({ onPick }: { onPick: (t: string) => void }) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-5 pt-16 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-muted text-accent">
-        <Sparkles className="h-7 w-7" />
+        <SparklesIcon className="h-7 w-7" />
       </div>
       <div>
         <p className="font-semibold text-foreground">Ask your nutrition &amp; fitness coach</p>
@@ -180,12 +180,12 @@ function ChatBubble({
               // opens the lightweight source modal.
               return c.slug ? (
                 <Link key={c.chunk_id} href={`/learn/${c.slug}`} className={chipClass}>
-                  <BookOpen className="h-3 w-3" />
+                  <BookOpen01Icon className="h-3 w-3" />
                   {label}
                 </Link>
               ) : (
                 <button key={c.chunk_id} onClick={() => onCitation(c)} className={chipClass}>
-                  <BookOpen className="h-3 w-3" />
+                  <BookOpen01Icon className="h-3 w-3" />
                   {label}
                 </button>
               );
@@ -231,7 +231,7 @@ function ChatInput({
           aria-label="Send"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground transition-colors hover:brightness-110 disabled:opacity-40"
         >
-          <Send className="h-4 w-4" />
+          <SentIcon className="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -252,7 +252,7 @@ function CitationModal({ citation, onClose }: { citation: Citation; onClose: () 
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-indigo-400" />
+            <BookOpen01Icon className="h-4 w-4 text-indigo-400" />
             <p className="text-sm font-semibold text-foreground">
               {citation.title ?? "Source"}
             </p>
@@ -262,7 +262,7 @@ function CitationModal({ citation, onClose }: { citation: Citation; onClose: () 
             aria-label="Close"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
-            <X className="h-4 w-4" />
+            <Cancel01Icon className="h-4 w-4" />
           </button>
         </div>
         <p className="mt-2 text-xs uppercase tracking-wider text-muted-foreground/60">

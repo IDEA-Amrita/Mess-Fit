@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { X } from "lucide-react";
+import { Cancel01Icon } from "@hugeicons/core-free-icons";
 
 /**
  * Lazy demo-video overlay. The iframe is only mounted while the modal is open
@@ -47,7 +47,7 @@ export function VideoModal({
             {title}
           </p>
           <button onClick={onClose} aria-label="Close" style={{ color: "#888" }}>
-            <X className="h-5 w-5" />
+            <Cancel01Icon className="h-5 w-5" />
           </button>
         </div>
         <div className="relative" style={{ aspectRatio: "16 / 9" }}>

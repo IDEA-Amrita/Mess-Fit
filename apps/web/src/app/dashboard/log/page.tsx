@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Pencil, SkipForward, Dumbbell, Scale, Smile, UtensilsCrossed } from "lucide-react";
+import { Tick01Icon, PencilEdit01Icon, SkipNextIcon, Dumbbell01Icon, WeightScale01Icon, SmileIcon, Restaurant01Icon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -37,10 +37,10 @@ const CHOICE_IDLE = "bg-white/5 text-muted-foreground hover:text-foreground";
 type Tab = "meal" | "weight" | "workout" | "mood";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: "meal", label: "Meal", icon: <UtensilsCrossed className="h-4 w-4" /> },
-  { id: "weight", label: "Weight", icon: <Scale className="h-4 w-4" /> },
-  { id: "workout", label: "Workout", icon: <Dumbbell className="h-4 w-4" /> },
-  { id: "mood", label: "Mood", icon: <Smile className="h-4 w-4" /> },
+  { id: "meal", label: "Meal", icon: <Restaurant01Icon className="h-4 w-4" /> },
+  { id: "weight", label: "Weight", icon: <WeightScale01Icon className="h-4 w-4" /> },
+  { id: "workout", label: "Workout", icon: <Dumbbell01Icon className="h-4 w-4" /> },
+  { id: "mood", label: "Mood", icon: <SmileIcon className="h-4 w-4" /> },
 ];
 
 // ── page ─────────────────────────────────────────────────────────────────────
@@ -195,9 +195,9 @@ function MealSlot({
   const [notes, setNotes] = useState("");
 
   const options: { value: MealStatus; label: string; icon: React.ReactNode }[] = [
-    { value: "as_planned", label: "As planned", icon: <Check className="h-3.5 w-3.5" /> },
-    { value: "different", label: "Different", icon: <Pencil className="h-3.5 w-3.5" /> },
-    { value: "skipped", label: "Skipped", icon: <SkipForward className="h-3.5 w-3.5" /> },
+    { value: "as_planned", label: "As planned", icon: <Tick01Icon className="h-3.5 w-3.5" /> },
+    { value: "different", label: "Different", icon: <PencilEdit01Icon className="h-3.5 w-3.5" /> },
+    { value: "skipped", label: "Skipped", icon: <SkipNextIcon className="h-3.5 w-3.5" /> },
   ];
 
   return (

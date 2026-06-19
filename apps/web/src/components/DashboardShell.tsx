@@ -15,7 +15,7 @@ import {
   Target01Icon,
   Settings01Icon,
 } from "@hugeicons/core-free-icons";
-import { MoreHorizontal, X, LogOut } from "lucide-react";
+import { MoreHorizontalIcon, Cancel01Icon, Logout01Icon } from "@hugeicons/core-free-icons";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
@@ -118,7 +118,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             onClick={handleLogout}
             className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
           >
-            <LogOut className="h-3.5 w-3.5" />
+            <Logout01Icon className="h-3.5 w-3.5" />
             Sign out
           </button>
         </div>
@@ -157,7 +157,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             moreOpen || onSecondaryRoute ? "text-accent" : "text-muted-foreground",
           )}
         >
-          <MoreHorizontal className="h-5 w-5" />
+          <MoreHorizontalIcon className="h-5 w-5" />
           More
         </button>
       </nav>
@@ -180,7 +180,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 aria-label="Close"
                 className="text-muted-foreground transition-colors hover:text-foreground"
               >
-                <X className="h-5 w-5" />
+                <Cancel01Icon className="h-5 w-5" />
               </button>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -192,7 +192,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               onClick={handleLogout}
               className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              <LogOut className="h-4 w-4" />
+              <Logout01Icon className="h-4 w-4" />
               Sign out
             </button>
           </div>

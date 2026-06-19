@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, AlertCircle, X } from "lucide-react";
+import { CheckmarkCircle01Icon, Alert01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import { useToastStore } from "@/lib/toast-store";
 
 export function Toaster() {
@@ -22,9 +22,9 @@ export function Toaster() {
             }}
           >
             {isError ? (
-              <AlertCircle className="h-4 w-4 shrink-0" style={{ color: "#f87171" }} />
+              <Alert01Icon className="h-4 w-4 shrink-0" style={{ color: "#f87171" }} />
             ) : (
-              <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: "#f59e0b" }} />
+              <CheckmarkCircle01Icon className="h-4 w-4 shrink-0" style={{ color: "#f59e0b" }} />
             )}
             <span>{t.message}</span>
             <button
@@ -33,7 +33,7 @@ export function Toaster() {
               className="ml-1 shrink-0"
               style={{ color: "#555" }}
             >
-              <X className="h-3.5 w-3.5" />
+              <Cancel01Icon className="h-3.5 w-3.5" />
             </button>
           </div>
         );
