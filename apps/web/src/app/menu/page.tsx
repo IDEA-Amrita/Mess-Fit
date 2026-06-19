@@ -1,4 +1,5 @@
 "use client";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 import { useCallback, useEffect, useState } from "react";
 import { format, addDays } from "date-fns";
@@ -22,10 +23,10 @@ import { Sun01Icon, Coffee01Icon, Moon01Icon, FireIcon, Location01Icon, ViewOffI
 
 const getMealIcon = (title: string) => {
   switch (title.toLowerCase()) {
-    case "breakfast": return <Sun01Icon className="h-5 w-5 text-amber-400" />;
-    case "lunch": return <Sun01Icon className="h-5 w-5 text-yellow-400" />;
-    case "snack": return <Coffee01Icon className="h-5 w-5 text-orange-400" />;
-    case "dinner": return <Moon01Icon className="h-5 w-5 text-indigo-400" />;
+    case "breakfast": return <HugeiconsIcon icon={Sun01Icon} className="h-5 w-5 text-amber-400" />;
+    case "lunch": return <HugeiconsIcon icon={Sun01Icon} className="h-5 w-5 text-yellow-400" />;
+    case "snack": return <HugeiconsIcon icon={Coffee01Icon} className="h-5 w-5 text-orange-400" />;
+    case "dinner": return <HugeiconsIcon icon={Moon01Icon} className="h-5 w-5 text-indigo-400" />;
     default: return null;
   }
 };
@@ -169,7 +170,7 @@ export default function MenuPage() {
                 </div>
 
                 <div className="mb-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                  <FireIcon className="h-3.5 w-3.5 text-accent" />
+                  <HugeiconsIcon icon={FireIcon} className="h-3.5 w-3.5 text-accent" />
                   <span>{item.dish.kcal} kcal</span>
                 </div>
 
@@ -207,9 +208,9 @@ export default function MenuPage() {
                   }`}
                 >
                   {isExcluded ? (
-                    <><ViewIcon className="h-3 w-3" /> Mark available</>
+                    <><HugeiconsIcon icon={ViewIcon} className="h-3 w-3" /> Mark available</>
                   ) : (
-                    <><ViewOffIcon className="h-3 w-3" /> Not available today</>
+                    <><HugeiconsIcon icon={ViewOffIcon} className="h-3 w-3" /> Not available today</>
                   )}
                 </button>
               </div>
@@ -241,7 +242,7 @@ export default function MenuPage() {
       return (
         <EmptyState
           className="mt-8"
-          icon={<Restaurant01Icon className="h-6 w-6" />}
+          icon={<HugeiconsIcon icon={Restaurant01Icon} className="h-6 w-6" />}
           title="Failed to load menu"
           description="Something went wrong fetching this day's menu. Try again shortly."
         />
@@ -253,7 +254,7 @@ export default function MenuPage() {
       return (
         <EmptyState
           className="mt-8"
-          icon={<Restaurant01Icon className="h-6 w-6" />}
+          icon={<HugeiconsIcon icon={Restaurant01Icon} className="h-6 w-6" />}
           title="No menu items for this day"
           description="Check back later or pick a different day."
         />
@@ -273,7 +274,7 @@ export default function MenuPage() {
   const messSelector =
     messes.length > 0 ? (
       <label className="flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm">
-        <Location01Icon className="h-4 w-4 text-accent" />
+        <HugeiconsIcon icon={Location01Icon} className="h-4 w-4 text-accent" />
         <select
           className="scheme-dark cursor-pointer appearance-none bg-transparent font-medium text-foreground outline-none"
           value={selectedMessId || ""}

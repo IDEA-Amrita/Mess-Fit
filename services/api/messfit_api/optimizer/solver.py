@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import time
 
-import pulp
+import pulp  # type: ignore
 
 from .contracts import (
     DIET_ALLOWED,
@@ -223,6 +223,7 @@ def optimize(inp: OptimizationInput) -> OptimizationOutput:
 
     # Objective: weighted relative deviations + a light spend penalty.
     def _rel(dev: pulp.LpVariable, target: float) -> pulp.LpAffineExpression:
+        # pyrefly: ignore [bad-return]
         return dev / target if target > 0 else dev
 
     prob += (

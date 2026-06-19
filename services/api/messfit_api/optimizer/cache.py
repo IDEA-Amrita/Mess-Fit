@@ -161,7 +161,7 @@ def get_or_optimize(
         )
         return optimize(inp)
     if cached is not None:
-        return _output_from_json(cached)
+        return _output_from_json(cached)  # type: ignore
     output = optimize(inp)
     try:
         redis_client.setex(key, _TTL, _output_to_json(output))

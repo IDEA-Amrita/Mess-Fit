@@ -1,4 +1,5 @@
 "use client";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
@@ -28,13 +29,13 @@ const MEAL_ORDER = ["breakfast", "lunch", "snack", "dinner"] as const;
 function getMealMeta(meal: string) {
   switch (meal) {
     case "breakfast":
-      return { icon: <Sun01Icon className="h-4 w-4" />, color: "#f59e0b", label: "Breakfast" };
+      return { icon: <HugeiconsIcon icon={Sun01Icon} className="h-4 w-4" />, color: "#f59e0b", label: "Breakfast" };
     case "lunch":
-      return { icon: <Sun01Icon className="h-4 w-4" />, color: "#eab308", label: "Lunch" };
+      return { icon: <HugeiconsIcon icon={Sun01Icon} className="h-4 w-4" />, color: "#eab308", label: "Lunch" };
     case "snack":
-      return { icon: <Coffee01Icon className="h-4 w-4" />, color: "#f97316", label: "Snack" };
+      return { icon: <HugeiconsIcon icon={Coffee01Icon} className="h-4 w-4" />, color: "#f97316", label: "Snack" };
     case "dinner":
-      return { icon: <Moon01Icon className="h-4 w-4" />, color: "#818cf8", label: "Dinner" };
+      return { icon: <HugeiconsIcon icon={Moon01Icon} className="h-4 w-4" />, color: "#818cf8", label: "Dinner" };
     default:
       return { icon: null, color: "var(--text-muted)", label: meal };
   }
@@ -166,7 +167,7 @@ function MealSection({ meal, items }: { meal: string; items: PlateItem[] }) {
           disabled={logMutation.isPending}
           className="ml-auto flex items-center gap-1 rounded-lg bg-accent-muted px-2.5 py-1 text-[11px] font-semibold text-accent transition-colors hover:bg-accent/20 disabled:opacity-40"
         >
-          <Tick01Icon className="h-3 w-3" />
+          <HugeiconsIcon icon={Tick01Icon} className="h-3 w-3" />
           {logMutation.isPending ? "Logging…" : "Log as planned"}
         </button>
       </div>
@@ -272,7 +273,7 @@ export default function PlatePage() {
               aria-label="Refresh plate"
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
             >
-              <RefreshIcon className={cn("h-3 w-3", loading && "animate-spin")} />
+              <HugeiconsIcon icon={RefreshIcon} className={cn("h-3 w-3", loading && "animate-spin")} />
               Refresh
             </button>
           }
@@ -296,7 +297,7 @@ function ErrorState({ error }: { error: { message: string; status?: number } }) 
   const isOnboarding = error.status === 409;
   return (
     <EmptyState
-      icon={<Alert01Icon className="h-6 w-6" />}
+      icon={<HugeiconsIcon icon={Alert01Icon} className="h-6 w-6" />}
       title={isOnboarding ? "Onboarding required" : "Couldn't load your plate"}
       description={error.message}
       action={
@@ -359,7 +360,7 @@ function PlateView({ result }: { result: OptimizationResult }) {
               className="flex h-8 w-8 items-center justify-center rounded-xl"
               style={{ background: "rgba(99,102,241,0.1)", color: "#818cf8" }}
             >
-              <ShoppingBag01Icon className="h-4 w-4" />
+              <HugeiconsIcon icon={ShoppingBag01Icon} className="h-4 w-4" />
             </div>
             <h3 className="text-sm font-semibold text-foreground">Canteen top-ups</h3>
           </div>

@@ -28,7 +28,7 @@ from ..db import get_session
 from ..observability.ratelimit import limiter
 from ..observability.setup import get_tracer
 from ..profile.goal_engine import compute_age, compute_targets
-from ..profile.models import ProfileORM
+from ..profile.models import Profile
 from ..profile.repository import get_profile
 from . import cache, embeddings, llm, repository, retrieval
 from .schemas import ConversationOut, MessageIn, MessageOut
@@ -38,7 +38,7 @@ router = APIRouter(prefix="/api/v1/chat", tags=["chatbot"])
 _HISTORY_LIMIT = 10
 
 
-def _profile_summary(profile: ProfileORM | None, today: date) -> str:
+def _profile_summary(profile: Profile | None, today: date) -> str:
     """A pseudonymized one-line profile summary for the prompt (no name/email)."""
     if profile is None:
         return "User profile: not set up yet."

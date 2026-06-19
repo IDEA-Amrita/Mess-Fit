@@ -1,4 +1,5 @@
 "use client";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -12,7 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Alert01Icon, FireIcon, TrendingUp01Icon } from "@hugeicons/core-free-icons";
+import { Alert01Icon, FireIcon, TrendingUpDownIcon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -156,7 +157,7 @@ function ProgressView({ data }: { data: Progress }) {
           label="Streak"
           value={`${data.streak_days}`}
           unit={data.streak_days === 1 ? "day" : "days"}
-          icon={<FireIcon className="h-4 w-4" />}
+          icon={<HugeiconsIcon icon={FireIcon} className="h-4 w-4" />}
           accent
         />
       </div>
@@ -208,7 +209,7 @@ function ProjectionCard({ projection }: { projection: Progress["projection"] }) 
   return (
     <section className={cn("p-4", CARD)}>
       <div className="mb-2 flex items-center gap-2">
-        <TrendingUp01Icon className="h-4 w-4" style={{ color: "#818cf8" }} />
+        <HugeiconsIcon icon={TrendingUpDownIcon} className="h-4 w-4" style={{ color: "#818cf8" }} />
         <h3 className="text-sm font-semibold text-foreground">Projection</h3>
       </div>
       {body}
@@ -236,7 +237,7 @@ function ErrorState({ error }: { error: ApiError | null }) {
   const isOnboarding = error?.status === 409;
   return (
     <EmptyState
-      icon={<Alert01Icon className="h-6 w-6" />}
+      icon={<HugeiconsIcon icon={Alert01Icon} className="h-6 w-6" />}
       title={isOnboarding ? "Onboarding required" : "Couldn't load progress"}
       description={error?.detail ?? "Please try again."}
       action={

@@ -1,4 +1,5 @@
 "use client";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PlusSignIcon, Cancel01Icon } from "@hugeicons/core-free-icons";
@@ -109,7 +110,7 @@ export function RestTimer({
           className="flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-sm font-medium"
           style={{ borderColor: "rgba(255,255,255,0.1)", color: "#888" }}
         >
-          <PlusSignIcon className="h-4 w-4" />
+          <HugeiconsIcon icon={PlusSignIcon} className="h-4 w-4" />
           15s
         </button>
         <button
@@ -117,7 +118,7 @@ export function RestTimer({
           className="flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-semibold"
           style={{ background: "rgba(245,158,11,0.14)", color: "#f59e0b" }}
         >
-          <Cancel01Icon className="h-4 w-4" />
+          <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4" />
           Skip rest
         </button>
       </div>
