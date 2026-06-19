@@ -61,5 +61,5 @@ follow_imports = "silent"
 strict_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
-disallow_untyped_defs = false
+disallow_untyped_defs = true
 check_untyped_defs = true

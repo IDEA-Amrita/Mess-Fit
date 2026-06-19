@@ -11,6 +11,7 @@ from __future__ import annotations
 from datetime import date
 from uuid import UUID
 
+from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,7 +32,7 @@ router = APIRouter(prefix="/api/v1/profile", tags=["profile"])
 async def get_my_profile(
     user_id: str = Depends(get_current_user_id),
     session: AsyncSession = Depends(get_session),
-):
+) -> Any:
     """Return the calling user's profile, or 404 if not set up yet."""
     profile = await repo.get_profile(session, UUID(user_id))
     if profile is None:
@@ -47,7 +48,7 @@ async def upsert_my_profile(
     payload: ProfileIn,
     user_id: str = Depends(get_current_user_id),
     session: AsyncSession = Depends(get_session),
-):
+) -> Any:
     """Create or update the calling user's profile."""
     return await repo.upsert_profile(session, UUID(user_id), payload)
 
@@ -59,7 +60,7 @@ async def upsert_my_profile(
 async def get_my_hostel_context(
     user_id: str = Depends(get_current_user_id),
     session: AsyncSession = Depends(get_session),
-):
+) -> Any:
     ctx = await repo.get_hostel_context(session, UUID(user_id))
     if ctx is None:
         raise HTTPException(
@@ -74,7 +75,7 @@ async def upsert_my_hostel_context(
     payload: HostelContextIn,
     user_id: str = Depends(get_current_user_id),
     session: AsyncSession = Depends(get_session),
-):
+) -> Any:
     return await repo.upsert_hostel_context(session, UUID(user_id), payload)
 
 
@@ -85,7 +86,7 @@ async def upsert_my_hostel_context(
 async def get_my_targets(
     user_id: str = Depends(get_current_user_id),
     session: AsyncSession = Depends(get_session),
-):
+) -> Any:
     """Run the goal engine over the calling user's profile.
 
     Returns 409 (Conflict) if the user has not completed onboarding —

@@ -18,8 +18,10 @@ import uuid
 from collections.abc import AsyncIterator
 from datetime import date
 
+from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import StreamingResponse
+from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .. import db as db_module
@@ -68,7 +70,7 @@ async def create_conversation(
     request: Request,
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session),
-):
+) -> Any:
     return await repository.create_conversation(db, uuid.UUID(user_id), title=None)
 
 
@@ -78,7 +80,7 @@ async def list_conversations(
     offset: int = Query(0, ge=0),
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session),
-):
+) -> Any:
     return await repository.list_conversations(db, uuid.UUID(user_id), limit=limit, offset=offset)
 
 
@@ -87,7 +89,7 @@ async def conversation_messages(
     conv_id: uuid.UUID,
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session),
-):
+) -> Any:
     conv = await repository.get_owned_conversation(db, conv_id, uuid.UUID(user_id))
     if conv is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
