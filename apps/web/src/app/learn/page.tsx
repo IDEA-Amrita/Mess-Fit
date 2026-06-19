@@ -1,3 +1,4 @@
+import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
 import { Clock01Icon, BookOpen01Icon } from "@hugeicons/core-free-icons";
 import { getAllArticles } from "@/lib/articles";
@@ -23,7 +24,7 @@ export default function LearnIndexPage() {
       <main className="mf-rise mx-auto max-w-4xl px-6 py-10">
         <div className="mb-8 flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-muted text-accent">
-            <BookOpen01Icon className="h-5 w-5" />
+            <HugeiconsIcon icon={BookOpen01Icon} className="h-5 w-5" />
           </div>
           <div>
             <h1 className="text-h1 text-foreground">Learn</h1>
@@ -44,7 +45,7 @@ export default function LearnIndexPage() {
               <p className="text-sm leading-relaxed text-muted-foreground">{a.description}</p>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock01Icon className="h-3 w-3" />
+                  <HugeiconsIcon icon={Clock01Icon} className="h-3 w-3" />
                   {a.reading_time_min} min
                 </span>
                 {a.tags.slice(0, 3).map((t) => (

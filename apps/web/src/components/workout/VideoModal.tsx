@@ -1,4 +1,5 @@
 "use client";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 import { useEffect } from "react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
@@ -47,7 +48,7 @@ export function VideoModal({
             {title}
           </p>
           <button onClick={onClose} aria-label="Close" style={{ color: "#888" }}>
-            <Cancel01Icon className="h-5 w-5" />
+            <HugeiconsIcon icon={Cancel01Icon} className="h-5 w-5" />
           </button>
         </div>
         <div className="relative" style={{ aspectRatio: "16 / 9" }}>

@@ -149,7 +149,7 @@ def _groq_client():
 async def _complete_groq(messages: list[dict[str, str]]) -> str:
     client = _groq_client()
     resp = await client.chat.completions.create(
-        model=GROQ_MODEL, messages=messages, temperature=0.3  # type: ignore[arg-type]
+        model=GROQ_MODEL, messages=messages, temperature=0.3
     )
     return resp.choices[0].message.content or ""
 

@@ -1,9 +1,10 @@
 "use client";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Alert01Icon, CheckmarkCircle01Icon, ArrowDown01Icon, Dumbbell01Icon, PlayCircle01Icon, RefreshIcon } from "@hugeicons/core-free-icons";
+import { Alert01Icon, CheckmarkCircle01Icon, ArrowDown01Icon, Dumbbell01Icon, PlayCircle02Icon, RefreshIcon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase";
 import { DashboardShell } from "@/components/DashboardShell";
@@ -52,7 +53,7 @@ function SetRow({
                   : { background: "rgba(255,255,255,0.03)", color: "#3a3a3a" }
             }
           >
-            {isDone ? <CheckmarkCircle01Icon className="h-4 w-4" /> : i + 1}
+            {isDone ? <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-4 w-4" /> : i + 1}
           </button>
         );
       })}
@@ -99,7 +100,7 @@ function ExerciseCard({
           className="shrink-0 rounded-lg p-1 transition-transform"
           style={{ color: "#666", transform: open ? "rotate(180deg)" : "none" }}
         >
-          <ArrowDown01Icon className="h-4 w-4" />
+          <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
         </button>
       </div>
 
@@ -134,7 +135,7 @@ function ExerciseCard({
               className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
               style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b" }}
             >
-              <PlayCircle01Icon className="h-3.5 w-3.5" />
+              <HugeiconsIcon icon={PlayCircle02Icon} className="h-3.5 w-3.5" />
               Watch demo
             </button>
           ) : (
@@ -258,7 +259,7 @@ export default function WorkoutPage() {
             className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40"
             style={{ borderColor: "rgba(255,255,255,0.1)", color: "#888" }}
           >
-            <RefreshIcon className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
+            <HugeiconsIcon icon={RefreshIcon} className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </button>
           <button
@@ -322,7 +323,7 @@ export default function WorkoutPage() {
               className="flex items-center gap-2 rounded-2xl p-4"
               style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.18)" }}
             >
-              <CheckmarkCircle01Icon className="h-5 w-5" style={{ color: "#f59e0b" }} />
+              <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-5 w-5" style={{ color: "#f59e0b" }} />
               <p className="text-sm font-medium" style={{ color: "#e8e8e8" }}>
                 {saved === "done" ? "Workout logged. Nice work! 💪" : "Marked as skipped."}
               </p>
@@ -389,9 +390,9 @@ function ErrorState({ error }: { error: { message: string; status?: number } }) 
         style={{ background: isOnboarding ? "rgba(245,158,11,0.1)" : "rgba(248,113,113,0.1)" }}
       >
         {isOnboarding ? (
-          <Dumbbell01Icon className="w-7 h-7" style={{ color: "#f59e0b" }} />
+          <HugeiconsIcon icon={Dumbbell01Icon} className="w-7 h-7" style={{ color: "#f59e0b" }} />
         ) : (
-          <Alert01Icon className="w-7 h-7" style={{ color: "#f87171" }} />
+          <HugeiconsIcon icon={Alert01Icon} className="w-7 h-7" style={{ color: "#f87171" }} />
         )}
       </div>
       <div>
