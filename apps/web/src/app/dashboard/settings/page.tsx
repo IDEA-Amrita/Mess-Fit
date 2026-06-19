@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { DashboardShell } from "@/components/DashboardShell";
+import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { apiFetch, ApiError } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 
@@ -39,6 +40,21 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-semibold" style={{ color: "#ededed" }}>
           Settings
         </h1>
+
+        <section
+          className="mt-8 rounded-2xl p-6"
+          style={{
+            background: "rgba(255,255,255,0.02)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <h2 className="text-base font-semibold" style={{ color: "#ededed" }}>
+            Push Notifications
+          </h2>
+          <div className="mt-4">
+            <PushNotificationManager />
+          </div>
+        </section>
 
         {/* Danger zone */}
         <section

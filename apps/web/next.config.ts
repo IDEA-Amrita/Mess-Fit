@@ -5,6 +5,23 @@ import withPWAInit from "@ducanh2912/next-pwa";
 const withPWA = withPWAInit({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
+  workboxOptions: {
+    runtimeCaching: [
+      {
+        urlPattern: /\/api\/v1\/.*/,
+        handler: 'NetworkOnly',
+        method: 'POST',
+        options: {
+          backgroundSync: {
+            name: 'api-sync-queue',
+            options: {
+              maxRetentionTime: 24 * 60 // Retry for up to 24 hours
+            }
+          }
+        }
+      }
+    ]
+  }
 });
 
 const nextConfig: NextConfig = {
