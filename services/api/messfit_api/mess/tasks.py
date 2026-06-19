@@ -66,7 +66,9 @@ async def _enrich_with_matches(db: AsyncSession, menu: ParsedMenu) -> dict:
     return {"weekly": weekly}
 
 
-async def _set(db: AsyncSession, job_id: uuid.UUID, **values) -> None:
+from typing import Any
+
+async def _set(db: AsyncSession, job_id: uuid.UUID, **values: Any) -> None:
     await db.execute(update(OCRJobORM).where(OCRJobORM.id == job_id).values(**values))
     await db.commit()
 

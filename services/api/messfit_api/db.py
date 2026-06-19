@@ -29,6 +29,8 @@ engine = create_async_engine(
     settings.database_url,
     echo=False,
     pool_pre_ping=True,  # drops dead connections quietly (Supabase pooler can recycle)
+    pool_size=20,        # scale up baseline connections
+    max_overflow=10,     # allow extra connections during spikes
     future=True,
 )
 

@@ -1,4 +1,7 @@
-from fastapi import Depends, FastAPI
+from typing import Any
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import JSONResponse
+import logging
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -31,6 +34,14 @@ app.state.limiter = limiter
 # (Request, Exception). Compatible at runtime — the registry keys on the type.
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    logging.getLogger(__name__).exception("Unhandled exception processing request %s", request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error. Please try again later."},
+    )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -41,12 +52,12 @@ app.add_middleware(
 
 
 @app.get("/health")
-async def health():
+async def health() -> Any:
     return {"status": "ok", "version": app.version}
 
 
 @app.get("/api/v1/me")
-async def me(user_id: str = Depends(get_active_user_id)):
+async def me(user_id: str = Depends(get_active_user_id)) -> Any:
     return {"user_id": user_id}
 
 

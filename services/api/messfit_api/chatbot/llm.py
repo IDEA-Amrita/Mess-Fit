@@ -9,6 +9,7 @@ guardrails can be unit-tested with no API access.
 from __future__ import annotations
 
 import logging
+from typing import Any
 import re
 from collections.abc import AsyncIterator
 from functools import lru_cache
@@ -111,7 +112,7 @@ def build_messages(
 
 
 @lru_cache(maxsize=1)
-def _gemini_client():
+def _gemini_client() -> Any:
     """Singleton Gemini client — reuses the HTTP connection pool."""
     from google import genai
     return genai.Client(api_key=settings.gemini_api_key)
@@ -140,7 +141,7 @@ async def _stream_gemini(messages: list[dict[str, str]]) -> AsyncIterator[str]:
 
 
 @lru_cache(maxsize=1)
-def _groq_client():
+def _groq_client() -> Any:
     """Singleton Groq client — reuses the HTTP connection pool."""
     from groq import AsyncGroq
     return AsyncGroq(api_key=settings.groq_api_key)

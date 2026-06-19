@@ -13,7 +13,9 @@ BW = ["bodyweight"]
 GYM = ["college_gym"]
 
 
-def _ex(id, name, primary, secondary, equipment, sets, reps, rest, instr, mistakes):
+from typing import Any
+
+def _ex(id: str, name: str, primary: str, secondary: list[str], equipment: list[str], sets: int, reps: str, rest: int, instr: str, mistakes: list[str]) -> dict[str, Any]:
     return {
         "id": id,
         "name": name,
