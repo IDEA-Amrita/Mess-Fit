@@ -26,6 +26,7 @@ dependencies = [
     "pydantic-settings>=2.14.1",
     "pyjwt[crypto]>=2.12.1",
     "python-multipart>=0.0.32",
+    "pywebpush>=2.3.0",
     "redis>=7.4.0",
     "sentry-sdk[fastapi]>=2.62.0",
     "slowapi>=0.1.10",
