@@ -13,7 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Alert01Icon, FireIcon, TrendingUpDownIcon } from "@hugeicons/core-free-icons";
+import { Alert01Icon, FireIcon, TrendingUpDownIcon, Trophy01Icon, Brain01Icon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -22,7 +22,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { DashboardShell } from "@/components/DashboardShell";
 import { cn } from "@/lib/utils";
 import { ApiError } from "@/lib/api";
-import { getProgress, type Progress, type ProgressRange } from "@/lib/tracking-api";
+import { getProgress, getLeaderboard, type Progress, type ProgressRange, type LeaderboardResponse } from "@/lib/tracking-api";
 
 const RANGES: ProgressRange[] = ["7d", "30d", "90d"];
 const CARD = "rounded-xl border border-border bg-card";
@@ -162,7 +162,12 @@ function ProgressView({ data }: { data: Progress }) {
         />
       </div>
 
-      <ProjectionCard projection={data.projection} />
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <ProjectionCard projection={data.projection} />
+        {data.adaptive_tdee && <AdaptiveTDEECard adaptive={data.adaptive_tdee} />}
+      </div>
+
+      <LeaderboardCard />
     </div>
   );
 }
@@ -217,6 +222,96 @@ function ProjectionCard({ projection }: { projection: Progress["projection"] }) 
   );
 }
 
+function AdaptiveTDEECard({ adaptive }: { adaptive: Progress["adaptive_tdee"] }) {
+  if (!adaptive) return null;
+
+  return (
+    <section className={cn("p-4", CARD)}>
+      <div className="mb-2 flex items-center gap-2">
+        <HugeiconsIcon icon={Brain01Icon} className="h-4 w-4" style={{ color: "#ec4899" }} />
+        <h3 className="text-sm font-semibold text-foreground">Adaptive TDEE</h3>
+      </div>
+      
+      {adaptive.available ? (
+        <div className="space-y-1.5">
+          <div className="flex items-baseline justify-between">
+            <p className="text-sm leading-relaxed text-foreground/80">
+              Your estimated metabolic rate is currently <span className="font-semibold text-accent">{Math.round(adaptive.tdee)} kcal</span>.
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Based on {adaptive.data_days} days of weight & calorie data. Confidence: {adaptive.confidence}.
+          </p>
+        </div>
+      ) : (
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {adaptive.reason ?? "Keep logging weight and meals to unlock adaptive TDEE insights."}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function LeaderboardCard() {
+  const query = useQuery<LeaderboardResponse, ApiError>({
+    queryKey: ["leaderboard"],
+    queryFn: () => getLeaderboard(7),
+    retry: 0,
+  });
+
+  if (query.isLoading) {
+    return <Skeleton className="h-48 w-full rounded-xl bg-white/5" />;
+  }
+
+  if (query.isError || !query.data) {
+    return null; // Silent fail if leaderboard is unavailable
+  }
+
+  const { entries, user_rank } = query.data;
+
+  return (
+    <section className={cn("p-4", CARD)}>
+      <div className="mb-4 flex items-center gap-2 border-b border-white/5 pb-3">
+        <HugeiconsIcon icon={Trophy01Icon} className="h-4 w-4" style={{ color: "#eab308" }} />
+        <h3 className="text-sm font-semibold text-foreground">College Leaderboard</h3>
+        <span className="ml-auto text-xs text-muted-foreground">Top Adherence (7d)</span>
+      </div>
+
+      {entries.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No data available yet.</p>
+      ) : (
+        <div className="space-y-3">
+          {entries.slice(0, 5).map((entry, idx) => {
+            const isUser = user_rank?.user_id === entry.user_id;
+            return (
+              <div 
+                key={entry.user_id} 
+                className={cn(
+                  "flex items-center justify-between rounded-md px-2 py-1.5",
+                  isUser ? "bg-accent/10 border border-accent/20" : ""
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="w-5 text-center text-xs font-bold text-muted-foreground">
+                    #{idx + 1}
+                  </span>
+                  <div className="h-6 w-6 rounded-full bg-white/10" />
+                  <span className={cn("text-sm", isUser ? "font-semibold text-accent" : "text-foreground")}>
+                    {isUser ? "You" : `User ${entry.user_id.slice(0,4)}`}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="block text-sm font-bold">{entry.score}%</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
 // ── loading / error ──────────────────────────────────────────────────────────
 
 function LoadingSkeleton() {
@@ -250,3 +345,4 @@ function ErrorState({ error }: { error: ApiError | null }) {
     />
   );
 }
+

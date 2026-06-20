@@ -18,6 +18,7 @@ import {
   type GapFill,
 } from "@/lib/optimizer-api";
 import { logMeal, todayIso, type MealType } from "@/lib/tracking-api";
+import { submitDishFeedback } from "@/lib/mess-api";
 import { toast } from "@/lib/toast-store";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -84,10 +85,25 @@ function MacroCard({
   );
 }
 
-function DishCard({ item }: { item: PlateItem }) {
+function DishCard({ item, meal }: { item: PlateItem; meal: string }) {
   const portionsLabel = Number.isInteger(item.portions)
     ? `${item.portions}×`
     : `${item.portions.toFixed(1)}×`;
+
+  const [vote, setVote] = useState<"confirm" | "deny" | null>(null);
+  
+  const voteMutation = useMutation({
+    mutationFn: (v: "confirm" | "deny") => submitDishFeedback({
+      date: todayIso(),
+      meal_type: meal,
+      dish_id: item.dish_id,
+      vote: v,
+    }),
+    onSuccess: (_, variables) => {
+      setVote(variables);
+      toast.success("Thanks for verifying the menu!");
+    },
+  });
 
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition-colors hover:border-border/80">
@@ -114,6 +130,37 @@ function DishCard({ item }: { item: PlateItem }) {
       {item.reason && (
         <p className="text-xs leading-relaxed text-muted-foreground">{item.reason}</p>
       )}
+
+      {/* Crowdsourcing Feedback UI */}
+      <div className="mt-1 flex items-center justify-between border-t border-border pt-3">
+        <span className="text-[10px] uppercase tracking-wide text-muted-foreground/70">
+          Served today?
+        </span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => voteMutation.mutate("confirm")}
+            disabled={vote !== null || voteMutation.isPending}
+            className={cn(
+              "flex h-7 items-center justify-center rounded bg-white/5 px-2.5 text-xs transition-colors",
+              vote === "confirm" ? "bg-green-500/20 text-green-500" : "text-muted-foreground hover:bg-white/10 hover:text-foreground",
+              vote === "deny" && "opacity-30"
+            )}
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => voteMutation.mutate("deny")}
+            disabled={vote !== null || voteMutation.isPending}
+            className={cn(
+              "flex h-7 items-center justify-center rounded bg-white/5 px-2.5 text-xs transition-colors",
+              vote === "deny" ? "bg-red-500/20 text-red-500" : "text-muted-foreground hover:bg-white/10 hover:text-foreground",
+              vote === "confirm" && "opacity-30"
+            )}
+          >
+            No
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -174,7 +221,7 @@ function MealSection({ meal, items }: { meal: string; items: PlateItem[] }) {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
-          <DishCard key={item.dish_id} item={item} />
+          <DishCard key={item.dish_id} item={item} meal={meal} />
         ))}
       </div>
     </section>

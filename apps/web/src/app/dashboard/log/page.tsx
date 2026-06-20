@@ -1,9 +1,9 @@
 "use client";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Tick01Icon, PencilEdit01Icon, NextIcon, Dumbbell01Icon, WeightScale01Icon, SmileIcon, Restaurant01Icon } from "@hugeicons/core-free-icons";
+import { Tick01Icon, PencilEdit01Icon, NextIcon, Dumbbell01Icon, WeightScale01Icon, SmileIcon, Restaurant01Icon, Camera01Icon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { optimizeToday, type OptimizationResult, type PlateItem } from "@/lib/op
 import {
   getTodayLogs,
   logMeal,
+  logMealPhoto,
   logSubjective,
   logWeight,
   todayIso,
@@ -190,16 +191,41 @@ function MealSlot({
   plateLoading: boolean;
   plateError: boolean;
   status?: MealStatus;
-  onRecord: (meal: MealType, status: MealStatus, notes?: string) => void;
+  onRecord: (meal: MealType, status: MealStatus, notes?: string, photoKcal?: number, photoP?: number, photoC?: number, photoF?: number) => void;
 }) {
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState("");
+  const [isPhotoLoading, setIsPhotoLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const options: { value: MealStatus; label: string; icon: React.ReactNode }[] = [
     { value: "as_planned", label: "As planned", icon: <HugeiconsIcon icon={Tick01Icon} className="h-3.5 w-3.5" /> },
     { value: "different", label: "Different", icon: <HugeiconsIcon icon={PencilEdit01Icon} className="h-3.5 w-3.5" /> },
     { value: "skipped", label: "Skipped", icon: <HugeiconsIcon icon={NextIcon} className="h-3.5 w-3.5" /> },
   ];
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsPhotoLoading(true);
+      const estimate = await logMealPhoto(file, meal);
+      
+      const noteStr = `Photo Log (${estimate.confidence} confidence): ${estimate.dishes.map(d => `${d.name} (${d.portion})`).join(", ")}`;
+      setNotes(noteStr);
+      
+      // Auto-record as 'different' with the estimated macros
+      onRecord(meal, "different", noteStr, estimate.total_kcal, estimate.total_protein_g, estimate.total_carbs_g, estimate.total_fats_g);
+      toast.success("Photo logged successfully");
+    } catch (err) {
+      toast.error("Failed to analyze photo");
+    } finally {
+      setIsPhotoLoading(false);
+      // Reset input
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
 
   return (
     <div className={cn("p-4", CARD)}>
@@ -242,6 +268,25 @@ function MealSlot({
             {o.label}
           </button>
         ))}
+      </div>
+
+      <div className="mt-2 text-center">
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          ref={fileInputRef}
+          onChange={handlePhotoUpload}
+          className="hidden"
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isPhotoLoading}
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:text-accent-muted transition-colors"
+        >
+          <HugeiconsIcon icon={Camera01Icon} className="h-3.5 w-3.5" />
+          {isPhotoLoading ? "Analyzing photo..." : "Snap Photo"}
+        </button>
       </div>
 
       {showNotes && status === "different" && (

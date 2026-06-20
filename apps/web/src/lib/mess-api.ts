@@ -84,3 +84,29 @@ export async function unexcludeDish(
     { method: "DELETE" },
   );
 }
+
+// ─── Crowdsourcing (D25) ──────────────────────────────────────────────
+
+export interface DishFeedbackIn {
+  date: string;
+  meal_type: string;
+  dish_id: string;
+  vote: "confirm" | "deny";
+}
+
+export interface DishFeedbackOut {
+  dish_id: string;
+  confirms: number;
+  denies: number;
+}
+
+export async function submitDishFeedback(payload: DishFeedbackIn): Promise<DishFeedbackOut> {
+  return apiFetch<DishFeedbackOut>("/mess/dishes/feedback", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getDishFeedback(dateStr: string, mealType: string, dishId: string): Promise<DishFeedbackOut> {
+  return apiFetch<DishFeedbackOut>(`/mess/dishes/feedback?date=${dateStr}&meal_type=${mealType}&dish_id=${dishId}`);
+}

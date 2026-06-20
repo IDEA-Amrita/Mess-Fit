@@ -60,6 +60,23 @@ export interface TodayLogs {
   workout_status: string | null;
 }
 
+export interface PhotoMealEstimate {
+  meal_type: string;
+  dishes: {
+    name: string;
+    portion: string;
+    kcal: number;
+    protein_g: number;
+    carbs_g: number;
+    fats_g: number;
+  }[];
+  total_kcal: number;
+  total_protein_g: number;
+  total_carbs_g: number;
+  total_fats_g: number;
+  confidence: "high" | "medium" | "low";
+}
+
 export interface WeightPoint {
   date: string;
   weight_kg: number;
@@ -107,6 +124,29 @@ export async function logMeal(payload: MealLogIn): Promise<MealLogOut> {
   });
 }
 
+export async function logMealPhoto(file: File, mealType: MealType): Promise<PhotoMealEstimate> {
+  const formData = new FormData();
+  formData.append("photo", file);
+  formData.append("meal_type", mealType);
+
+  // Use raw fetch because we're sending FormData, not JSON.
+  const token = localStorage.getItem("messfit_access_token");
+  const headers: HeadersInit = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/logs/photo`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to analyze photo");
+  }
+
+  return res.json();
+}
+
 export async function logWeight(payload: WeightLogIn): Promise<WeightLogOut> {
   return apiFetch<WeightLogOut>("/api/v1/logs/weight", {
     method: "POST",
@@ -125,4 +165,21 @@ export async function logSubjective(
 
 export async function getProgress(range: ProgressRange): Promise<Progress> {
   return apiFetch<Progress>(`/api/v1/logs/progress?range=${range}`);
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  user_id: string;
+  meals_followed: number;
+  workouts_done: number;
+  score: number;
+}
+
+export interface LeaderboardResponse {
+  entries: LeaderboardEntry[];
+  user_rank: LeaderboardEntry | null;
+}
+
+export async function getLeaderboard(days: number = 7): Promise<LeaderboardResponse> {
+  return apiFetch<LeaderboardResponse>(`/api/v1/logs/leaderboard?days=${days}`);
 }
