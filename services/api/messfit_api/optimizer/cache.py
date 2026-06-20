@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-import logging
+import structlog
 from dataclasses import asdict
 from typing import Any
 
@@ -40,7 +40,7 @@ from .solver import SOLVER_VERSION, optimize
 _TTL = 86_400        # 24 h in seconds
 _KEY_PREFIX = f"messfit:plate:v{SOLVER_VERSION}:"
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 # ── input hashing ──────────────────────────────────────────────────────

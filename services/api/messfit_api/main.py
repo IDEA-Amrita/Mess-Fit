@@ -1,7 +1,7 @@
 from typing import Any
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
-import logging
+import structlog
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -18,7 +18,13 @@ from .optimizer.routes import router as optimizer_router
 from .profile.router import router as profile_router
 from .tracking.router import router as tracking_router
 from .workouts.router import router as workouts_router
+from .logging_config import configure_logging
 from .notifications.router import router as notifications_router
+
+# Structured logging — must be called before anything else logs.
+configure_logging()
+
+logger = structlog.get_logger(__name__)
 
 # Error reporting — no-op unless SENTRY_DSN is set. Init before the app so the
 # Sentry FastAPI/Starlette integrations patch correctly.
@@ -37,7 +43,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # ty
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    logging.getLogger(__name__).exception("Unhandled exception processing request %s", request.url.path)
+    logger.exception("Unhandled exception", path=request.url.path, exc_info=exc)
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal server error. Please try again later."},
