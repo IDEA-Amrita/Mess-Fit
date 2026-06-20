@@ -99,3 +99,4 @@ class Progress(BaseModel):
     macro_hit_rate: float | None
     projection: dict[str, Any]
     streak_days: int
+    adaptive_tdee: dict[str, Any] | None = None

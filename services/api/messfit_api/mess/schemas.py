@@ -80,6 +80,23 @@ class DishExclusionOut(DishExclusionIn):
     model_config = ConfigDict(from_attributes=True)
 
 
+# ─── Crowdsourcing (D25) ───────────────────────────────────────────────
+
+
+class DishFeedbackIn(BaseModel):
+    """User confirms or denies a dish is being served today."""
+    date: date
+    meal_type: str
+    dish_id: uuid.UUID
+    vote: Literal["confirm", "deny"]
+
+
+class DishFeedbackOut(BaseModel):
+    dish_id: uuid.UUID
+    confirms: int = 0
+    denies: int = 0
+
+
 # ─── OCR (Phase 4) ────────────────────────────────────────────────────
 
 MealTypeLiteral = Literal["breakfast", "lunch", "snack", "dinner"]
