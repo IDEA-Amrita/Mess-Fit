@@ -1,4 +1,4 @@
-import logging
+import structlog
 from pywebpush import webpush, WebPushException
 from sqlalchemy.ext.asyncio import AsyncSession
 import uuid
@@ -6,7 +6,7 @@ import uuid
 from ..config import settings
 from . import repository
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 async def send_push_notification(db: AsyncSession, user_id: uuid.UUID, payload: str) -> None:
     """Send a push notification to all subscriptions of a user."""

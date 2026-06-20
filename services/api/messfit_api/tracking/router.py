@@ -28,6 +28,8 @@ from ..profile.repository import get_hostel_context, get_profile
 from ..workouts.models import WorkoutLogORM
 from . import repository
 from .metrics import (
+    AdaptiveTDEE,
+    compute_adaptive_tdee,
     compute_adherence,
     compute_macro_hit_rate,
     compute_projection,

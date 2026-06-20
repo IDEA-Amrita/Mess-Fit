@@ -234,3 +234,132 @@ def compute_projection(
 
 def _sign(x: float) -> int:
     return int(math.copysign(1, x)) if x != 0 else 0
+
+
+# ─── adaptive TDEE ──────────────────────────────────────────────────────
+
+
+@dataclass(frozen=True)
+class AdaptiveTDEE:
+    """Result of the adaptive TDEE computation."""
+
+    available: bool
+    tdee: float = 0.0
+    confidence: str = "low"  # low | medium | high
+    data_days: int = 0
+    method: str = "static"  # static | adaptive
+    reason: str = ""
+
+
+def compute_adaptive_tdee(
+    weight_series: Sequence[WeightPoint],
+    calorie_logs: Sequence[MealRow],
+    initial_tdee: float,
+    window_days: int = 14,
+) -> AdaptiveTDEE:
+    """Compute adaptive TDEE from the energy balance equation.
+
+    Uses an exponential moving average approach inspired by MacroFactor's
+    algorithm:
+
+        actual_tdee ≈ avg_intake − (weight_change_kg × 7700 / days)
+
+    The 7700 kcal/kg constant is the standard textbook energy density of body
+    mass change (mixed fat + lean tissue).
+
+    Requires at least 7 days of overlapping weight + calorie data to deviate
+    from the static Mifflin-St Jeor estimate. Confidence levels:
+
+    * **low** (< 7 days): returns the static TDEE unchanged.
+    * **medium** (7-13 days): blends 50/50 with static.
+    * **high** (≥ 14 days): fully adaptive, static is ignored.
+
+    Parameters
+    ----------
+    weight_series : sequence of WeightPoint
+        Must be sorted by date.
+    calorie_logs : sequence of MealRow
+        Only ``as_planned`` rows with non-null kcal contribute.
+    initial_tdee : float
+        Static TDEE from Mifflin-St Jeor (fallback / blend).
+    window_days : int
+        Lookback window for the rolling estimate (default 14).
+    """
+    KCAL_PER_KG = 7700.0
+
+    if len(weight_series) < 2:
+        return AdaptiveTDEE(
+            available=False,
+            tdee=initial_tdee,
+            method="static",
+            reason="Need at least 2 weight logs",
+        )
+
+    # Build daily calorie totals from meal logs.
+    daily_kcal: dict[dt.date, float] = defaultdict(float)
+    for m in calorie_logs:
+        if m.status == "as_planned" and m.kcal is not None:
+            daily_kcal[m.date] += float(m.kcal)
+
+    # Sort weights and take the window.
+    sorted_weights = sorted(weight_series, key=lambda w: w.date)[-window_days:]
+
+    first_w = sorted_weights[0]
+    last_w = sorted_weights[-1]
+    span_days = (last_w.date - first_w.date).days
+
+    if span_days < 1:
+        return AdaptiveTDEE(
+            available=False,
+            tdee=initial_tdee,
+            method="static",
+            reason="Weight data spans less than 1 day",
+        )
+
+    # Only count days that have BOTH a weight entry and calorie data.
+    weight_dates = {w.date for w in sorted_weights}
+    overlapping_dates = weight_dates & set(daily_kcal.keys())
+    data_days = len(overlapping_dates)
+
+    if data_days < 7:
+        return AdaptiveTDEE(
+            available=True,
+            tdee=initial_tdee,
+            confidence="low",
+            data_days=data_days,
+            method="static",
+            reason=f"Only {data_days} overlapping days — need 7+",
+        )
+
+    # Core energy balance equation.
+    weight_change_kg = float(last_w.weight_kg) - float(first_w.weight_kg)
+    energy_from_weight = weight_change_kg * KCAL_PER_KG / span_days  # kcal/day
+
+    # Average daily intake over the window (only days with data).
+    if not overlapping_dates:
+        avg_intake = initial_tdee
+    else:
+        total_intake = sum(daily_kcal[d] for d in overlapping_dates)
+        avg_intake = total_intake / len(overlapping_dates)
+
+    raw_tdee = avg_intake - energy_from_weight
+
+    # Sanity clamp: TDEE below 800 or above 6000 is almost certainly data noise.
+    raw_tdee = max(800.0, min(6000.0, raw_tdee))
+
+    # Confidence-based blending with static TDEE.
+    if data_days >= 14:
+        confidence = "high"
+        blended = raw_tdee
+    else:
+        confidence = "medium"
+        alpha = data_days / 14.0  # linear blend 0.5 → 1.0
+        blended = alpha * raw_tdee + (1 - alpha) * initial_tdee
+
+    return AdaptiveTDEE(
+        available=True,
+        tdee=round(blended, 1),
+        confidence=confidence,
+        data_days=data_days,
+        method="adaptive",
+    )

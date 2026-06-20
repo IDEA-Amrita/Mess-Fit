@@ -8,7 +8,7 @@ guardrails can be unit-tested with no API access.
 
 from __future__ import annotations
 
-import logging
+import structlog
 from typing import Any
 import re
 from collections.abc import AsyncIterator
@@ -17,7 +17,7 @@ from functools import lru_cache
 from ..config import settings
 from .retrieval import RetrievedChunk
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 GEMINI_MODEL = "gemini-2.0-flash"
 GROQ_MODEL = "llama-3.3-70b-versatile"

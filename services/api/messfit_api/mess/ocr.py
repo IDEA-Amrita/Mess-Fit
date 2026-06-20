@@ -14,12 +14,12 @@ from __future__ import annotations
 
 import base64
 import json
-import logging
+import structlog
 
 from ..config import settings
 from .schemas import NutritionEstimate, ParsedMenu
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 GEMINI_MODEL = "gemini-2.0-flash"
 # Groq's llama-3.2-*-vision-preview models were decommissioned; Llama 4 Scout

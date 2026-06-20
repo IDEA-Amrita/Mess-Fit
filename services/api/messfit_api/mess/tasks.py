@@ -18,7 +18,7 @@ friendly; the Celery entrypoint opens its own session and drives it.
 from __future__ import annotations
 
 import asyncio
-import logging
+import structlog
 import uuid
 
 from sqlalchemy import select, update
@@ -32,7 +32,7 @@ from .ocr import ocr_menu_image
 from .schemas import ParsedMenu
 from .storage import download_menu_photo
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 _MAX_ERROR_LEN = 1000
 

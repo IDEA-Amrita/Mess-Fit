@@ -12,14 +12,14 @@ block the user's deletion request.
 
 from __future__ import annotations
 
-import logging
+import structlog
 from datetime import datetime, timezone
 
 import httpx
 
 from ..config import settings
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 async def mark_pending_deletion(user_id: str) -> bool:

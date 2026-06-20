@@ -10,7 +10,7 @@ deleted (its chunks CASCADE) and re-inserted, so re-running picks up edits.
 
 from __future__ import annotations
 
-import logging
+import structlog
 from typing import Any
 
 from sqlalchemy import text
@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .embeddings import embed_texts, to_pgvector
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 _TARGET_CHARS = 2000  # ~500 tokens at ~4 chars/token
 _OVERLAP_CHARS = 400  # ~100 tokens
