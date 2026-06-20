@@ -13,7 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Alert01Icon, FireIcon, TrendingUpDownIcon, Trophy01Icon, Brain01Icon } from "@hugeicons/core-free-icons";
+import { Alert01Icon, FireIcon, TrendingUpDownIcon, TrendingUp01Icon, Clock01Icon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -228,7 +228,7 @@ function AdaptiveTDEECard({ adaptive }: { adaptive: Progress["adaptive_tdee"] })
   return (
     <section className={cn("p-4", CARD)}>
       <div className="mb-2 flex items-center gap-2">
-        <HugeiconsIcon icon={Brain01Icon} className="h-4 w-4" style={{ color: "#ec4899" }} />
+        <HugeiconsIcon icon={Clock01Icon} className="h-4 w-4" style={{ color: "#ec4899" }} />
         <h3 className="text-sm font-semibold text-foreground">Adaptive TDEE</h3>
       </div>
       
@@ -272,7 +272,7 @@ function LeaderboardCard() {
   return (
     <section className={cn("p-4", CARD)}>
       <div className="mb-4 flex items-center gap-2 border-b border-white/5 pb-3">
-        <HugeiconsIcon icon={Trophy01Icon} className="h-4 w-4" style={{ color: "#eab308" }} />
+        <HugeiconsIcon icon={TrendingUp01Icon} className="h-4 w-4" style={{ color: "#eab308" }} />
         <h3 className="text-sm font-semibold text-foreground">College Leaderboard</h3>
         <span className="ml-auto text-xs text-muted-foreground">Top Adherence (7d)</span>
       </div>
