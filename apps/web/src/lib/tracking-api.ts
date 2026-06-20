@@ -102,6 +102,13 @@ export interface Progress {
   macro_hit_rate: number | null;
   projection: Projection;
   streak_days: number;
+  adaptive_tdee?: {
+    available: boolean;
+    tdee: number;
+    confidence: "high" | "medium" | "low";
+    data_days: number;
+    reason?: string;
+  };
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
