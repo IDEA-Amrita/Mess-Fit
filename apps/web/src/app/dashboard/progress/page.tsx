@@ -13,7 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Alert01Icon, FireIcon, TrendingUpDownIcon, TrendingUp01Icon, Clock01Icon } from "@hugeicons/core-free-icons";
+import { Alert01Icon, FireIcon, TrendingUpDownIcon, Clock01Icon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -272,7 +272,7 @@ function LeaderboardCard() {
   return (
     <section className={cn("p-4", CARD)}>
       <div className="mb-4 flex items-center gap-2 border-b border-white/5 pb-3">
-        <HugeiconsIcon icon={TrendingUp01Icon} className="h-4 w-4" style={{ color: "#eab308" }} />
+        <HugeiconsIcon icon={FireIcon} className="h-4 w-4" style={{ color: "#eab308" }} />
         <h3 className="text-sm font-semibold text-foreground">College Leaderboard</h3>
         <span className="ml-auto text-xs text-muted-foreground">Top Adherence (7d)</span>
       </div>
