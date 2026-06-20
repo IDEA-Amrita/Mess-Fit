@@ -21,6 +21,7 @@ from messfit_api.mess.schemas import (
     DailyMenuResponse,
     DishExclusionIn,
     DishExclusionOut,
+    DishFeedbackIn,
     DishResponse,
     MessResponse,
 )
@@ -168,3 +169,54 @@ async def unexclude_dish(
         )
     )
     await db.commit()
+
+
+# ─── Crowdsourcing feedback (D25) ────────────────────────────────────
+
+
+# In-memory feedback aggregator. In production, move to a dedicated DB table
+# or Redis hash for persistence across restarts. The key is
+# (date, meal_type, dish_id) → {user_id: vote}.
+_feedback_store: dict[tuple, dict[str, str]] = {}
+
+
+@router.post("/dishes/feedback", status_code=status.HTTP_201_CREATED)
+async def submit_dish_feedback(
+    payload: DishFeedbackIn,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> dict:
+    """User confirms or denies that a scheduled dish is actually available today."""
+    key = (str(payload.date), payload.meal_type, str(payload.dish_id))
+    if key not in _feedback_store:
+        _feedback_store[key] = {}
+    _feedback_store[key][user_id] = payload.vote
+
+    votes = _feedback_store[key]
+    confirms = sum(1 for v in votes.values() if v == "confirm")
+    denies = sum(1 for v in votes.values() if v == "deny")
+
+    return {
+        "dish_id": str(payload.dish_id),
+        "confirms": confirms,
+        "denies": denies,
+    }
+
+
+@router.get("/dishes/feedback")
+async def get_dish_feedback(
+    date: datetime.date,
+    meal_type: str,
+    dish_id: uuid.UUID,
+) -> dict:
+    """Get community consensus on whether a dish is available."""
+    key = (str(date), meal_type, str(dish_id))
+    votes = _feedback_store.get(key, {})
+    confirms = sum(1 for v in votes.values() if v == "confirm")
+    denies = sum(1 for v in votes.values() if v == "deny")
+
+    return {
+        "dish_id": str(dish_id),
+        "confirms": confirms,
+        "denies": denies,
+    }
