@@ -3,14 +3,26 @@ import { HugeiconsIcon } from "@hugeicons/react";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { SentIcon, SparklesIcon, BookOpen01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
+import { useQuery } from "@tanstack/react-query";
+import {
+  SentIcon,
+  SparklesIcon,
+  BookOpen01Icon,
+  Cancel01Icon,
+  Add01Icon,
+  Message01Icon,
+  Menu01Icon,
+} from "@hugeicons/core-free-icons";
 import { DashboardShell } from "@/components/DashboardShell";
 import { toast } from "@/lib/toast-store";
 import { ApiError } from "@/lib/api";
 import {
   createConversation,
+  listConversations,
+  getMessages,
   streamMessage,
   type ChatMessage,
+  type Conversation,
   type Citation,
 } from "@/lib/chat-api";
 
@@ -43,7 +55,13 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [convId, setConvId] = useState<string | null>(null);
   const [openCitation, setOpenCitation] = useState<Citation | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const { data: conversations, refetch: refetchConvs } = useQuery({
+    queryKey: ["chat", "conversations"],
+    queryFn: listConversations,
+  });
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -72,6 +90,7 @@ export default function ChatPage() {
         onDone: (citations) => {
           setMessages((m) => [...m, { role: "assistant", content: acc, citations }]);
           setStreaming("");
+          refetchConvs(); // Refresh list to get the new title if it was a new conversation
         },
       });
     } catch (err) {
@@ -83,33 +102,128 @@ export default function ChatPage() {
     }
   }
 
+  async function loadConversation(c: Conversation) {
+    if (busy) return;
+    setSidebarOpen(false);
+    setConvId(c.id);
+    setMessages([]); // Clear immediately while fetching
+    try {
+      const msgs = await getMessages(c.id);
+      setMessages(
+        msgs.map((m) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+          citations: m.citations,
+        }))
+      );
+    } catch (err) {
+      toast.error("Failed to load conversation");
+    }
+  }
+
+  function startNew() {
+    if (busy) return;
+    setSidebarOpen(false);
+    setConvId(null);
+    setMessages([]);
+  }
+
   const empty = messages.length === 0 && !streaming;
 
   return (
     <DashboardShell>
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-border px-6">
-        <div>
-          <h1 className="text-base font-semibold text-foreground">Coach</h1>
-          <p className="text-xs text-muted-foreground">AI assistant · not medical advice</p>
-        </div>
-      </header>
-
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6">
-        {empty ? (
-          <EmptyState onPick={send} />
-        ) : (
-          <div className="mx-auto flex max-w-2xl flex-col gap-4">
-            {messages.map((m, i) => (
-              <ChatBubble key={i} msg={m} onCitation={setOpenCitation} />
-            ))}
-            {streaming && (
-              <ChatBubble msg={{ role: "assistant", content: streaming }} streaming onCitation={setOpenCitation} />
+      <div className="flex h-[calc(100vh-theme(spacing.16))] sm:h-auto sm:flex-1 relative overflow-hidden">
+        {/* Sidebar */}
+        <div
+          className={`absolute inset-y-0 left-0 z-20 flex w-64 flex-col border-r border-border bg-background transition-transform sm:static sm:translate-x-0 ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="flex items-center justify-between p-4">
+            <h2 className="text-sm font-semibold text-foreground">Chat History</h2>
+            <button
+              onClick={startNew}
+              className="rounded-lg p-2 text-muted-foreground hover:bg-surface hover:text-foreground transition-colors"
+              title="New Chat"
+            >
+              <HugeiconsIcon icon={Add01Icon} className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-2 pb-4">
+            {!conversations?.length ? (
+              <p className="px-2 py-4 text-xs text-muted-foreground">No past conversations.</p>
+            ) : (
+              <div className="flex flex-col gap-1">
+                {conversations.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => loadConversation(c)}
+                    className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                      c.id === convId
+                        ? "bg-surface-2 text-foreground font-medium"
+                        : "text-muted-foreground hover:bg-surface hover:text-foreground"
+                    }`}
+                  >
+                    <HugeiconsIcon icon={Message01Icon} className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{c.title || "New Conversation"}</span>
+                  </button>
+                ))}
+              </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
 
-      <ChatInput value={input} onChange={setInput} onSend={() => send(input)} busy={busy} />
+        {/* Overlay for mobile */}
+        {sidebarOpen && (
+          <div
+            className="absolute inset-0 z-10 bg-black/50 sm:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Main Chat Area */}
+        <div className="flex flex-1 flex-col relative z-0">
+          <header className="flex h-16 shrink-0 items-center justify-between border-b border-border px-6">
+            <div className="flex items-center gap-3">
+              <button
+                className="sm:hidden -ml-2 p-2 text-muted-foreground"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <HugeiconsIcon icon={Menu01Icon} className="h-5 w-5" />
+              </button>
+              <div>
+                <h1 className="text-base font-semibold text-foreground">Coach</h1>
+                <p className="text-xs text-muted-foreground">AI assistant · not medical advice</p>
+              </div>
+            </div>
+            {convId && (
+              <button
+                onClick={startNew}
+                className="hidden sm:flex rounded-lg px-3 py-1.5 text-xs font-medium bg-surface text-foreground hover:bg-surface-2 transition-colors"
+              >
+                New Chat
+              </button>
+            )}
+          </header>
+
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-6">
+            {empty ? (
+              <EmptyState onPick={send} />
+            ) : (
+              <div className="mx-auto flex max-w-2xl flex-col gap-4">
+                {messages.map((m, i) => (
+                  <ChatBubble key={i} msg={m} onCitation={setOpenCitation} />
+                ))}
+                {streaming && (
+                  <ChatBubble msg={{ role: "assistant", content: streaming }} streaming onCitation={setOpenCitation} />
+                )}
+              </div>
+            )}
+          </div>
+
+          <ChatInput value={input} onChange={setInput} onSend={() => send(input)} busy={busy} />
+        </div>
+      </div>
 
       {openCitation && (
         <CitationModal citation={openCitation} onClose={() => setOpenCitation(null)} />
