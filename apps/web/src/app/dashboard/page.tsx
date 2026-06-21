@@ -23,6 +23,7 @@ export default function DashboardPage() {
     queryKey: ["logs", "today"],
     queryFn: getTodayLogs,
     retry: 1,
+    staleTime: 0,
   });
 
   // Fetch today's plate (for planned kcal/protein totals)
@@ -30,6 +31,7 @@ export default function DashboardPage() {
     queryKey: ["plate", "today"],
     queryFn: optimizeToday,
     retry: 0,
+    staleTime: 0,
   });
 
   // Compute stat values from real data
