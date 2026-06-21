@@ -15,7 +15,7 @@ import datetime
 import uuid
 from collections import defaultdict
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status, UploadFile, File
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -177,3 +177,117 @@ async def optimize_today(
     )
 
     return run_optimizer(inp_to_dict(inp))
+
+@router.post("/photo")
+@limiter.limit("10/minute")
+async def optimize_photo(
+    request: Request,
+    file: UploadFile = File(...),
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> dict:
+    """Extract foods from a menu/buffet photo and optimize a plate."""
+    uid = uuid.UUID(user_id)
+    today = datetime.date.today()
+
+    profile = await get_profile(db, uid)
+    if profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Profile not set up — complete onboarding first",
+        )
+
+    from messfit_api.tracking.vision import extract_menu_from_photo
+    image_bytes = await file.read()
+    
+    try:
+        # 1. Vision Extraction
+        extraction = await extract_menu_from_photo(image_bytes, file.content_type or "image/jpeg")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    # 2. Setup Targets
+    from messfit_api.tracking import repository as tracking_repo
+    from messfit_api.tracking.metrics import compute_adaptive_tdee
+
+    start = today - datetime.timedelta(days=14)
+    weights = await tracking_repo.weight_points(db, uid, start, today)
+    meals = await tracking_repo.meal_rows(db, uid, start, today)
+    
+    baseline_targets = compute_targets(
+        dob=profile.dob,
+        sex=profile.sex,
+        height_cm=float(profile.height_cm),
+        current_weight_kg=float(profile.current_weight_kg),
+        target_rate_kg_per_week=float(profile.target_rate_kg_per_week),
+        goal=profile.goal,
+        activity_level=profile.activity_level,
+        conditions=list(profile.conditions),
+        today=today,
+    )
+    adaptive = compute_adaptive_tdee(weights, meals, baseline_targets.tdee)
+    
+    targets = compute_targets(
+        dob=profile.dob,
+        sex=profile.sex,
+        height_cm=float(profile.height_cm),
+        current_weight_kg=float(profile.current_weight_kg),
+        target_rate_kg_per_week=float(profile.target_rate_kg_per_week),
+        goal=profile.goal,
+        activity_level=profile.activity_level,
+        conditions=list(profile.conditions),
+        today=today,
+        adaptive_tdee_override=adaptive.tdee if adaptive.available else None,
+    )
+
+    # 3. Map Extracted Dishes to Optimizer Contracts
+    dishes = []
+    for ed in extraction.dishes:
+        did = str(uuid.uuid4())
+        dishes.append(
+            Dish(
+                id=did,
+                name=ed.name,
+                category=ed.category,
+                diet_type=ed.diet_type,
+                serving_unit=ed.portion_icon, # Use portion_icon as unit for AI
+                serving_grams=ed.serving_grams,
+                portion_icon=ed.portion_icon,
+                kcal=ed.kcal,
+                protein_g=ed.protein_g,
+                carbs_g=ed.carbs_g,
+                fats_g=ed.fats_g,
+                fiber_g=0,
+                sodium_mg=0,
+                glycemic_index=None,
+                allergens=(),
+                tags=()
+            )
+        )
+
+    if not dishes:
+        raise HTTPException(status_code=400, detail="No food items recognized in the image.")
+
+    inp = OptimizationInput(
+        daily_kcal=float(targets.daily_kcal),
+        daily_protein_g=float(targets.daily_protein_g),
+        daily_carbs_g=float(targets.daily_carbs_g),
+        daily_fats_g=float(targets.daily_fats_g),
+        diet_type=profile.diet_type,
+        allergies=tuple(profile.allergies or []),
+        conditions=tuple(profile.conditions or []),
+        goal=profile.goal,
+        menu={"scan": dishes}, # Dump them all into a virtual meal called 'scan'
+        canteen_items=(),
+        canteen_budget_inr=0,
+        skip_dish_ids=(),
+    )
+
+    # 4. Run Optimizer
+    output = run_optimizer(inp_to_dict(inp))
+    
+    # If the solver is infeasible, it will still return the best it can, but let's add the raw extracted dishes
+    # so the frontend can display them if it wants to.
+    output["extracted_dishes"] = [d.model_dump() for d in extraction.dishes]
+    
+    return output

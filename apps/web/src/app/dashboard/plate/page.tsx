@@ -3,8 +3,9 @@ import { HugeiconsIcon } from "@hugeicons/react";
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Sun01Icon, Coffee01Icon, Moon01Icon, RefreshIcon, Alert01Icon, ShoppingBag01Icon, Tick01Icon } from "@hugeicons/core-free-icons";
+import { Sun01Icon, Coffee01Icon, Moon01Icon, RefreshIcon, Alert01Icon, ShoppingBag01Icon, Tick01Icon, Camera02Icon } from "@hugeicons/core-free-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -13,6 +14,7 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { PortionIcon } from "@/components/PortionIcon";
 import {
   optimizeToday,
+  optimizeFromPhoto,
   type OptimizationResult,
   type PlateItem,
   type GapFill,
@@ -252,9 +254,14 @@ function GapFillCard({ fill }: { fill: GapFill }) {
   );
 }
 
-function LoadingSkeleton() {
+function LoadingSkeleton({ message = "" }: { message?: string }) {
   return (
     <div className="space-y-6">
+      {message && (
+        <div className="flex animate-pulse items-center justify-center rounded-xl border border-accent/20 bg-accent/5 py-4 text-sm font-medium text-accent shadow-glow">
+          {message}
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-16 rounded-xl bg-white/5" />
@@ -279,7 +286,9 @@ function LoadingSkeleton() {
 export default function PlatePage() {
   const [result, setResult] = useState<OptimizationResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<{ message: string; status?: number } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchPlate = useCallback(async () => {
     setLoading(true);
@@ -301,6 +310,27 @@ export default function PlatePage() {
     fetchPlate();
   }, [fetchPlate]);
 
+  const handleScanPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsScanning(true);
+    setError(null);
+    try {
+      setResult(await optimizeFromPhoto(file));
+      toast.success("AI successfully optimized your plate!");
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError({ message: err.detail, status: err.status });
+      } else {
+        setError({ message: "Failed to process photo. Please try again." });
+      }
+    } finally {
+      setIsScanning(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const today = new Date().toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
@@ -314,20 +344,38 @@ export default function PlatePage() {
           title="Today's Plate"
           description={today}
           actions={
-            <button
-              onClick={fetchPlate}
-              disabled={loading}
-              aria-label="Refresh plate"
-              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
-            >
-              <HugeiconsIcon icon={RefreshIcon} className={cn("h-3 w-3", loading && "animate-spin")} />
-              Refresh
-            </button>
+            <div className="flex items-center gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleScanPhoto}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={loading || isScanning}
+                aria-label="AI Scan"
+                className="flex items-center gap-1.5 rounded-lg bg-accent/10 border border-accent/20 px-3 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-accent/20 hover:shadow-glow disabled:opacity-40"
+              >
+                <HugeiconsIcon icon={isScanning ? RefreshIcon : Camera02Icon} className={cn("h-3 w-3", isScanning && "animate-spin")} />
+                {isScanning ? "Scanning..." : "AI Scan"}
+              </button>
+              <button
+                onClick={fetchPlate}
+                disabled={loading || isScanning}
+                aria-label="Refresh plate"
+                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+              >
+                <HugeiconsIcon icon={RefreshIcon} className={cn("h-3 w-3", loading && "animate-spin")} />
+                Refresh
+              </button>
+            </div>
           }
         />
 
-        {loading ? (
-          <LoadingSkeleton />
+        {loading || isScanning ? (
+          <LoadingSkeleton message={isScanning ? "AI is extracting foods and calculating your optimal plate..." : ""} />
         ) : error ? (
           <ErrorState error={error} />
         ) : result ? (

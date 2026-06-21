@@ -130,3 +130,72 @@ async def estimate_meal_from_photo(
             total_fats_g=10,
             confidence="low",
         )
+
+from pydantic import BaseModel, Field, model_validator
+from typing import Literal
+
+# --- Production Validation Models ---
+class ExtractedDish(BaseModel):
+    name: str = Field(..., description="Name of the food item")
+    category: str = Field(..., description="One of: protein, rice, roti, curry, sweet, snack, beverage, other")
+    diet_type: Literal["vegan", "veg", "egg", "non_veg"] = Field("veg")
+    portion_icon: Literal["piece", "katori", "small_katori", "glass", "spoon", "thumb"] = Field("piece")
+    serving_grams: float = Field(..., ge=1, le=1000, description="Estimated grams per serving")
+    kcal: float = Field(..., ge=0, le=2000, description="Calories per serving")
+    protein_g: float = Field(..., ge=0, le=200, description="Protein in grams")
+    carbs_g: float = Field(..., ge=0, le=300, description="Carbs in grams")
+    fats_g: float = Field(..., ge=0, le=200, description="Fats in grams")
+    
+    @model_validator(mode="after")
+    def validate_macros(self):
+        # A single macro cannot weigh more than the serving itself
+        if self.protein_g > self.serving_grams:
+            self.protein_g = self.serving_grams
+        if self.carbs_g > self.serving_grams:
+            self.carbs_g = self.serving_grams
+        if self.fats_g > self.serving_grams:
+            self.fats_g = self.serving_grams
+        return self
+
+class MenuExtractionResult(BaseModel):
+    dishes: list[ExtractedDish] = Field(..., description="List of all unique food items available")
+
+_MENU_PHOTO_PROMPT = """
+You are a highly precise nutrition AI. Analyze this image of a restaurant menu, buffet spread, or food selection.
+Identify EVERY distinct food item available.
+For each item, estimate its macro-nutritional profile for a standard single serving.
+Do not hallucinate impossible calorie counts (e.g. 50,000). Keep estimates realistic for human consumption.
+"""
+
+async def extract_menu_from_photo(
+    image_bytes: bytes, mime: str = "image/jpeg"
+) -> MenuExtractionResult:
+    """Production-grade menu extraction using Gemini Structured Outputs."""
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(api_key=settings.gemini_api_key)
+        response = await client.aio.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=[
+                types.Part.from_bytes(data=image_bytes, mime_type=mime),
+                _MENU_PHOTO_PROMPT,
+            ],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=MenuExtractionResult,
+                temperature=0.1, # Low temperature for more deterministic/factual macro estimation
+            )
+        )
+        
+        # The Gemini SDK returns JSON strings when using response_schema. We parse it into our Pydantic model.
+        if response.text:
+            data = json.loads(response.text)
+            return MenuExtractionResult.model_validate(data)
+        
+        raise ValueError("Empty response from Vision model")
+    except Exception as e:
+        logger.error("Menu extraction failed", error=str(e))
+        # Hard fail for the optimizer rather than returning garbage data that breaks the MILP solver
+        raise ValueError(f"Could not parse menu from image: {str(e)}")
