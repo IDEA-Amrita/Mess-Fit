@@ -24,6 +24,6 @@ async def unsubscribe(
     sub: PushSubscriptionIn,
     user_id: str = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_session)
-) -> Any:
+) -> None:
     """Remove a Web Push subscription."""
     await repository.remove_subscription(db, uuid.UUID(user_id), sub.endpoint)

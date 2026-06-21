@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlateIcon, SparklesIcon } from "@hugeicons/core-free-icons";
 import { apiFetch } from "@/lib/api";
+import { optimizeToday } from "@/lib/optimizer-api";
 import type { Targets } from "@/lib/types";
 
 export default function TargetsPage() {
@@ -19,6 +23,14 @@ export default function TargetsPage() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  const { data: previewPlate } = useQuery({
+    queryKey: ["plate", "preview"],
+    queryFn: optimizeToday,
+    enabled: !!targets, // Fetch preview only after targets load
+    retry: 0,
+    staleTime: 0,
+  });
 
   if (loading) {
     return (
@@ -114,6 +126,53 @@ export default function TargetsPage() {
           </div>
         )}
       </div>
+
+      {/* U7: What this means for you */}
+      <div className="overflow-hidden rounded-2xl border border-accent/20 bg-accent-muted">
+        <div className="flex items-start gap-3 p-5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent">
+            <HugeiconsIcon icon={PlateIcon} className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">What this means for you</h3>
+            <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+              To hit <span className="font-medium text-foreground">{targets.daily_protein_g}g</span> of protein on a standard Indian mess diet, you'd normally need to eat an impossible amount of dal. 
+              <br /><br />
+              We'll help you pick the highest protein items from your specific mess menu each meal, and suggest cheap gap-fills (like eggs or whey) for the rest.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* U9: Preview Plate */}
+      {previewPlate && Object.keys(previewPlate.plan).length > 0 && (
+        <div className="rounded-2xl border border-border bg-surface-1 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <HugeiconsIcon icon={SparklesIcon} className="h-5 w-5 text-accent" />
+            <h3 className="font-semibold text-foreground">Here is your preview plate for today:</h3>
+          </div>
+          <div className="space-y-4">
+            {Object.entries(previewPlate.plan).map(([meal, items]) => {
+              if (!items.length) return null;
+              return (
+                <div key={meal}>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
+                    {meal}
+                  </p>
+                  <ul className="space-y-1">
+                    {items.map((item) => (
+                      <li key={item.dish_id} className="flex justify-between text-sm">
+                        <span className="text-foreground">{item.name}</span>
+                        <span className="text-accent font-medium">{item.portions} {item.serving_unit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex gap-3">
