@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft02Icon, InformationCircleIcon, Restaurant01Icon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { optimizeToday, type OptimizationResult } from "@/lib/optimizer-api";
 import { cn } from "@/lib/utils";
@@ -84,9 +84,9 @@ export default function QuickModePage() {
                 title="No plan available"
                 description={`We couldn't generate an optimized plate for ${slot} today. Check the main dashboard for details.`}
                 action={
-                  <Button variant="outline" asChild className="mt-2">
-                    <Link href="/dashboard/log">Log manually</Link>
-                  </Button>
+                  <Link href="/dashboard/log" className={buttonVariants({ variant: "outline", className: "mt-2" })}>
+                    Log manually
+                  </Link>
                 }
               />
             </div>
@@ -113,7 +113,7 @@ export default function QuickModePage() {
                     </div>
                     <div className="shrink-0 text-right">
                       <span className="block text-lg font-bold tabular-nums text-accent">
-                        {item.serving_qty} <span className="text-sm font-medium text-muted-foreground">{item.serving_unit}</span>
+                        {item.portions} <span className="text-sm font-medium text-muted-foreground">{item.serving_unit}</span>
                       </span>
                     </div>
                   </li>
@@ -123,9 +123,9 @@ export default function QuickModePage() {
           )}
 
           <div className="text-center pt-8">
-            <Button size="lg" asChild className="w-full sm:w-auto min-w-[200px]">
-              <Link href="/dashboard/log">Log this meal</Link>
-            </Button>
+            <Link href="/dashboard/log" className={buttonVariants({ size: "lg", className: "w-full sm:w-auto min-w-[200px]" })}>
+              Log this meal
+            </Link>
           </div>
         </div>
       </main>

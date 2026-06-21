@@ -33,6 +33,7 @@ celery_app = Celery(
         "messfit_api.mess.tasks",
         "messfit_api.optimizer.tasks",
         "messfit_api.account.tasks",
+        "messfit_api.notifications.tasks",
     ],
 )
 
@@ -50,6 +51,11 @@ celery_app.conf.update(
         "account-hard-delete-pending": {
             "task": "messfit.account.hard_delete_pending",
             "schedule": crontab(hour=3, minute=30),
+        },
+        # Weekly check-in: Sunday 18:00 IST = 12:30 UTC.
+        "weekly-checkin-reminder": {
+            "task": "messfit.notifications.weekly_checkin",
+            "schedule": crontab(hour=12, minute=30, day_of_week=0),
         },
     },
 )

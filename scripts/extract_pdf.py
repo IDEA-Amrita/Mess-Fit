@@ -7,7 +7,10 @@ except ImportError:
     print("PyMuPDF not installed. Trying pdfplumber...")
     try:
         import pdfplumber
-        pdf_path = r"C:\Users\mahakisore\Skills\Clubs\Idea Club\Projects\Mess Fit Projects Resources\Mess-Menu-2025.pdf"
+        if len(sys.argv) < 2:
+            print("Usage: python extract_pdf.py <path_to_pdf>")
+            sys.exit(1)
+        pdf_path = sys.argv[1]
         with pdfplumber.open(pdf_path) as pdf:
             print(f"Pages: {len(pdf.pages)}")
             for i, page in enumerate(pdf.pages):
@@ -31,7 +34,10 @@ except ImportError:
         print("Neither PyMuPDF nor pdfplumber installed.")
         sys.exit(1)
 
-pdf_path = r"C:\Users\mahakisore\Skills\Clubs\Idea Club\Projects\Mess Fit Projects Resources\Mess-Menu-2025.pdf"
+if len(sys.argv) < 2:
+    print("Usage: python extract_pdf.py <path_to_pdf>")
+    sys.exit(1)
+pdf_path = sys.argv[1]
 doc = fitz.open(pdf_path)
 print(f"Pages: {len(doc)}")
 for i in range(len(doc)):
