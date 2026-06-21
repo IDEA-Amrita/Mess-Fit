@@ -45,3 +45,12 @@ export interface OptimizationResult {
 export async function optimizeToday(): Promise<OptimizationResult> {
   return apiFetch<OptimizationResult>("/api/v1/optimize/today", { method: "POST" });
 }
+
+export async function optimizeFromPhoto(file: File): Promise<OptimizationResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+  return apiFetch<OptimizationResult>("/api/v1/optimize/photo", {
+    method: "POST",
+    body: formData,
+  });
+}
