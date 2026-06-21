@@ -15,7 +15,15 @@ if config.config_file_name is not None:
 sync_url = settings.database_url.replace("+asyncpg", "")
 config.set_main_option("sqlalchemy.url", sync_url)
 
-target_metadata = None
+from messfit_api.db import Base
+# Import all model modules so they register with Base
+from messfit_api.auth import models as auth_models
+from messfit_api.profile import models as profile_models
+from messfit_api.mess import models as mess_models
+from messfit_api.chatbot import models as chatbot_models
+from messfit_api.notifications import models as notif_models
+
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:

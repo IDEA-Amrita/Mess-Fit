@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { DashboardShell } from "@/components/DashboardShell";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
+import { AvatarUpload } from "@/components/AvatarUpload";
 import { apiFetch, ApiError } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 
@@ -40,6 +41,16 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-semibold" style={{ color: "#ededed" }}>
           Settings
         </h1>
+
+        <section
+          className="mt-8 rounded-2xl p-6"
+          style={{
+            background: "rgba(255,255,255,0.02)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <AvatarUpload />
+        </section>
 
         <section
           className="mt-8 rounded-2xl p-6"

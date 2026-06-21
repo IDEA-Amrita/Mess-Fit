@@ -12,6 +12,8 @@ import {
   Add01Icon,
   Message01Icon,
   Menu01Icon,
+  PencilEdit01Icon,
+  Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { DashboardShell } from "@/components/DashboardShell";
 import { toast } from "@/lib/toast-store";
@@ -20,6 +22,7 @@ import {
   createConversation,
   listConversations,
   getMessages,
+  renameConversation,
   streamMessage,
   type ChatMessage,
   type Conversation,
@@ -128,6 +131,30 @@ export default function ChatPage() {
     setMessages([]);
   }
 
+  // ── Rename logic ────────────────────────────────────────────────────────
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const editRef = useRef<HTMLInputElement>(null);
+
+  function startEditing(c: Conversation) {
+    setEditingId(c.id);
+    setEditValue(c.title || "");
+    // Focus after next render
+    setTimeout(() => editRef.current?.focus(), 0);
+  }
+
+  async function commitRename(id: string) {
+    const trimmed = editValue.trim();
+    setEditingId(null);
+    if (!trimmed) return;
+    try {
+      await renameConversation(id, trimmed);
+      refetchConvs();
+    } catch {
+      toast.error("Failed to rename");
+    }
+  }
+
   const empty = messages.length === 0 && !streaming;
 
   return (
@@ -155,18 +182,54 @@ export default function ChatPage() {
             ) : (
               <div className="flex flex-col gap-1">
                 {conversations.map((c) => (
-                  <button
+                  <div
                     key={c.id}
-                    onClick={() => loadConversation(c)}
-                    className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                    className={`group flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                       c.id === convId
                         ? "bg-surface-2 text-foreground font-medium"
                         : "text-muted-foreground hover:bg-surface hover:text-foreground"
                     }`}
                   >
                     <HugeiconsIcon icon={Message01Icon} className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{c.title || "New Conversation"}</span>
-                  </button>
+                    {editingId === c.id ? (
+                      <input
+                        ref={editRef}
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") commitRename(c.id);
+                          if (e.key === "Escape") setEditingId(null);
+                        }}
+                        onBlur={() => commitRename(c.id)}
+                        className="flex-1 min-w-0 bg-transparent text-sm text-foreground outline-none border-b border-accent"
+                        maxLength={120}
+                      />
+                    ) : (
+                      <button
+                        onClick={() => loadConversation(c)}
+                        className="flex-1 min-w-0 truncate text-left"
+                      >
+                        {c.title || "New Conversation"}
+                      </button>
+                    )}
+                    {editingId === c.id ? (
+                      <button
+                        onClick={() => commitRename(c.id)}
+                        className="shrink-0 p-0.5 text-accent"
+                        title="Confirm"
+                      >
+                        <HugeiconsIcon icon={Tick01Icon} className="h-3.5 w-3.5" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); startEditing(c); }}
+                        className="shrink-0 p-0.5 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-opacity"
+                        title="Rename"
+                      >
+                        <HugeiconsIcon icon={PencilEdit01Icon} className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
                 ))}
               </div>
             )}
