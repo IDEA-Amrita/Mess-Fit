@@ -4,15 +4,12 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import dynamic from "next/dynamic";
+
+const TrendChart = dynamic(() => import("@/components/ui/trend-chart"), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[220px] w-full rounded-xl" />,
+});
 import { Alert01Icon, FireIcon, TrendingUpDownIcon, Clock01Icon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
@@ -101,44 +98,7 @@ function ProgressView({ data }: { data: Progress }) {
           <EmptyState title="No weigh-ins yet" description="Log your weight to see the trend." />
         ) : (
           <>
-            <div style={{ width: "100%", height: 220 }}>
-              <ResponsiveContainer>
-                <LineChart data={series} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
-                  <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fill: "#5e5e68", fontSize: 11 }}
-                    axisLine={{ stroke: "rgba(255,255,255,0.08)" }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    domain={[lo, hi]}
-                    tick={{ fill: "#5e5e68", fontSize: 11 }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={36}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: "#17171c",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: 12,
-                      fontSize: 12,
-                    }}
-                    labelStyle={{ color: "#a1a1aa" }}
-                    formatter={(v: number) => [`${v} kg`, "Weight"]}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="weight"
-                    stroke="#f59e0b"
-                    strokeWidth={2}
-                    dot={{ r: 3, fill: "#f59e0b" }}
-                    activeDot={{ r: 5 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+            <TrendChart series={series} lo={lo} hi={hi} />
             <p className="mt-1 text-[11px] text-muted-foreground/50">
               Y-axis is zoomed to your range, not zero-based.
             </p>

@@ -41,6 +41,7 @@ export default function QuickModePage() {
     queryKey: ["plate", "today"],
     queryFn: optimizeToday,
     retry: 0,
+    staleTime: 0,
   });
 
   if (!slot) return null; // Hydration gap

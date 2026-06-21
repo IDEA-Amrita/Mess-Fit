@@ -109,6 +109,7 @@ function MealTab({ today }: { today?: TodayLogs }) {
     queryKey: ["plate", "today"],
     queryFn: optimizeToday,
     retry: 0,
+    staleTime: 0,
     // Don't let a plate failure block the tab; just treat it as missing.
   });
 
