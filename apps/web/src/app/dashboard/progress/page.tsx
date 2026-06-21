@@ -186,28 +186,65 @@ function AdaptiveTDEECard({ adaptive }: { adaptive: Progress["adaptive_tdee"] })
   if (!adaptive) return null;
 
   return (
-    <section className={cn("p-4", CARD)}>
-      <div className="mb-2 flex items-center gap-2">
-        <HugeiconsIcon icon={Clock01Icon} className="h-4 w-4" style={{ color: "#ec4899" }} />
-        <h3 className="text-sm font-semibold text-foreground">Adaptive TDEE</h3>
-      </div>
-      
-      {adaptive.available ? (
-        <div className="space-y-1.5">
-          <div className="flex items-baseline justify-between">
-            <p className="text-sm leading-relaxed text-foreground/80">
-              Your estimated metabolic rate is currently <span className="font-semibold text-accent">{Math.round(adaptive.tdee)} kcal</span>.
-            </p>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Based on {adaptive.data_days} days of weight & calorie data. Confidence: {adaptive.confidence}.
-          </p>
-        </div>
-      ) : (
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          {adaptive.reason ?? "Keep logging weight and meals to unlock adaptive TDEE insights."}
-        </p>
+    <section 
+      className={cn(
+        "p-5 relative overflow-hidden", 
+        CARD,
+        adaptive.available && "border-accent/40 shadow-glow"
       )}
+    >
+      {adaptive.available && (
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent pointer-events-none" />
+      )}
+      
+      <div className="relative z-10">
+        <div className="mb-3 flex items-center gap-2">
+          <HugeiconsIcon icon={FireIcon} className="h-4 w-4" style={{ color: "#f59e0b" }} />
+          <h3 className="text-sm font-bold text-foreground tracking-tight">Adaptive TDEE</h3>
+          {adaptive.available && (
+            <span className="ml-auto rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold text-accent uppercase tracking-wider">
+              Active
+            </span>
+          )}
+        </div>
+        
+        {adaptive.available ? (
+          <div className="space-y-2">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-extrabold tracking-tight text-accent drop-shadow-md">
+                {Math.round(adaptive.tdee)}
+              </span>
+              <span className="text-sm font-medium text-muted-foreground">kcal / day</span>
+            </div>
+            <p className="text-xs leading-relaxed text-foreground/80 font-medium">
+              Your true metabolic rate, dynamically calculated from {adaptive.data_days} days of weight & food data.
+            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="h-1.5 flex-1 rounded-full bg-white/5 overflow-hidden">
+                <div 
+                  className="h-full rounded-full bg-accent transition-all duration-1000" 
+                  style={{ width: adaptive.confidence === 'high' ? '100%' : adaptive.confidence === 'medium' ? '66%' : '33%' }}
+                />
+              </div>
+              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider w-24 text-right">
+                {adaptive.confidence} Confidence
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {adaptive.reason ?? "Keep logging weight and meals to unlock adaptive TDEE insights."}
+            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="h-1.5 flex-1 rounded-full bg-white/5 overflow-hidden" />
+              <span className="text-[10px] uppercase font-bold text-muted-foreground/50 tracking-wider w-24 text-right">
+                Needs Data
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
     </section>
   );
 }
