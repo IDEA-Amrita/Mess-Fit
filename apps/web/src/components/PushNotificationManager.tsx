@@ -1,39 +1,84 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { apiFetch } from "@/lib/api";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
+type Status = "loading" | "unsupported" | "denied" | "subscribed" | "unsubscribed" | "error";
+
 export function PushNotificationManager() {
-  const [isSupported, setIsSupported] = useState(false);
+  const [status, setStatus] = useState<Status>("loading");
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
 
+  // On mount: check support, register SW, check existing subscription
   useEffect(() => {
-    if ("serviceWorker" in navigator && "PushManager" in window) {
-      setIsSupported(true);
-      registerServiceWorker();
-    }
-  }, []);
-
-  async function registerServiceWorker() {
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      const sub = await registration.pushManager.getSubscription();
-      setSubscription(sub);
-    } catch (error) {
-      console.error("Service Worker registration failed:", error);
-    }
-  }
-
-  async function subscribeToPush() {
-    try {
-      if (!VAPID_PUBLIC_KEY) {
-        setMessage("Push notifications are not configured on the server.");
+    async function init() {
+      // Check browser support
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        setStatus("unsupported");
         return;
       }
-      
+
+      // Check if permission was previously denied
+      if (Notification.permission === "denied") {
+        setStatus("denied");
+        return;
+      }
+
+      try {
+        // Explicitly register the service worker (don't rely on auto-registration)
+        const registration = await navigator.serviceWorker.register("/sw.js", {
+          scope: "/",
+        });
+
+        // Wait for the SW to be active
+        await navigator.serviceWorker.ready;
+
+        // Check for existing subscription
+        const existingSub = await registration.pushManager.getSubscription();
+        if (existingSub) {
+          setSubscription(existingSub);
+          setStatus("subscribed");
+        } else {
+          setStatus("unsubscribed");
+        }
+      } catch (err) {
+        console.error("Service Worker registration failed:", err);
+        setStatus("error");
+        setMessage("Could not initialize push notifications.");
+      }
+    }
+
+    init();
+  }, []);
+
+  const subscribeToPush = useCallback(async () => {
+    if (!VAPID_PUBLIC_KEY) {
+      setMessage("Push notifications are not configured on the server.");
+      return;
+    }
+
+    setBusy(true);
+    setMessage("");
+
+    try {
+      // Request notification permission
+      const permission = await Notification.requestPermission();
+      if (permission === "denied") {
+        setStatus("denied");
+        setMessage("Notification permission was denied. You can re-enable it in your browser settings.");
+        setBusy(false);
+        return;
+      }
+      if (permission !== "granted") {
+        setMessage("Notification permission was dismissed. Try again when you're ready.");
+        setBusy(false);
+        return;
+      }
+
       const registration = await navigator.serviceWorker.ready;
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
@@ -41,6 +86,7 @@ export function PushNotificationManager() {
       });
 
       setSubscription(sub);
+      setStatus("subscribed");
 
       // Send the subscription to the backend
       const subJson = sub.toJSON();
@@ -52,21 +98,28 @@ export function PushNotificationManager() {
         }),
       });
 
-      setMessage("Subscribed successfully!");
+      setMessage("Push notifications enabled!");
     } catch (error: any) {
-      console.error(error);
-      setMessage("Failed to subscribe: " + error.message);
+      console.error("Push subscription failed:", error);
+      setMessage("Failed to enable: " + (error.message || "Unknown error"));
+    } finally {
+      setBusy(false);
     }
-  }
+  }, []);
 
-  async function unsubscribeFromPush() {
+  const unsubscribeFromPush = useCallback(async () => {
+    if (!subscription) return;
+
+    setBusy(true);
+    setMessage("");
+
     try {
-      if (!subscription) return;
+      const subJson = subscription.toJSON();
       await subscription.unsubscribe();
       setSubscription(null);
+      setStatus("unsubscribed");
 
       // Tell backend to remove
-      const subJson = subscription.toJSON();
       await apiFetch("/api/v1/notifications/unsubscribe", {
         method: "DELETE",
         body: JSON.stringify({
@@ -75,20 +128,65 @@ export function PushNotificationManager() {
         }),
       });
 
-      setMessage("Unsubscribed successfully.");
+      setMessage("Push notifications disabled.");
     } catch (error: any) {
-      console.error(error);
-      setMessage("Failed to unsubscribe: " + error.message);
+      console.error("Unsubscribe failed:", error);
+      setMessage("Failed to disable: " + (error.message || "Unknown error"));
+    } finally {
+      setBusy(false);
     }
+  }, [subscription]);
+
+  // --- Render ---
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center gap-3">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+        <p className="text-sm" style={{ color: "#a0a0a0" }}>
+          Checking notification support…
+        </p>
+      </div>
+    );
   }
 
-  if (!isSupported) {
+  if (status === "unsupported") {
     return (
       <p className="text-sm" style={{ color: "#a0a0a0" }}>
         Push notifications are not supported in this browser.
       </p>
     );
   }
+
+  if (status === "denied") {
+    return (
+      <div className="flex flex-col gap-2">
+        <p className="text-sm" style={{ color: "#f87171" }}>
+          Notification permission is blocked. To re-enable, click the lock icon in
+          your browser&apos;s address bar and allow notifications for this site.
+        </p>
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="flex flex-col gap-2">
+        <p className="text-sm" style={{ color: "#f87171" }}>
+          {message || "Something went wrong initializing push notifications."}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="w-fit rounded-xl px-4 py-2 text-sm font-semibold transition-all"
+          style={{ background: "rgba(255,255,255,0.1)", color: "#fff" }}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  const isSubscribed = status === "subscribed";
 
   return (
     <div className="flex flex-col gap-3">
@@ -97,17 +195,34 @@ export function PushNotificationManager() {
           Receive alerts for meal reviews, weekly check-ins, and reminders.
         </p>
         <button
-          onClick={subscription ? unsubscribeFromPush : subscribeToPush}
-          className="rounded-xl px-4 py-2 text-sm font-semibold transition-all"
+          onClick={isSubscribed ? unsubscribeFromPush : subscribeToPush}
+          disabled={busy}
+          className="rounded-xl px-4 py-2 text-sm font-semibold transition-all disabled:opacity-50"
           style={{
-            background: subscription ? "rgba(255,255,255,0.1)" : "#f59e0b",
-            color: subscription ? "#fff" : "#000",
+            background: isSubscribed ? "rgba(255,255,255,0.1)" : "#f59e0b",
+            color: isSubscribed ? "#fff" : "#000",
           }}
         >
-          {subscription ? "Disable" : "Enable"}
+          {busy ? (
+            <span className="flex items-center gap-2">
+              <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              {isSubscribed ? "Disabling…" : "Enabling…"}
+            </span>
+          ) : isSubscribed ? (
+            "Disable"
+          ) : (
+            "Enable"
+          )}
         </button>
       </div>
-      {message && <p className="text-xs" style={{ color: "#f59e0b" }}>{message}</p>}
+      {message && (
+        <p
+          className="text-xs"
+          style={{ color: message.toLowerCase().includes("fail") || message.toLowerCase().includes("denied") ? "#f87171" : "#f59e0b" }}
+        >
+          {message}
+        </p>
+      )}
     </div>
   );
 }
@@ -124,3 +239,4 @@ function urlBase64ToUint8Array(base64String: string) {
   }
   return outputArray;
 }
+
