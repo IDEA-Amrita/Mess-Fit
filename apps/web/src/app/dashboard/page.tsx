@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PlateIcon, Target01Icon, CheckListIcon } from "@hugeicons/core-free-icons";
-import { supabase } from "@/lib/supabase";
+import { useUser } from "@/hooks/use-user";
 import { DashboardShell } from "@/components/DashboardShell";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -15,15 +15,8 @@ import { getTodayLogs } from "@/lib/tracking-api";
 import { optimizeToday, type OptimizationResult } from "@/lib/optimizer-api";
 
 export default function DashboardPage() {
-  const [displayName, setDisplayName] = useState<string | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        setDisplayName((data.user.user_metadata?.display_name as string) ?? null);
-      }
-    });
-  }, []);
+  const { data: user } = useUser();
+  const displayName = user?.user_metadata?.display_name as string | undefined;
 
   // Fetch today's logs (meals logged, weight, etc.)
   const todayLogs = useQuery({
