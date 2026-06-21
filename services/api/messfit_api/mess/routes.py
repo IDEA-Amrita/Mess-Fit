@@ -13,6 +13,7 @@ from messfit_api.auth.deps import get_current_user_id
 from messfit_api.db import get_session
 from messfit_api.mess.models import (
     DishExclusionORM,
+    DishFeedbackORM,
     DishORM,
     MessMenuORM,
     MessORM,
@@ -174,12 +175,6 @@ async def unexclude_dish(
 # ─── Crowdsourcing feedback (D25) ────────────────────────────────────
 
 
-# In-memory feedback aggregator. In production, move to a dedicated DB table
-# or Redis hash for persistence across restarts. The key is
-# (date, meal_type, dish_id) → {user_id: vote}.
-_feedback_store: dict[tuple, dict[str, str]] = {}
-
-
 @router.post("/dishes/feedback", status_code=status.HTTP_201_CREATED)
 async def submit_dish_feedback(
     payload: DishFeedbackIn,
@@ -187,20 +182,20 @@ async def submit_dish_feedback(
     db: AsyncSession = Depends(get_session),
 ) -> dict:
     """User confirms or denies that a scheduled dish is actually available today."""
-    key = (str(payload.date), payload.meal_type, str(payload.dish_id))
-    if key not in _feedback_store:
-        _feedback_store[key] = {}
-    _feedback_store[key][user_id] = payload.vote
+    stmt = pg_insert(DishFeedbackORM).values(
+        user_id=user_id,
+        date=payload.date,
+        meal_type=payload.meal_type,
+        dish_id=payload.dish_id,
+        vote=payload.vote,
+    ).on_conflict_do_update(
+        index_elements=["user_id", "date", "meal_type", "dish_id"],
+        set_={"vote": payload.vote},
+    )
+    await db.execute(stmt)
+    await db.commit()
 
-    votes = _feedback_store[key]
-    confirms = sum(1 for v in votes.values() if v == "confirm")
-    denies = sum(1 for v in votes.values() if v == "deny")
-
-    return {
-        "dish_id": str(payload.dish_id),
-        "confirms": confirms,
-        "denies": denies,
-    }
+    return await _aggregate_feedback(db, payload.date, payload.meal_type, payload.dish_id)
 
 
 @router.get("/dishes/feedback")
@@ -208,15 +203,35 @@ async def get_dish_feedback(
     date: datetime.date,
     meal_type: str,
     dish_id: uuid.UUID,
+    db: AsyncSession = Depends(get_session),
 ) -> dict:
     """Get community consensus on whether a dish is available."""
-    key = (str(date), meal_type, str(dish_id))
-    votes = _feedback_store.get(key, {})
-    confirms = sum(1 for v in votes.values() if v == "confirm")
-    denies = sum(1 for v in votes.values() if v == "deny")
+    return await _aggregate_feedback(db, date, meal_type, dish_id)
 
+
+async def _aggregate_feedback(
+    db: AsyncSession,
+    date: datetime.date,
+    meal_type: str,
+    dish_id: uuid.UUID,
+) -> dict:
+    """Count confirm/deny votes for a specific dish on a given date and meal."""
+    from sqlalchemy import case, func as sa_func
+
+    result = await db.execute(
+        select(
+            sa_func.count().filter(DishFeedbackORM.vote == "confirm").label("confirms"),
+            sa_func.count().filter(DishFeedbackORM.vote == "deny").label("denies"),
+        ).where(
+            DishFeedbackORM.date == date,
+            DishFeedbackORM.meal_type == meal_type,
+            DishFeedbackORM.dish_id == dish_id,
+        )
+    )
+    row = result.one()
     return {
         "dish_id": str(dish_id),
-        "confirms": confirms,
-        "denies": denies,
+        "confirms": row.confirms,
+        "denies": row.denies,
     }
+

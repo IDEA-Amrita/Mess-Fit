@@ -9,7 +9,6 @@ from __future__ import annotations
 import asyncio
 import json
 import structlog
-from celery import shared_task
 from sqlalchemy import select
 
 from ..celery_app import celery_app
@@ -45,7 +44,7 @@ async def _notify_weekly_checkin() -> None:
         logger.info("Weekly check-in notifications sent", total_attempted=len(user_ids), successes=success_count)
 
 
-@shared_task
+@celery_app.task(name="messfit.notifications.weekly_checkin")
 def send_weekly_checkin_reminders() -> None:
     """Trigger the weekly check-in push notification for all users.
     

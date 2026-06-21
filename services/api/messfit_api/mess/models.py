@@ -130,3 +130,26 @@ class DishExclusionORM(Base):
     created_at: Mapped[dt.datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.now()
     )
+
+
+class DishFeedbackORM(Base):
+    """Per-user crowdsourced feedback on whether a scheduled dish was actually served.
+
+    Each user may submit one vote ("confirm" or "deny") per dish per meal per day.
+    Aggregated counts drive community-level menu accuracy signals.
+    """
+
+    __tablename__ = "dish_feedback"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    date: Mapped[dt.date] = mapped_column(Date, primary_key=True)
+    meal_type: Mapped[str] = mapped_column(Text, primary_key=True)
+    dish_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("dishes.id", ondelete="CASCADE"), primary_key=True
+    )
+    vote: Mapped[str] = mapped_column(Text)  # "confirm" | "deny"
+    created_at: Mapped[dt.datetime] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.now()
+    )
