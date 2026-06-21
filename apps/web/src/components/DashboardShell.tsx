@@ -58,6 +58,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [email, setEmail] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
@@ -65,6 +66,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       if (data.user) {
         setEmail(data.user.email ?? null);
         setDisplayName((data.user.user_metadata?.display_name as string) ?? null);
+        setAvatarUrl((data.user.user_metadata?.avatar_url as string) ?? null);
       }
     });
   }, []);
@@ -108,7 +110,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
         <div className="shrink-0 border-t border-border p-3">
           <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-            <Avatar initial={initial} />
+            <Avatar initial={initial} imageUrl={avatarUrl} />
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-medium text-foreground">{displayLabel}</p>
               {email && <p className="truncate text-xs text-muted-foreground">{email}</p>}
@@ -127,7 +129,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       {/* ── Mobile top bar (<lg) ── */}
       <header className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-surface-1/95 px-4 backdrop-blur lg:hidden">
         <Logo />
-        <Avatar initial={initial} />
+        <Avatar initial={initial} imageUrl={avatarUrl} />
       </header>
 
       {/* ── Main ── */}
@@ -202,7 +204,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Avatar({ initial }: { initial: string }) {
+function Avatar({ initial, imageUrl }: { initial: string; imageUrl?: string | null }) {
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt="Avatar"
+        className="h-7 w-7 shrink-0 rounded-full object-cover"
+      />
+    );
+  }
   return (
     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-muted text-xs font-bold text-accent">
       {initial}
