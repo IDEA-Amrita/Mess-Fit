@@ -33,7 +33,7 @@ from ..profile.goal_engine import compute_age, compute_targets
 from ..profile.models import Profile
 from ..profile.repository import get_profile
 from . import cache, embeddings, llm, repository, retrieval
-from .schemas import ConversationOut, MessageIn, MessageOut
+from .schemas import ConversationOut, MessageIn, MessageOut, RenameIn
 
 router = APIRouter(prefix="/api/v1/chat", tags=["chatbot"])
 
@@ -82,6 +82,21 @@ async def list_conversations(
     db: AsyncSession = Depends(get_session),
 ) -> Any:
     return await repository.list_conversations(db, uuid.UUID(user_id), limit=limit, offset=offset)
+
+
+@router.patch("/conversations/{conv_id}/title", response_model=ConversationOut)
+async def rename_conversation(
+    conv_id: uuid.UUID,
+    payload: RenameIn,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> Any:
+    """Manually rename a conversation."""
+    conv = await repository.get_owned_conversation(db, conv_id, uuid.UUID(user_id))
+    if conv is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found")
+    updated = await repository.update_conversation_title(db, conv_id, payload.title)
+    return updated
 
 
 @router.get("/conversations/{conv_id}/messages", response_model=list[MessageOut])
@@ -177,6 +192,15 @@ async def post_message(
             if not personalized and emb is not None and full.strip():
                 await cache.store_cache(sdb, emb, full, citations)
 
+            # Auto-generate title from the first user message
+            conv_row = await sdb.get(
+                repository.ChatConversationORM, conv_id
+            )
+            if conv_row and not conv_row.title:
+                auto_title = _auto_title(query)
+                conv_row.title = auto_title
+                await sdb.commit()
+
             yield _sse({"done": True, "citations": citations})
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
@@ -184,6 +208,18 @@ async def post_message(
 
 def _sse(data: dict) -> str:
     return f"data: {json.dumps(data)}\n\n"
+
+
+def _auto_title(first_message: str, max_len: int = 50) -> str:
+    """Derive a short title from the first user message.
+
+    Truncates at a word boundary and appends '…' when shortened.
+    """
+    text = first_message.strip().replace("\n", " ")
+    if len(text) <= max_len:
+        return text
+    truncated = text[:max_len].rsplit(" ", 1)[0]
+    return truncated + "…"
 
 
 async def _persist(

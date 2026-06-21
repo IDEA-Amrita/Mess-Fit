@@ -21,6 +21,17 @@ async def create_conversation(
     return conv
 
 
+async def update_conversation_title(
+    db: AsyncSession, conv_id: uuid.UUID, title: str
+) -> ChatConversationORM | None:
+    conv = await db.get(ChatConversationORM, conv_id)
+    if conv:
+        conv.title = title
+        await db.commit()
+        await db.refresh(conv)
+    return conv
+
+
 async def list_conversations(
     db: AsyncSession, user_id: uuid.UUID, limit: int = 50, offset: int = 0
 ) -> Sequence[ChatConversationORM]:

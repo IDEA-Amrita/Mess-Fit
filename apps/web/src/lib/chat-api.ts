@@ -37,6 +37,13 @@ export async function getMessages(convId: string): Promise<ChatMessage[]> {
   return apiFetch<ChatMessage[]>(`/api/v1/chat/conversations/${convId}/messages`);
 }
 
+export async function renameConversation(convId: string, title: string): Promise<Conversation> {
+  return apiFetch<Conversation>(`/api/v1/chat/conversations/${convId}/title`, {
+    method: "PATCH",
+    body: JSON.stringify({ title }),
+  });
+}
+
 /**
  * Send a message and stream the assistant reply. Calls `onToken` for each token
  * and `onDone` with the final citations. Uses fetch directly (not apiFetch) so we
