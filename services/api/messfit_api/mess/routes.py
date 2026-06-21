@@ -53,7 +53,8 @@ async def list_dishes(
     stmt = select(DishORM)
     if query:
         # A simple ILIKE for now. For pg_trgm, we could use `.op("%%")`
-        stmt = stmt.where(DishORM.name.ilike(f"%{query}%"))
+        escaped_query = query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        stmt = stmt.where(DishORM.name.ilike(f"%{escaped_query}%", escape="\\"))
     stmt = stmt.order_by(DishORM.name).limit(limit).offset(offset)
     result = await db.execute(stmt)
     return result.scalars().all()

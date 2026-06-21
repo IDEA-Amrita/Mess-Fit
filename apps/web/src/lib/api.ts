@@ -9,6 +9,7 @@
  */
 
 import { supabase } from "./supabase";
+import * as Sentry from "@sentry/nextjs";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -49,7 +50,16 @@ export async function apiFetch<T>(
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new ApiError(res.status, body.detail ?? res.statusText);
+    const errorMsg = body.detail ?? res.statusText;
+    const error = new ApiError(res.status, errorMsg);
+    
+    // Log to Sentry on client side (A11)
+    Sentry.captureException(error, {
+      extra: { path, method: options.method ?? "GET", status: res.status }
+    });
+    console.error(`[API Error] ${options.method ?? "GET"} ${path} -> ${res.status}: ${errorMsg}`);
+    
+    throw error;
   }
 
   return res.json() as Promise<T>;
