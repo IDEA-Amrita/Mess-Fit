@@ -89,6 +89,29 @@ async def optimize_today(
             detail="No mess configured in hostel context",
         )
 
+    from messfit_api.tracking import repository as tracking_repo
+    from messfit_api.tracking.metrics import compute_adaptive_tdee
+
+    # Fetch recent data for adaptive TDEE
+    start = today - datetime.timedelta(days=14)
+    weights = await tracking_repo.weight_points(db, uid, start, today)
+    meals = await tracking_repo.meal_rows(db, uid, start, today)
+    
+    # Calculate static TDEE first as a fallback/baseline
+    baseline_targets = compute_targets(
+        dob=profile.dob,
+        sex=profile.sex,
+        height_cm=float(profile.height_cm),
+        current_weight_kg=float(profile.current_weight_kg),
+        target_rate_kg_per_week=float(profile.target_rate_kg_per_week),
+        goal=profile.goal,
+        activity_level=profile.activity_level,
+        conditions=list(profile.conditions),
+        today=today,
+    )
+    
+    adaptive = compute_adaptive_tdee(weights, meals, baseline_targets.tdee)
+    
     targets = compute_targets(
         dob=profile.dob,
         sex=profile.sex,
@@ -99,6 +122,7 @@ async def optimize_today(
         activity_level=profile.activity_level,
         conditions=list(profile.conditions),
         today=today,
+        adaptive_tdee_override=adaptive.tdee if adaptive.available else None,
     )
 
     menu_rows = (

@@ -21,13 +21,13 @@
   --accent-light: #fbbf24;
   --accent-dark: #d97706;
   --accent-muted: rgba(245, 158, 11, 0.12);
-  --accent-glow: rgba(245, 158, 11, 0.2);
+  --accent-glow: rgba(245, 158, 11, 0.4);
 
   --text-primary: #f4f4f5;
   --text-secondary: #a1a1aa;
-  --text-muted: #76767f;
+  --text-muted: #9ca3af; /* improved contrast */
 
-  --glass: rgba(255, 255, 255, 0.04);
+  --glass: rgba(255, 255, 255, 0.06);
   --glass-border: rgba(255, 255, 255, 0.08);
 
   --success: #22c55e;

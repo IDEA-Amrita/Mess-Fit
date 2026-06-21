@@ -191,6 +191,7 @@ def compute_targets(
     activity_level: int,
     conditions: list[str],
     today: date,
+    adaptive_tdee_override: float | None = None,
 ) -> Targets:
     """End-to-end: profile -> Targets.
 
@@ -203,7 +204,14 @@ def compute_targets(
     bmi_class = classify_bmi(bmi)
 
     bmr = round(compute_bmr_mifflin_st_jeor(current_weight_kg, height_cm, age, sex), 1)
-    tdee = round(compute_tdee(bmr, activity_level), 1)
+    
+    if adaptive_tdee_override is not None:
+        tdee = round(adaptive_tdee_override, 1)
+        tdee_rationale = f"Adaptive TDEE calculated from your logged weight & meals = {tdee}"
+    else:
+        tdee = round(compute_tdee(bmr, activity_level), 1)
+        tdee_rationale = f"BMR × activity factor {ACTIVITY_FACTORS[activity_level]} = {tdee}"
+        
     daily_kcal = compute_daily_kcal(tdee, target_rate_kg_per_week)
     protein_g, carbs_g, fats_g = compute_macros(
         daily_kcal, current_weight_kg, goal, conditions
@@ -229,9 +237,7 @@ def compute_targets(
             f"Mifflin-St Jeor: 10·{current_weight_kg} + 6.25·{height_cm} "
             f"− 5·{age} {sex_offset} = {bmr}"
         ),
-        "tdee_formula": (
-            f"BMR × activity factor {ACTIVITY_FACTORS[activity_level]} = {tdee}"
-        ),
+        "tdee_formula": tdee_rationale,
         "kcal_target_basis": (
             f"TDEE {tdee} {'+' if delta_per_day >= 0 else '−'} "
             f"{abs(delta_per_day)} kcal/day (capped at ±{DAILY_KCAL_DELTA_CAP}) "
