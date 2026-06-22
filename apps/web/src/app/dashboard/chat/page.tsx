@@ -143,15 +143,22 @@ export default function ChatPage() {
     setTimeout(() => editRef.current?.focus(), 0);
   }
 
-  async function commitRename(id: string) {
-    const trimmed = editValue.trim();
+  const isRenaming = useRef(false);
+
+  async function commitRename(id: string, valueToCommit?: string) {
+    if (isRenaming.current) return;
+    const trimmed = (valueToCommit ?? editValue).trim();
     setEditingId(null);
     if (!trimmed) return;
+    
+    isRenaming.current = true;
     try {
       await renameConversation(id, trimmed);
       refetchConvs();
     } catch {
       toast.error("Failed to rename");
+    } finally {
+      isRenaming.current = false;
     }
   }
 
@@ -197,11 +204,14 @@ export default function ChatPage() {
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") commitRename(c.id);
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            commitRename(c.id, editValue);
+                          }
                           if (e.key === "Escape") setEditingId(null);
                         }}
-                        onBlur={() => commitRename(c.id)}
-                        className="flex-1 min-w-0 bg-transparent text-sm text-foreground outline-none border-b border-accent"
+                        onBlur={() => commitRename(c.id, editValue)}
+                        className="flex-1 min-w-0 bg-transparent text-sm text-foreground outline-none border-b border-accent px-1 py-0.5"
                         maxLength={120}
                       />
                     ) : (
