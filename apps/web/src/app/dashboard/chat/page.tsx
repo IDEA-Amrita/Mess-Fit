@@ -319,12 +319,12 @@ function EmptyState({ onPick }: { onPick: (t: string) => void }) {
           Grounded in curated sources. Not a substitute for a doctor.
         </p>
       </div>
-      <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
+      <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
         {SUGGESTIONS.map((s) => (
           <button
             key={s}
             onClick={() => onPick(s)}
-            className="rounded-xl border border-border bg-surface-2 px-4 py-3 text-left text-sm text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
+            className="bento-card px-5 py-4 text-left text-sm text-muted-foreground transition-all hover:text-foreground hover:shadow-glow"
           >
             {s}
           </button>
@@ -397,8 +397,8 @@ function ChatInput({
   busy: boolean;
 }) {
   return (
-    <div className="shrink-0 border-t border-border p-4">
-      <div className="mx-auto flex max-w-2xl items-end gap-2">
+    <div className="shrink-0 border-t border-white/5 bg-background/50 backdrop-blur-xl p-4">
+      <div className="mx-auto flex max-w-2xl items-end gap-3">
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -411,15 +411,15 @@ function ChatInput({
           rows={1}
           aria-label="Message"
           placeholder="Ask about nutrition or training…"
-          className="max-h-30 flex-1 resize-none rounded-xl border border-border bg-surface-2 px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-ring"
+          className="max-h-32 flex-1 resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-foreground outline-none transition-all focus:border-accent/50 focus:bg-white/10 focus:shadow-glow"
         />
         <button
           onClick={onSend}
           disabled={busy || !value.trim()}
           aria-label="Send"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground transition-colors hover:brightness-110 disabled:opacity-40"
+          className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-foreground transition-all hover:brightness-110 hover:shadow-glow disabled:opacity-40 disabled:hover:shadow-none"
         >
-          <HugeiconsIcon icon={SentIcon} className="h-4 w-4" />
+          <HugeiconsIcon icon={SentIcon} className="h-5 w-5" />
         </button>
       </div>
     </div>
