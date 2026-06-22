@@ -78,13 +78,7 @@ function ExerciseCard({
   const allDone = done >= ex.sets;
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: allDone ? "rgba(245,158,11,0.04)" : "rgba(255,255,255,0.03)",
-        border: `1px solid ${allDone ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.07)"}`,
-      }}
-    >
+    <div className="bento-card p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-semibold text-sm leading-snug" style={{ color: "#e8e8e8" }}>
@@ -148,6 +142,8 @@ function ExerciseCard({
     </div>
   );
 }
+
+import Image from "next/image";
 
 // ── page ───────────────────────────────────────────────────────────────────
 
@@ -279,15 +275,17 @@ export default function WorkoutPage() {
       ) : workout ? (
         <div className="flex-1 space-y-5 p-6">
           {/* Progress bar */}
-          <div
-            className="rounded-2xl p-4"
-            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
-          >
-            <div className="flex items-baseline justify-between mb-2">
-              <span className="text-sm font-semibold capitalize" style={{ color: "#c0c0c0" }}>
+          <div className="bento-card p-5 min-h-[120px] flex flex-col justify-end group">
+            <div className="absolute inset-0 z-0">
+               <Image src="/images/workout_texture.png" alt="Workout background" fill className="object-cover opacity-20 mix-blend-overlay transition-transform duration-700 group-hover:scale-105" />
+               <div className="absolute inset-0 bg-gradient-to-r from-background/90 to-transparent" />
+            </div>
+            
+            <div className="relative z-10 flex items-baseline justify-between mb-3">
+              <span className="text-xl font-bold capitalize text-white drop-shadow-md">
                 {workout.template_name}
               </span>
-              <span className="text-xs font-medium" style={{ color: "#888" }}>
+              <span className="text-xs font-bold text-accent bg-accent/10 px-3 py-1 rounded-full border border-accent/20 backdrop-blur-sm shadow-sm">
                 {completedSets} / {totalSets} sets
               </span>
             </div>

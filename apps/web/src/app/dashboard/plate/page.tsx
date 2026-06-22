@@ -108,34 +108,34 @@ function DishCard({ item, meal }: { item: PlateItem; meal: string }) {
   });
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition-colors hover:border-border/80">
+    <div className="bento-card flex flex-col gap-2 p-4 transition-all duration-300 hover:shadow-glow hover:-translate-y-1">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-semibold leading-snug text-foreground">{item.name}</p>
-        <span className="shrink-0 rounded-full bg-accent-muted px-2 py-0.5 text-[11px] font-semibold text-accent">
+        <p className="text-sm font-bold leading-snug text-foreground">{item.name}</p>
+        <span className="shrink-0 rounded-full bg-accent/20 px-2 py-0.5 text-[11px] font-bold text-accent backdrop-blur-sm shadow-sm">
           {Math.round(item.kcal)} kcal
         </span>
       </div>
 
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
         <PortionIcon icon={item.portion_icon} size={14} color="currentColor" />
         <span>
           {portionsLabel} {item.serving_unit} · {Math.round(item.grams)}g
         </span>
       </div>
 
-      <div className="flex items-center gap-3 rounded-lg bg-black/20 px-2.5 py-2 text-xs font-medium">
+      <div className="mt-2 flex items-center gap-2 rounded-xl bg-black/40 px-3 py-2 text-xs font-bold border border-white/5">
         <span style={{ color: "#60a5fa" }}>P {item.protein_g.toFixed(1)}g</span>
         <span style={{ color: "#fbbf24" }}>C {item.carbs_g.toFixed(1)}g</span>
         <span style={{ color: "#f87171" }}>F {item.fats_g.toFixed(1)}g</span>
       </div>
 
       {item.reason && (
-        <p className="text-xs leading-relaxed text-muted-foreground">{item.reason}</p>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.reason}</p>
       )}
 
       {/* Crowdsourcing Feedback UI */}
-      <div className="mt-1 flex items-center justify-between border-t border-border pt-3">
-        <span className="text-[10px] uppercase tracking-wide text-muted-foreground/70">
+      <div className="mt-2 flex items-center justify-between border-t border-white/5 pt-3">
+        <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground/70">
           Served today?
         </span>
         <div className="flex gap-2">
@@ -143,8 +143,8 @@ function DishCard({ item, meal }: { item: PlateItem; meal: string }) {
             onClick={() => voteMutation.mutate("confirm")}
             disabled={vote !== null || voteMutation.isPending}
             className={cn(
-              "flex h-7 items-center justify-center rounded bg-white/5 px-2.5 text-xs transition-colors",
-              vote === "confirm" ? "bg-green-500/20 text-green-500" : "text-muted-foreground hover:bg-white/10 hover:text-foreground",
+              "flex h-7 items-center justify-center rounded bg-white/5 px-2.5 text-xs font-semibold transition-colors",
+              vote === "confirm" ? "bg-green-500/20 text-green-500 border border-green-500/30" : "text-muted-foreground hover:bg-white/10 hover:text-foreground",
               vote === "deny" && "opacity-30"
             )}
           >
@@ -154,8 +154,8 @@ function DishCard({ item, meal }: { item: PlateItem; meal: string }) {
             onClick={() => voteMutation.mutate("deny")}
             disabled={vote !== null || voteMutation.isPending}
             className={cn(
-              "flex h-7 items-center justify-center rounded bg-white/5 px-2.5 text-xs transition-colors",
-              vote === "deny" ? "bg-red-500/20 text-red-500" : "text-muted-foreground hover:bg-white/10 hover:text-foreground",
+              "flex h-7 items-center justify-center rounded bg-white/5 px-2.5 text-xs font-semibold transition-colors",
+              vote === "deny" ? "bg-red-500/20 text-red-500 border border-red-500/30" : "text-muted-foreground hover:bg-white/10 hover:text-foreground",
               vote === "confirm" && "opacity-30"
             )}
           >
@@ -254,14 +254,28 @@ function GapFillCard({ fill }: { fill: GapFill }) {
   );
 }
 
-function LoadingSkeleton({ message = "" }: { message?: string }) {
+import Image from "next/image";
+
+function LoadingSkeleton({ message = "", isScanning = false }: { message?: string, isScanning?: boolean }) {
+  if (isScanning) {
+    return (
+      <div className="flex flex-col items-center justify-center space-y-8 py-12">
+        <div className="relative w-64 h-64 rounded-3xl overflow-hidden shadow-glow">
+          <Image src="/images/ai_scanner.png" alt="AI Scanner" fill className="object-cover opacity-80" />
+          <div className="absolute inset-0 border-4 border-accent rounded-3xl opacity-50" />
+          {/* Scanning laser line */}
+          <div className="absolute left-0 right-0 h-1 bg-accent shadow-[0_0_15px_rgba(245,158,11,1)] animate-[scan_2s_ease-in-out_infinite]" />
+        </div>
+        <div className="flex items-center gap-3 animate-pulse-glow">
+          <HugeiconsIcon icon={RefreshIcon} className="h-5 w-5 text-accent animate-spin" />
+          <p className="text-lg font-bold text-accent">{message}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {message && (
-        <div className="flex animate-pulse items-center justify-center rounded-xl border border-accent/20 bg-accent/5 py-4 text-sm font-medium text-accent shadow-glow">
-          {message}
-        </div>
-      )}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-16 rounded-xl bg-white/5" />
@@ -375,7 +389,7 @@ export default function PlatePage() {
         />
 
         {loading || isScanning ? (
-          <LoadingSkeleton message={isScanning ? "AI is extracting foods and calculating your optimal plate..." : ""} />
+          <LoadingSkeleton isScanning={isScanning} message={isScanning ? "AI is extracting foods and calculating your optimal plate..." : ""} />
         ) : error ? (
           <ErrorState error={error} />
         ) : result ? (
