@@ -25,10 +25,7 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
-  devIndicators: {
-    appIsrStatus: false,
-    buildActivity: false,
-  },
+  devIndicators: false,
 };
 
 // Sentry build-time wrapper (Phase 9, task 9.3). Source-map upload only runs
