@@ -97,8 +97,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </a>
 
       {/* ── Desktop sidebar (≥lg) ── */}
-      <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-border bg-surface-1 lg:flex">
-        <div className="flex h-16 shrink-0 items-center border-b border-border px-5">
+      <aside className="fixed inset-y-4 left-4 hidden w-60 flex-col rounded-3xl border border-white/10 bg-white/5 backdrop-blur-3xl shadow-2xl lg:flex overflow-hidden">
+        <div className="flex h-20 shrink-0 items-center border-b border-white/5 px-6">
           <Logo />
         </div>
 
@@ -127,7 +127,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* ── Mobile top bar (<lg) ── */}
-      <header className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-surface-1/95 px-4 backdrop-blur lg:hidden">
+      <header className="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-background/60 px-5 backdrop-blur-2xl lg:hidden">
         <Logo />
         <Avatar initial={initial} imageUrl={avatarUrl} />
       </header>
@@ -139,8 +139,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
       {/* ── Mobile bottom tab bar (<lg) ── */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 flex items-stretch border-t border-border bg-surface-1/95 backdrop-blur lg:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        className="fixed inset-x-4 bottom-4 z-30 flex items-stretch rounded-2xl border border-white/10 bg-white/5 backdrop-blur-2xl shadow-2xl lg:hidden"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 4px)" }}
       >
         {PRIMARY.map((item) => (
           <TabButton
@@ -231,17 +231,19 @@ function NavRow({
   compact?: boolean;
 }) {
   const base = cn(
-    "flex items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",
-    compact ? "py-2.5" : "py-2.5",
+    "flex items-center gap-3 rounded-xl px-4 font-medium transition-all duration-300",
+    compact ? "py-3 text-sm" : "py-3.5 text-sm",
     active
-      ? "bg-accent-muted text-accent shadow-glow border border-accent/20"
+      ? "bg-accent/10 text-accent shadow-glow border border-accent/20 translate-x-1"
       : item.comingSoon
-        ? "cursor-not-allowed text-muted-foreground/50"
-        : "text-muted-foreground hover:bg-white/10 hover:text-foreground",
+        ? "cursor-not-allowed text-muted-foreground/40"
+        : "text-muted-foreground hover:bg-white/5 hover:text-foreground hover:translate-x-1",
   );
   const inner = (
     <>
-      <HugeiconsIcon icon={item.icon} size={18} strokeWidth={1.5} color="currentColor" />
+      <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-300", active ? "bg-accent/20" : "bg-transparent")}>
+        <HugeiconsIcon icon={item.icon} size={20} strokeWidth={1.5} color="currentColor" />
+      </div>
       <span className="flex-1 truncate">{item.label}</span>
       {item.comingSoon && (
         <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
@@ -279,11 +281,14 @@ function TabButton({
     <Link
       href={href}
       className={cn(
-        "flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors",
-        active ? "text-accent" : "text-muted-foreground",
+        "group relative flex flex-1 flex-col items-center justify-center gap-1.5 py-3 text-[10px] font-bold tracking-wide transition-all duration-300",
+        active ? "text-accent" : "text-muted-foreground hover:text-foreground",
       )}
     >
-      <HugeiconsIcon icon={icon} size={20} strokeWidth={1.5} color="currentColor" />
+      <div className={cn("absolute -top-3 left-1/2 h-1 w-8 -translate-x-1/2 rounded-b-full bg-accent transition-all duration-300", active ? "opacity-100 shadow-[0_0_12px_rgba(245,158,11,0.8)]" : "opacity-0")} />
+      <div className={cn("flex h-8 w-8 items-center justify-center rounded-xl transition-all duration-300", active ? "bg-accent/20" : "bg-transparent group-hover:bg-white/5")}>
+        <HugeiconsIcon icon={icon} size={22} strokeWidth={1.5} color="currentColor" />
+      </div>
       {label}
     </Link>
   );
