@@ -277,7 +277,7 @@ export default function WorkoutPage() {
           {/* Progress bar */}
           <div className="bento-card p-5 min-h-[120px] flex flex-col justify-end group">
             <div className="absolute inset-0 z-0">
-               <Image src="/images/workout_texture.png" alt="Workout background" fill className="object-cover opacity-20 mix-blend-overlay transition-transform duration-700 group-hover:scale-105" />
+               <Image src="/images/workout_texture.png" alt="Workout background" fill sizes="(max-width: 768px) 100vw, 80vw" className="object-cover opacity-20 mix-blend-overlay transition-transform duration-700 group-hover:scale-105" />
                <div className="absolute inset-0 bg-gradient-to-r from-background/90 to-transparent" />
             </div>
             
