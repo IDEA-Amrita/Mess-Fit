@@ -261,7 +261,7 @@ function LoadingSkeleton({ message = "", isScanning = false }: { message?: strin
     return (
       <div className="flex flex-col items-center justify-center space-y-8 py-12">
         <div className="relative w-64 h-64 rounded-3xl overflow-hidden shadow-glow">
-          <Image src="/images/ai_scanner.png" alt="AI Scanner" fill className="object-cover opacity-80" />
+          <Image src="/images/ai_scanner.png" alt="AI Scanner" fill sizes="256px" priority className="object-cover opacity-80" />
           <div className="absolute inset-0 border-4 border-accent rounded-3xl opacity-50" />
           {/* Scanning laser line */}
           <div className="absolute left-0 right-0 h-1 bg-accent shadow-[0_0_15px_rgba(245,158,11,1)] animate-[scan_2s_ease-in-out_infinite]" />

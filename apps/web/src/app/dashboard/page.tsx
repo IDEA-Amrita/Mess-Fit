@@ -54,7 +54,7 @@ export default function DashboardPage() {
           {/* Main Plate Card - Bento Style */}
           <Link href="/dashboard/plate" className="bento-card group col-span-1 md:col-span-2 lg:col-span-2 min-h-[260px] p-6 flex flex-col justify-between">
             <div className="absolute inset-0 z-0">
-               <Image src="/images/plate_texture.png" alt="Plate background" fill className="object-cover opacity-40 mix-blend-overlay transition-transform duration-700 group-hover:scale-105" />
+               <Image src="/images/plate_texture.png" alt="Plate background" fill sizes="(max-width: 768px) 100vw, 66vw" priority className="object-cover opacity-40 mix-blend-overlay transition-transform duration-700 group-hover:scale-105" />
                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
             </div>
             
@@ -116,7 +116,7 @@ export default function DashboardPage() {
           {/* Workout Card */}
           <Link href="/dashboard/workout" className="bento-card group col-span-1 md:col-span-2 lg:col-span-2 p-6 flex flex-col justify-between min-h-[200px]">
             <div className="absolute inset-0 z-0">
-               <Image src="/images/workout_texture.png" alt="Workout background" fill className="object-cover opacity-30 mix-blend-overlay transition-transform duration-700 group-hover:scale-105" />
+               <Image src="/images/workout_texture.png" alt="Workout background" fill sizes="(max-width: 768px) 100vw, 66vw" className="object-cover opacity-30 mix-blend-overlay transition-transform duration-700 group-hover:scale-105" />
                <div className="absolute inset-0 bg-gradient-to-r from-background/90 to-transparent" />
             </div>
             

@@ -12,6 +12,7 @@ export default function LandingPage() {
           src="/images/hero_composition.png"
           alt="MessFit AI Nutrition and Fitness"
           fill
+          sizes="100vw"
           priority
           className="object-cover object-top opacity-30"
         />
