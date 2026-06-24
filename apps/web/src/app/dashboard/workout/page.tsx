@@ -18,6 +18,7 @@ import {
   type WorkoutExercise,
 } from "@/lib/workout-api";
 import { ApiError } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 function todayIso(): string {
   return new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local tz
