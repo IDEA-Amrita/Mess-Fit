@@ -14,18 +14,15 @@ import {
   unexcludeDish,
 } from "@/lib/mess-api";
 import { DashboardShell } from "@/components/DashboardShell";
-import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sun01Icon, Coffee01Icon, Moon01Icon, FireIcon, Location01Icon, ViewOffIcon, ViewIcon, Restaurant01Icon } from "@hugeicons/core-free-icons";
 
 const getMealIcon = (title: string) => {
   switch (title.toLowerCase()) {
-    case "breakfast": return <HugeiconsIcon icon={Sun01Icon} className="h-5 w-5 text-amber-400" />;
-    case "lunch": return <HugeiconsIcon icon={Sun01Icon} className="h-5 w-5 text-yellow-400" />;
-    case "snack": return <HugeiconsIcon icon={Coffee01Icon} className="h-5 w-5 text-orange-400" />;
+    case "breakfast": return <HugeiconsIcon icon={Sun01Icon} className="h-5 w-5 text-amber-500" />;
+    case "lunch": return <HugeiconsIcon icon={Sun01Icon} className="h-5 w-5 text-amber-400" />;
+    case "snack": return <HugeiconsIcon icon={Coffee01Icon} className="h-5 w-5 text-orange-500" />;
     case "dinner": return <HugeiconsIcon icon={Moon01Icon} className="h-5 w-5 text-indigo-400" />;
     default: return null;
   }
@@ -33,11 +30,11 @@ const getMealIcon = (title: string) => {
 
 const getCategoryColor = (category: string) => {
   const cat = category.toLowerCase();
-  if (["protein", "dal"].includes(cat)) return "bg-blue-500/10 text-blue-400 border-blue-500/20";
-  if (["rice", "roti"].includes(cat)) return "bg-orange-500/10 text-orange-400 border-orange-500/20";
-  if (["curry", "sabzi"].includes(cat)) return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-  if (["sweet", "snack"].includes(cat)) return "bg-pink-500/10 text-pink-400 border-pink-500/20";
-  return "bg-white/5 text-muted-foreground border-border";
+  if (["protein", "dal"].includes(cat)) return { bg: "rgba(59,130,246,0.1)", color: "#60a5fa" };
+  if (["rice", "roti"].includes(cat)) return { bg: "rgba(249,115,22,0.1)", color: "#fb923c" };
+  if (["curry", "sabzi"].includes(cat)) return { bg: "rgba(16,185,129,0.1)", color: "#34d399" };
+  if (["sweet", "snack"].includes(cat)) return { bg: "rgba(236,72,153,0.1)", color: "#f472b6" };
+  return { bg: "rgba(255,255,255,0.05)", color: "#a1a1aa" };
 };
 
 // exclusionKey uniquely identifies an exclusion: date|meal_type|dish_id
@@ -56,6 +53,7 @@ export default function MenuPage() {
   // Set of exclusionKey strings for fast O(1) lookup in render
   const [excludedKeys, setExcludedKeys] = useState<Set<string>>(new Set());
   const [toggling, setToggling] = useState<string | null>(null); // key of dish being toggled
+  const [activeTab, setActiveTab] = useState<"today" | "tomorrow">("today");
 
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const tomorrowStr = format(addDays(new Date(), 1), "yyyy-MM-dd");
@@ -134,12 +132,12 @@ export default function MenuPage() {
     if (!items || items.length === 0) return null;
     const mealType = title.toLowerCase();
     return (
-      <div className="mf-rise mb-10">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="rounded-xl border border-border bg-surface-2 p-2">
+      <div className="mf-rise mb-12">
+        <div className="mb-6 flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
             {getMealIcon(title)}
           </div>
-          <h3 className="text-h2 capitalize text-foreground">{title}</h3>
+          <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#f4f4f5", letterSpacing: "-0.01em" }}>{title}</h3>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -147,70 +145,75 @@ export default function MenuPage() {
             const key = exclusionKey(dateStr, mealType, item.dish.id);
             const isExcluded = excludedKeys.has(key);
             const isTogglingThis = toggling === key;
+            const catColors = getCategoryColor(item.dish.category);
+            
             return (
               <div
                 key={item.id}
-                className={`rounded-2xl border bg-card p-5 transition-all ${
-                  isExcluded
-                    ? "border-border opacity-50 grayscale"
-                    : "border-border hover:border-border-strong hover:shadow-md"
+                className={`glass-card flex flex-col justify-between p-5 transition-all duration-300 ${
+                  isExcluded ? "opacity-50 grayscale scale-[0.98]" : "hover:scale-[1.02]"
                 }`}
               >
-                <div className="mb-2 flex items-start justify-between gap-2">
-                  <p
-                    className={`text-base font-semibold leading-tight ${
-                      isExcluded ? "text-muted-foreground line-through" : "text-foreground"
-                    }`}
-                  >
-                    {item.dish.name}
-                  </p>
-                  <Badge variant="outline" className={`capitalize ${getCategoryColor(item.dish.category)}`}>
-                    {item.dish.category}
-                  </Badge>
-                </div>
+                <div>
+                  <div className="mb-3 flex items-start justify-between gap-3">
+                    <p
+                      className={`text-[15px] font-bold leading-tight ${
+                        isExcluded ? "text-muted-foreground line-through" : "text-white"
+                      }`}
+                    >
+                      {item.dish.name}
+                    </p>
+                    <span 
+                      className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" 
+                      style={{ background: catColors.bg, color: catColors.color }}
+                    >
+                      {item.dish.category}
+                    </span>
+                  </div>
 
-                <div className="mb-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                  <HugeiconsIcon icon={FireIcon} className="h-3.5 w-3.5 text-accent" />
-                  <span>{item.dish.kcal} kcal</span>
-                </div>
+                  <div className="mb-4 flex items-center gap-2">
+                    <HugeiconsIcon icon={FireIcon} className="h-4 w-4" style={{ color: "#f59e0b" }} />
+                    <span className="text-[13px] font-bold" style={{ color: "#e2e2e2" }}>{item.dish.kcal} kcal</span>
+                  </div>
 
-                <div className="mb-3 flex items-center gap-4 rounded-lg bg-black/20 p-2.5 text-xs font-medium text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-blue-500" />
-                    {item.dish.protein_g}g P
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-amber-500" />
-                    {item.dish.carbs_g}g C
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-rose-500" />
-                    {item.dish.fats_g}g F
-                  </span>
-                </div>
+                  <div className="mb-4 grid grid-cols-3 gap-2 rounded-xl p-3" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div className="flex flex-col">
+                       <span className="text-[10px] uppercase font-bold text-muted-foreground">Pro</span>
+                       <span className="text-[12px] font-bold" style={{ color: "#60a5fa" }}>{item.dish.protein_g}g</span>
+                    </div>
+                    <div className="flex flex-col">
+                       <span className="text-[10px] uppercase font-bold text-muted-foreground">Carb</span>
+                       <span className="text-[12px] font-bold" style={{ color: "#fbbf24" }}>{item.dish.carbs_g}g</span>
+                    </div>
+                    <div className="flex flex-col">
+                       <span className="text-[10px] uppercase font-bold text-muted-foreground">Fat</span>
+                       <span className="text-[12px] font-bold" style={{ color: "#f87171" }}>{item.dish.fats_g}g</span>
+                    </div>
+                  </div>
 
-                <div className="flex items-center justify-between text-xs text-muted-foreground/70">
-                  <span>Serving: {item.dish.default_serving_grams}g ({item.dish.default_serving_unit})</span>
-                  {item.availability !== "always" && (
-                    <Badge variant="secondary" className="text-[10px] capitalize">
-                      {item.availability}
-                    </Badge>
-                  )}
+                  <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-4">
+                    <span>{item.dish.default_serving_grams}g ({item.dish.default_serving_unit})</span>
+                    {item.availability !== "always" && (
+                      <span className="rounded-full px-2 py-0.5" style={{ background: "rgba(255,255,255,0.05)" }}>
+                        {item.availability}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <button
                   onClick={() => handleToggleExclusion(dateStr, mealType, item.dish.id)}
                   disabled={isTogglingThis}
-                  className={`mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border py-1.5 text-xs font-medium transition-all disabled:opacity-40 ${
+                  className={`mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-[12px] font-bold uppercase tracking-wider transition-all disabled:opacity-40 ${
                     isExcluded
-                      ? "border-success/20 bg-success/10 text-success hover:bg-success/20"
-                      : "border-border bg-surface-2 text-muted-foreground hover:border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+                      ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20"
+                      : "bg-white/5 text-zinc-400 border border-white/5 hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-500"
                   }`}
                 >
                   {isExcluded ? (
-                    <><HugeiconsIcon icon={ViewIcon} className="h-3 w-3" /> Mark available</>
+                    <><HugeiconsIcon icon={ViewIcon} className="h-4 w-4" /> Add back to plate</>
                   ) : (
-                    <><HugeiconsIcon icon={ViewOffIcon} className="h-3 w-3" /> Not available today</>
+                    <><HugeiconsIcon icon={ViewOffIcon} className="h-4 w-4" /> Hide from plate</>
                   )}
                 </button>
               </div>
@@ -224,14 +227,14 @@ export default function MenuPage() {
   const renderDayMenu = (menu: DailyMenuResponse | null, dateStr: string) => {
     if (loading) {
       return (
-        <div className="mt-6 space-y-10">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-9 w-9 rounded-xl" />
-            <Skeleton className="h-7 w-32 rounded-lg" />
+        <div className="mt-8 space-y-12">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-12 w-12 rounded-2xl bg-white/5" />
+            <Skeleton className="h-8 w-40 rounded-xl bg-white/5" />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <Skeleton key={i} className="h-45 rounded-2xl" />
+              <Skeleton key={i} className="h-64 rounded-3xl bg-white/5" />
             ))}
           </div>
         </div>
@@ -240,24 +243,22 @@ export default function MenuPage() {
 
     if (!menu) {
       return (
-        <EmptyState
-          className="mt-8"
-          icon={<HugeiconsIcon icon={Restaurant01Icon} className="h-6 w-6" />}
-          title="Failed to load menu"
-          description="Something went wrong fetching this day's menu. Try again shortly."
-        />
+        <div className="glass-card mt-8 flex flex-col items-center justify-center p-12 text-center" style={{ borderRadius: "1.5rem" }}>
+          <HugeiconsIcon icon={Restaurant01Icon} className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
+          <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#f4f4f5" }}>Failed to load menu</h3>
+          <p className="mt-2 text-[14px] text-muted-foreground">Something went wrong fetching this day's menu. Try again shortly.</p>
+        </div>
       );
     }
 
     const hasAny = menu.breakfast.length > 0 || menu.lunch.length > 0 || menu.snack.length > 0 || menu.dinner.length > 0;
     if (!hasAny) {
       return (
-        <EmptyState
-          className="mt-8"
-          icon={<HugeiconsIcon icon={Restaurant01Icon} className="h-6 w-6" />}
-          title="No menu items for this day"
-          description="Check back later or pick a different day."
-        />
+        <div className="glass-card mt-8 flex flex-col items-center justify-center p-12 text-center" style={{ borderRadius: "1.5rem" }}>
+          <HugeiconsIcon icon={Restaurant01Icon} className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
+          <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#f4f4f5" }}>No menu items for this day</h3>
+          <p className="mt-2 text-[14px] text-muted-foreground">Check back later or pick a different day.</p>
+        </div>
       );
     }
 
@@ -273,10 +274,10 @@ export default function MenuPage() {
 
   const messSelector =
     messes.length > 0 ? (
-      <label className="flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm">
-        <HugeiconsIcon icon={Location01Icon} className="h-4 w-4 text-accent" />
+      <label className="flex items-center gap-2 rounded-xl px-4 py-3 text-[14px] font-bold" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "#e2e2e2" }}>
+        <HugeiconsIcon icon={Location01Icon} className="h-5 w-5" style={{ color: "#f59e0b" }} />
         <select
-          className="scheme-dark cursor-pointer appearance-none bg-transparent font-medium text-foreground outline-none"
+          className="scheme-dark cursor-pointer appearance-none bg-transparent outline-none pr-4"
           value={selectedMessId || ""}
           onChange={(e) => setSelectedMessId(e.target.value)}
           aria-label="Select mess"
@@ -290,28 +291,61 @@ export default function MenuPage() {
 
   return (
     <DashboardShell>
-      <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-10">
-        <PageHeader
-          eyebrow="Mess menu"
-          title="What's cooking"
-          description="Browse today and tomorrow; hide dishes you won't eat so your plate skips them."
-          actions={messSelector}
-        />
+      <div className="mx-auto w-full max-w-6xl px-5 py-6 sm:px-6 lg:p-8">
+        
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+          <div>
+            <p className="label-caps mb-2" style={{ color: "#f59e0b" }}>Mess Menu</p>
+            <h1 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", color: "#f4f4f5" }}>
+              What&apos;s Cooking
+            </h1>
+            <p style={{ fontSize: "14px", fontWeight: 500, color: "#a1a1aa", marginTop: "8px", maxWidth: "400px", lineHeight: 1.6 }}>
+              Browse today and tomorrow. Hide dishes you won&apos;t eat so the AI Optimizer skips them.
+            </p>
+          </div>
+          <div>
+            {messSelector}
+          </div>
+        </div>
 
-        <Tabs defaultValue="today" className="mt-8 w-full">
-          <TabsList className="h-11 w-full max-w-90">
-            <TabsTrigger value="today" className="flex-1">Today</TabsTrigger>
-            <TabsTrigger value="tomorrow" className="flex-1">Tomorrow</TabsTrigger>
-          </TabsList>
+        <div className="glass-card flex gap-1 p-1 max-w-[400px]" style={{ borderRadius: "16px" }}>
+          <button
+            onClick={() => setActiveTab("today")}
+            className="flex-1 rounded-xl py-3 text-[13px] font-bold transition-all"
+            style={activeTab === "today" ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", boxShadow: "0 0 10px rgba(245,158,11,0.1)" } : { color: "#a1a1aa" }}
+          >
+            Today
+          </button>
+          <button
+            onClick={() => setActiveTab("tomorrow")}
+            className="flex-1 rounded-xl py-3 text-[13px] font-bold transition-all"
+            style={activeTab === "tomorrow" ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", boxShadow: "0 0 10px rgba(245,158,11,0.1)" } : { color: "#a1a1aa" }}
+          >
+            Tomorrow
+          </button>
+        </div>
 
-          <TabsContent value="today" className="outline-none">
-            {renderDayMenu(todayMenu, todayStr)}
-          </TabsContent>
-          <TabsContent value="tomorrow" className="outline-none">
-            {renderDayMenu(tomorrowMenu, tomorrowStr)}
-          </TabsContent>
-        </Tabs>
+        <div className="mt-8 outline-none">
+          {activeTab === "today" ? renderDayMenu(todayMenu, todayStr) : renderDayMenu(tomorrowMenu, tomorrowStr)}
+        </div>
       </div>
+
+      <style jsx global>{`
+        .glass-card {
+          position: relative;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border-radius: 1.5rem;
+        }
+        .label-caps {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+        }
+      `}</style>
     </DashboardShell>
   );
 }

@@ -6,7 +6,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tick01Icon, PencilEdit01Icon, NextIcon, Dumbbell01Icon, WeightScale01Icon, SmileIcon, Restaurant01Icon, Camera01Icon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
 import { DashboardShell } from "@/components/DashboardShell";
 import { toast } from "@/lib/toast-store";
 import { cn } from "@/lib/utils";
@@ -32,10 +31,6 @@ import {
 const TODAY_KEY = ["logs", "today"] as const;
 const MEAL_ORDER: MealType[] = ["breakfast", "lunch", "snack", "dinner"];
 
-const CARD = "rounded-xl border border-border bg-card";
-const CHOICE_ACTIVE = "bg-accent-muted text-accent";
-const CHOICE_IDLE = "bg-white/5 text-muted-foreground hover:text-foreground";
-
 type Tab = "meal" | "weight" | "workout" | "mood";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -58,31 +53,60 @@ export default function LogPage() {
 
   return (
     <DashboardShell>
-      <div className="mf-rise mx-auto w-full max-w-3xl flex-1 space-y-5 p-5 sm:p-6">
-        <PageHeader title="Log" description={dateStr} />
+      <div className="mf-rise mx-auto w-full max-w-3xl flex-1 space-y-6 p-5 sm:p-6 lg:p-8">
+        
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", color: "#f4f4f5" }}>
+              Daily Log
+            </h1>
+            <p style={{ fontSize: "14px", fontWeight: 500, color: "#a1a1aa", marginTop: "4px" }}>
+              {dateStr}
+            </p>
+          </div>
+        </div>
 
         {/* Tab bar */}
-        <div className={cn("flex gap-1 p-1", CARD)}>
+        <div className="glass-card flex gap-1 p-1" style={{ borderRadius: "16px" }}>
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
               className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-medium transition-colors",
-                t.id === tab ? CHOICE_ACTIVE : "text-muted-foreground hover:text-foreground",
+                "flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-[13px] font-bold transition-all",
+                t.id === tab ? "text-accent bg-accent/20" : "text-muted-foreground hover:text-white hover:bg-white/5",
               )}
+              style={t.id === tab ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", boxShadow: "0 0 10px rgba(245,158,11,0.1)" } : {}}
             >
               {t.icon}
-              <span className="hidden sm:inline">{t.label}</span>
+              <span className="hidden sm:inline uppercase tracking-wider text-[11px]">{t.label}</span>
             </button>
           ))}
         </div>
 
-        {tab === "meal" && <MealTab today={today.data} />}
-        {tab === "weight" && <WeightTab today={today.data} loading={today.isLoading} />}
-        {tab === "workout" && <WorkoutTab today={today.data} />}
-        {tab === "mood" && <MoodTab today={today.data} />}
+        <div className="mt-6">
+          {tab === "meal" && <MealTab today={today.data} />}
+          {tab === "weight" && <WeightTab today={today.data} loading={today.isLoading} />}
+          {tab === "workout" && <WorkoutTab today={today.data} />}
+          {tab === "mood" && <MoodTab today={today.data} />}
+        </div>
       </div>
+
+      <style jsx global>{`
+        .glass-card {
+          position: relative;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+        }
+        .label-caps {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+        }
+      `}</style>
     </DashboardShell>
   );
 }
@@ -103,14 +127,11 @@ function slotMacros(items: PlateItem[]) {
 
 function MealTab({ today }: { today?: TodayLogs }) {
   const qc = useQueryClient();
-  // Plate data is *optional context* — meal logging works without it.
-  // If the optimizer fails (no mess, infeasible), users can still log meals.
   const plate = useQuery<OptimizationResult>({
     queryKey: ["plate", "today"],
     queryFn: optimizeToday,
     retry: 0,
     staleTime: 0,
-    // Don't let a plate failure block the tab; just treat it as missing.
   });
 
   const statusByMeal = useMemo(() => {
@@ -159,11 +180,10 @@ function MealTab({ today }: { today?: TodayLogs }) {
     mutation.mutate({ date: todayIso(), meal_type: meal, status, notes, ...macros });
   }
 
-  // Plate data is supplemental: show dish names when available, but always show meal slots.
   const plateAvailable = plate.isSuccess && plate.data;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {MEAL_ORDER.map((meal) => (
         <MealSlot
           key={meal}
@@ -200,9 +220,9 @@ function MealSlot({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const options: { value: MealStatus; label: string; icon: React.ReactNode }[] = [
-    { value: "as_planned", label: "As planned", icon: <HugeiconsIcon icon={Tick01Icon} className="h-3.5 w-3.5" /> },
-    { value: "different", label: "Different", icon: <HugeiconsIcon icon={PencilEdit01Icon} className="h-3.5 w-3.5" /> },
-    { value: "skipped", label: "Skipped", icon: <HugeiconsIcon icon={NextIcon} className="h-3.5 w-3.5" /> },
+    { value: "as_planned", label: "As Planned", icon: <HugeiconsIcon icon={Tick01Icon} className="h-4 w-4" /> },
+    { value: "different", label: "Different", icon: <HugeiconsIcon icon={PencilEdit01Icon} className="h-4 w-4" /> },
+    { value: "skipped", label: "Skipped", icon: <HugeiconsIcon icon={NextIcon} className="h-4 w-4" /> },
   ];
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -213,65 +233,68 @@ function MealSlot({
       setIsPhotoLoading(true);
       const estimate = await logMealPhoto(file, meal);
       
-      const noteStr = `Photo Log (${estimate.confidence} confidence): ${estimate.dishes.map(d => `${d.name} (${d.portion})`).join(", ")}`;
+      const noteStr = `Photo Log (${estimate.confidence}): ${estimate.dishes.map(d => `${d.name} (${d.portion})`).join(", ")}`;
       setNotes(noteStr);
       
-      // Auto-record as 'different' with the estimated macros
       onRecord(meal, "different", noteStr, estimate.total_kcal, estimate.total_protein_g, estimate.total_carbs_g, estimate.total_fats_g);
       toast.success("Photo logged successfully");
     } catch (err) {
       toast.error("Failed to analyze photo");
     } finally {
       setIsPhotoLoading(false);
-      // Reset input
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
   return (
-    <div className={cn("p-4", CARD)}>
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold capitalize text-foreground">{meal}</h3>
+    <div className="glass-card p-5" style={{ borderRadius: "1.5rem" }}>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="label-caps" style={{ color: "#f4f4f5" }}>{meal}</h3>
         {plateLoading ? (
-          <Skeleton className="h-3 w-24 bg-white/5" />
+          <Skeleton className="h-4 w-24 bg-white/5" />
         ) : !plateError && items.length > 0 ? (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-[12px] font-bold text-muted-foreground uppercase tracking-widest">
             {Math.round(slotMacros(items).kcal)} kcal planned
           </span>
         ) : null}
       </div>
 
       {!plateLoading && !plateError && items.length > 0 && (
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+        <p className="text-[14px] leading-relaxed text-zinc-400 mb-4">
           {items.map((d) => d.name).join(" · ")}
         </p>
       )}
       {plateError && (
-        <p className="mt-1 text-xs text-muted-foreground/60">
+        <p className="text-[13px] text-zinc-500 mb-4">
           No plan available — you can still log this meal.
         </p>
       )}
 
-      <div className="mt-3 flex gap-2">
-        {options.map((o) => (
-          <button
-            key={o.value}
-            onClick={() => {
-              if (o.value === "different") setShowNotes(true);
-              onRecord(meal, o.value, o.value === "different" ? notes : undefined);
-            }}
-            className={cn(
-              "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium transition-colors",
-              status === o.value ? CHOICE_ACTIVE : CHOICE_IDLE,
-            )}
-          >
-            {o.icon}
-            {o.label}
-          </button>
-        ))}
+      <div className="mt-4 flex gap-2">
+        {options.map((o) => {
+          const isActive = status === o.value;
+          return (
+            <button
+              key={o.value}
+              onClick={() => {
+                if (o.value === "different") setShowNotes(true);
+                onRecord(meal, o.value, o.value === "different" ? notes : undefined);
+              }}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-3 text-[12px] font-bold transition-all"
+              style={
+                isActive
+                  ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }
+                  : { background: "rgba(255,255,255,0.03)", color: "#a1a1aa", border: "1px solid transparent" }
+              }
+            >
+              {o.icon}
+              <span className="hidden sm:inline uppercase tracking-wider text-[10px]">{o.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      <div className="mt-2 text-center">
+      <div className="mt-4 text-center border-t pt-4" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
         <input
           type="file"
           accept="image/*"
@@ -283,9 +306,10 @@ function MealSlot({
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={isPhotoLoading}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:text-accent-muted transition-colors"
+          className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider transition-all hover:scale-105"
+          style={{ color: "#8fd5ff" }}
         >
-          <HugeiconsIcon icon={Camera01Icon} className="h-3.5 w-3.5" />
+          <HugeiconsIcon icon={Camera01Icon} className={cn("h-4 w-4", isPhotoLoading && "animate-spin")} />
           {isPhotoLoading ? "Analyzing photo..." : "Snap Photo"}
         </button>
       </div>
@@ -296,7 +320,8 @@ function MealSlot({
           onChange={(e) => setNotes(e.target.value)}
           onBlur={() => notes && onRecord(meal, "different", notes)}
           placeholder="What did you eat instead? (optional)"
-          className="mt-3 w-full rounded-lg border border-border bg-black/25 px-3 py-2 text-sm text-foreground outline-none focus:border-ring"
+          className="mt-4 w-full rounded-xl bg-transparent px-4 py-3 text-[14px] text-foreground outline-none transition-all placeholder:text-zinc-600 focus:bg-white/5"
+          style={{ border: "1px solid rgba(255,255,255,0.1)" }}
         />
       )}
     </div>
@@ -333,14 +358,14 @@ function WeightTab({ today, loading }: { today?: TodayLogs; loading: boolean }) 
     mutation.mutate({ date: todayIso(), weight_kg: kg });
   }
 
-  if (loading) return <Skeleton className="h-48 rounded-xl bg-white/5" />;
+  if (loading) return <Skeleton className="h-48 rounded-[1.5rem] bg-white/5" />;
 
   return (
-    <div className={cn("p-6", CARD)}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+    <div className="glass-card p-8 flex flex-col items-center justify-center text-center" style={{ borderRadius: "1.5rem" }}>
+      <p className="label-caps mb-4" style={{ color: "#a1a1aa" }}>
         Today&apos;s weight
       </p>
-      <div className="mt-3 flex items-end gap-2">
+      <div className="flex items-end gap-2 mb-8">
         <input
           type="number"
           inputMode="decimal"
@@ -349,13 +374,19 @@ function WeightTab({ today, loading }: { today?: TodayLogs; loading: boolean }) 
           onChange={(e) => setValue(e.target.value)}
           placeholder="—"
           aria-label="Weight in kilograms"
-          className="w-40 bg-transparent text-5xl font-bold text-foreground outline-none"
+          className="w-48 bg-transparent text-center font-extrabold outline-none"
+          style={{ fontSize: "72px", color: "#f4f4f5", letterSpacing: "-0.03em" }}
         />
-        <span className="pb-2 text-lg font-medium text-muted-foreground">kg</span>
+        <span className="pb-4 text-xl font-bold uppercase tracking-widest" style={{ color: "#71717a" }}>kg</span>
       </div>
-      <Button onClick={save} disabled={mutation.isPending} size="lg" className="mt-5 w-full">
+      <button 
+        onClick={save} 
+        disabled={mutation.isPending || !value} 
+        className="w-full max-w-xs rounded-full py-4 text-[14px] font-bold transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
+        style={{ background: "#f59e0b", color: "#1b1304", boxShadow: "0 0 20px rgba(245,158,11,0.2)" }}
+      >
         {mutation.isPending ? "Saving…" : "Save weight"}
-      </Button>
+      </button>
     </div>
   );
 }
@@ -379,12 +410,13 @@ function WorkoutTab({ today }: { today?: TodayLogs }) {
     onError: () => toast.error("Couldn't save — try again"),
   });
 
-  if (workout.isLoading) return <Skeleton className="h-44 rounded-xl bg-white/5" />;
+  if (workout.isLoading) return <Skeleton className="h-44 rounded-[1.5rem] bg-white/5" />;
 
   if (workout.isError || !workout.data) {
     return (
-      <div className={cn("p-6 text-center", CARD)}>
-        <p className="text-sm text-muted-foreground">
+      <div className="glass-card p-10 text-center" style={{ borderRadius: "1.5rem" }}>
+        <HugeiconsIcon icon={Dumbbell01Icon} className="mx-auto h-10 w-10 mb-4 opacity-50" style={{ color: "#a1a1aa" }} />
+        <p className="text-[14px]" style={{ color: "#a1a1aa" }}>
           No workout scheduled today, or onboarding incomplete.
         </p>
       </div>
@@ -393,7 +425,7 @@ function WorkoutTab({ today }: { today?: TodayLogs }) {
 
   const w = workout.data;
   const opts: { value: WorkoutStatus; label: string }[] = [
-    { value: "done", label: "Done" },
+    { value: "done", label: "Completed" },
     { value: "partial", label: "Partial" },
     { value: "skipped", label: "Skipped" },
   ];
@@ -409,24 +441,29 @@ function WorkoutTab({ today }: { today?: TodayLogs }) {
   }
 
   return (
-    <div className={cn("p-4", CARD)}>
-      <h3 className="text-sm font-semibold capitalize text-foreground">{w.template_name}</h3>
-      <p className="mt-0.5 text-xs text-muted-foreground">
-        {w.day_name} · {w.exercises.length} exercises · Week {w.week}, Day {w.day}
+    <div className="glass-card p-6" style={{ borderRadius: "1.5rem" }}>
+      <h3 className="label-caps mb-2" style={{ color: "#f59e0b" }}>{w.template_name}</h3>
+      <p className="text-[14px] font-bold text-foreground">
+        {w.day_name} <span className="text-muted-foreground ml-2">Week {w.week}, Day {w.day}</span>
       </p>
-      <div className="mt-3 flex gap-2">
-        {opts.map((o) => (
-          <button
-            key={o.value}
-            onClick={() => record(o.value)}
-            className={cn(
-              "flex-1 rounded-lg py-2.5 text-sm font-medium transition-colors",
-              today?.workout_status === o.value ? CHOICE_ACTIVE : CHOICE_IDLE,
-            )}
-          >
-            {o.label}
-          </button>
-        ))}
+      <div className="mt-6 flex gap-3">
+        {opts.map((o) => {
+          const isActive = today?.workout_status === o.value;
+          return (
+            <button
+              key={o.value}
+              onClick={() => record(o.value)}
+              className="flex-1 rounded-xl py-3 text-[12px] font-bold uppercase tracking-wider transition-all"
+              style={
+                isActive
+                  ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }
+                  : { background: "rgba(255,255,255,0.03)", color: "#a1a1aa", border: "1px solid transparent" }
+              }
+            >
+              {o.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -463,18 +500,18 @@ function MoodTab({ today }: { today?: TodayLogs }) {
   }
 
   return (
-    <div className="space-y-3">
-      <Scale5 label="Energy" value={energy} onChange={setEnergy} />
-      <Scale5 label="Hunger" value={hunger} onChange={setHunger} />
-      <Scale5 label="Mood" value={mood} onChange={setMood} />
-      <Button
+    <div className="space-y-4">
+      <Scale5 label="Energy" value={energy} onChange={setEnergy} color="#f59e0b" />
+      <Scale5 label="Hunger" value={hunger} onChange={setHunger} color="#8fd5ff" />
+      <Scale5 label="Mood" value={mood} onChange={setMood} color="#818cf8" />
+      <button
         onClick={save}
         disabled={mutation.isPending || (energy == null && hunger == null && mood == null)}
-        size="lg"
-        className="w-full"
+        className="mt-6 w-full rounded-full py-4 text-[14px] font-bold transition-all disabled:opacity-40 hover:scale-[1.02] active:scale-95"
+        style={{ background: "#f59e0b", color: "#1b1304", boxShadow: "0 0 20px rgba(245,158,11,0.2)" }}
       >
-        {mutation.isPending ? "Saving…" : "Save"}
-      </Button>
+        {mutation.isPending ? "Saving…" : "Save Check-in"}
+      </button>
     </div>
   );
 }
@@ -483,15 +520,17 @@ function Scale5({
   label,
   value,
   onChange,
+  color,
 }: {
   label: string;
   value: number | null;
   onChange: (v: number) => void;
+  color: string;
 }) {
   return (
-    <div className={cn("p-4", CARD)}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-      <div className="mt-2 flex justify-between gap-2">
+    <div className="glass-card p-5" style={{ borderRadius: "1.5rem" }}>
+      <p className="label-caps mb-4" style={{ color }}>{label}</p>
+      <div className="flex justify-between gap-2">
         {EMOJI_SCALE.map((item, i) => {
           const level = i + 1;
           const active = value === level;
@@ -500,14 +539,15 @@ function Scale5({
               key={level}
               onClick={() => onChange(level)}
               aria-label={`${label}: ${item.label}`}
-              className={cn(
-                "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2 transition-all",
-                active ? "bg-accent-muted ring-1 ring-accent/40" : "bg-white/5",
-                active || value == null ? "opacity-100" : "opacity-40",
-              )}
+              className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-xl py-3 transition-all hover:bg-white/5"
+              style={
+                active
+                  ? { background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", transform: "scale(1.05)" }
+                  : { background: "transparent", border: "1px solid transparent", opacity: value == null ? 1 : 0.4 }
+              }
             >
-              <span className="text-2xl">{item.emoji}</span>
-              <span className="text-[9px] font-medium text-muted-foreground">{item.label}</span>
+              <span className="text-[28px]">{item.emoji}</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: active ? "#f4f4f5" : "#71717a" }}>{item.label}</span>
             </button>
           );
         })}

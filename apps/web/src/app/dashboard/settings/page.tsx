@@ -26,7 +26,6 @@ export default function SettingsPage() {
         method: "POST",
         body: JSON.stringify({ confirm: "DELETE" }),
       });
-      // Sign out locally and leave the app.
       await supabase.auth.signOut();
       router.replace("/auth/login");
     } catch (e) {
@@ -37,90 +36,97 @@ export default function SettingsPage() {
 
   return (
     <DashboardShell>
-      <div className="mx-auto w-full max-w-2xl px-6 py-10">
-        <h1 className="text-2xl font-semibold" style={{ color: "#ededed" }}>
-          Settings
-        </h1>
-
-        <section
-          className="mt-8 rounded-2xl p-6"
-          style={{
-            background: "rgba(255,255,255,0.02)",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
-          <AvatarUpload />
-        </section>
-
-        <section
-          className="mt-8 rounded-2xl p-6"
-          style={{
-            background: "rgba(255,255,255,0.02)",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
-          <h2 className="text-base font-semibold" style={{ color: "#ededed" }}>
-            Push Notifications
-          </h2>
-          <div className="mt-4">
-            <PushNotificationManager />
-          </div>
-        </section>
-
-        {/* Danger zone */}
-        <section
-          className="mt-8 rounded-2xl p-6"
-          style={{
-            background: "rgba(239,68,68,0.05)",
-            border: "1px solid rgba(239,68,68,0.25)",
-          }}
-        >
-          <h2 className="text-base font-semibold" style={{ color: "#f87171" }}>
-            Delete account
-          </h2>
-          <p className="mt-2 text-sm" style={{ color: "#a0a0a0" }}>
-            This permanently deletes your account and all your data — profile,
-            logs, plans, and chats. Your account is deactivated immediately and
-            erased after 30 days. <strong>This cannot be undone.</strong>
-          </p>
-
-          <label
-            htmlFor="confirm"
-            className="mt-5 block text-xs font-medium"
-            style={{ color: "#9a9a9a" }}
-          >
-            Type <span style={{ color: "#f87171" }}>DELETE</span> to confirm
-          </label>
-          <input
-            id="confirm"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            placeholder="DELETE"
-            autoComplete="off"
-            className="mt-1.5 w-full max-w-xs rounded-xl px-3 py-2.5 text-sm outline-none"
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              color: "#f0f0f0",
-            }}
-          />
-
-          {error && (
-            <p className="mt-3 text-xs" style={{ color: "#f87171" }}>
-              {error}
+      <div className="mf-rise mx-auto w-full max-w-4xl flex-1 space-y-8 p-5 sm:p-6 lg:p-8">
+        
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", color: "#f4f4f5" }}>
+              Settings
+            </h1>
+            <p style={{ fontSize: "14px", fontWeight: 500, color: "#a1a1aa", marginTop: "4px" }}>
+              Manage your preferences and data
             </p>
-          )}
+          </div>
+        </div>
 
-          <button
-            onClick={handleDelete}
-            disabled={!canDelete}
-            className="mt-5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all disabled:opacity-40"
-            style={{ background: "#dc2626", color: "#fff" }}
-          >
-            {submitting ? "Deleting…" : "Delete my account"}
-          </button>
-        </section>
+        <div className="space-y-6">
+          <section className="glass-card p-6" style={{ borderRadius: "1.5rem" }}>
+            <h2 className="label-caps mb-6" style={{ color: "#a1a1aa" }}>Profile</h2>
+            <AvatarUpload />
+          </section>
+
+          <section className="glass-card p-6" style={{ borderRadius: "1.5rem" }}>
+            <h2 className="label-caps mb-6" style={{ color: "#a1a1aa" }}>Notifications</h2>
+            <PushNotificationManager />
+          </section>
+
+          {/* Danger zone */}
+          <section className="glass-card p-6 group" style={{ borderRadius: "1.5rem", border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.05)" }}>
+            <h2 className="label-caps mb-2 flex items-center gap-2" style={{ color: "#f87171" }}>
+              <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: "#f87171" }} />
+              Danger Zone
+            </h2>
+            <p className="mt-4 text-[14px] leading-relaxed" style={{ color: "#a1a1aa" }}>
+              This permanently deletes your account and all your data — profile,
+              logs, plans, and chats. Your account is deactivated immediately and
+              erased after 30 days. <strong className="text-white">This cannot be undone.</strong>
+            </p>
+
+            <div className="mt-8 rounded-xl p-5" style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.05)" }}>
+              <label
+                htmlFor="confirm"
+                className="block text-[12px] font-bold uppercase tracking-wider mb-2"
+                style={{ color: "#a1a1aa" }}
+              >
+                Type <span style={{ color: "#f87171" }}>DELETE</span> to confirm
+              </label>
+              <input
+                id="confirm"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="DELETE"
+                autoComplete="off"
+                className="w-full max-w-xs rounded-xl bg-transparent px-4 py-3 text-[14px] font-medium outline-none transition-all placeholder:text-zinc-700 focus:bg-white/5"
+                style={{
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  color: "#f4f4f5",
+                }}
+              />
+
+              {error && (
+                <p className="mt-3 text-[13px] font-medium" style={{ color: "#f87171" }}>
+                  {error}
+                </p>
+              )}
+
+              <button
+                onClick={handleDelete}
+                disabled={!canDelete}
+                className="mt-5 w-full max-w-xs rounded-full py-3 text-[14px] font-bold transition-all disabled:opacity-30 disabled:hover:scale-100 hover:scale-[1.02] active:scale-95"
+                style={{ background: "#dc2626", color: "#ffffff", boxShadow: canDelete ? "0 0 20px rgba(220,38,38,0.3)" : "none" }}
+              >
+                {submitting ? "Deleting…" : "Permanently Delete Account"}
+              </button>
+            </div>
+          </section>
+        </div>
       </div>
+
+      <style jsx global>{`
+        .glass-card {
+          position: relative;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+        }
+        .label-caps {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+        }
+      `}</style>
     </DashboardShell>
   );
 }
