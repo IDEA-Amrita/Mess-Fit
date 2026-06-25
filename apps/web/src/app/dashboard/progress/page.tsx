@@ -8,12 +8,11 @@ import dynamic from "next/dynamic";
 
 const TrendChart = dynamic(() => import("@/components/ui/trend-chart"), {
   ssr: false,
-  loading: () => <Skeleton className="h-[220px] w-full rounded-xl" />,
+  loading: () => <Skeleton className="h-[220px] w-full rounded-xl bg-white/5" />,
 });
 import { Alert01Icon, FireIcon, TrendingUpDownIcon, Clock01Icon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
-import { StatCard } from "@/components/ui/stat-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { buttonVariants } from "@/components/ui/button";
 import { DashboardShell } from "@/components/DashboardShell";
@@ -22,7 +21,6 @@ import { ApiError } from "@/lib/api";
 import { getProgress, getLeaderboard, type Progress, type ProgressRange, type LeaderboardResponse } from "@/lib/tracking-api";
 
 const RANGES: ProgressRange[] = ["7d", "30d", "90d"];
-const CARD = "rounded-xl border border-border bg-card";
 
 export default function ProgressPage() {
   const [range, setRange] = useState<ProgressRange>("7d");
@@ -35,27 +33,33 @@ export default function ProgressPage() {
 
   return (
     <DashboardShell>
-      <div className="mf-rise mx-auto w-full max-w-3xl flex-1 space-y-5 p-5 sm:p-6">
-        <PageHeader
-          title="Progress"
-          description={`Last ${range}`}
-          actions={
-            <div className={cn("flex gap-1 p-1", CARD)}>
-              {RANGES.map((r) => (
-                <button
-                  key={r}
-                  onClick={() => setRange(r)}
-                  className={cn(
-                    "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-                    r === range ? "bg-accent-muted text-accent" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-          }
-        />
+      <div className="mf-rise mx-auto w-full max-w-4xl flex-1 space-y-8 p-5 sm:p-6 lg:p-8">
+        
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", color: "#f4f4f5" }}>
+              Progress
+            </h1>
+            <p style={{ fontSize: "14px", fontWeight: 500, color: "#a1a1aa", marginTop: "4px" }}>
+              Insights from the last {range}
+            </p>
+          </div>
+          <div className="glass-card flex gap-1 p-1" style={{ borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
+            {RANGES.map((r) => (
+              <button
+                key={r}
+                onClick={() => setRange(r)}
+                className={cn(
+                  "rounded-lg px-4 py-1.5 text-[13px] font-bold transition-all",
+                  r === range ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-white",
+                )}
+                style={r === range ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", boxShadow: "0 0 10px rgba(245,158,11,0.1)" } : {}}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {query.isLoading ? (
           <LoadingSkeleton />
@@ -65,6 +69,30 @@ export default function ProgressPage() {
           <ProgressView data={query.data} />
         ) : null}
       </div>
+
+      <style jsx global>{`
+        .glass-card {
+          position: relative;
+          overflow: hidden;
+          border-radius: 1.5rem;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:not(.group):hover {
+          transform: translateY(-4px);
+          border-color: rgba(255, 255, 255, 0.18);
+          box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
+        }
+        .label-caps {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+        }
+      `}</style>
     </DashboardShell>
   );
 }
@@ -80,14 +108,18 @@ function ProgressView({ data }: { data: Progress }) {
   const lastW = weights[weights.length - 1];
 
   return (
-    <div className="space-y-5">
-      <section className={cn("p-4", CARD)}>
-        <div className="mb-3 flex items-baseline justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Weight</h3>
+    <div className="space-y-6">
+      <section className="glass-card p-6">
+        <div className="mb-4 flex items-baseline justify-between">
+          <h3 className="label-caps" style={{ color: "#a1a1aa" }}>Weight Trend</h3>
           {weights.length >= 2 && (
             <span
-              className="text-xs font-medium"
-              style={{ color: delta > 0 ? "#60a5fa" : delta < 0 ? "#f59e0b" : "var(--text-muted)" }}
+              className="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider"
+              style={{
+                background: delta > 0 ? "rgba(248,113,113,0.1)" : delta < 0 ? "rgba(245,158,11,0.1)" : "rgba(255,255,255,0.05)",
+                color: delta > 0 ? "#f87171" : delta < 0 ? "#f59e0b" : "#a1a1aa",
+                border: `1px solid ${delta > 0 ? "rgba(248,113,113,0.2)" : delta < 0 ? "rgba(245,158,11,0.2)" : "rgba(255,255,255,0.1)"}`
+              }}
             >
               {delta >= 0 ? "↑" : "↓"} {Math.abs(delta).toFixed(1)} kg · now {lastW.toFixed(1)} kg
             </span>
@@ -95,34 +127,44 @@ function ProgressView({ data }: { data: Progress }) {
         </div>
 
         {series.length === 0 ? (
-          <EmptyState title="No weigh-ins yet" description="Log your weight to see the trend." />
+          <div className="py-10 text-center">
+             <p style={{ fontSize: "16px", fontWeight: 700, color: "#f4f4f5" }}>No weigh-ins yet</p>
+             <p className="mt-2 text-sm text-muted-foreground">Log your weight to see the trend.</p>
+          </div>
         ) : (
           <>
             <TrendChart series={series} lo={lo} hi={hi} />
-            <p className="mt-1 text-[11px] text-muted-foreground/50">
+            <p className="mt-3 text-[11px] font-medium uppercase tracking-wider text-center" style={{ color: "#52525b" }}>
               Y-axis is zoomed to your range, not zero-based.
             </p>
           </>
         )}
       </section>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard label="Adherence" value={`${Math.round(data.adherence_rate * 100)}%`} accent />
-        <StatCard
-          label="Macros hit"
-          value={data.macro_hit_rate == null ? "—" : `${Math.round(data.macro_hit_rate * 100)}%`}
-          hint={data.macro_hit_rate == null ? "Log meals as planned" : undefined}
-        />
-        <StatCard
-          label="Streak"
-          value={`${data.streak_days}`}
-          unit={data.streak_days === 1 ? "day" : "days"}
-          icon={<HugeiconsIcon icon={FireIcon} className="h-4 w-4" />}
-          accent
-        />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="glass-card p-5 flex flex-col justify-between min-h-[120px]">
+          <span className="label-caps" style={{ color: "#f59e0b" }}>Adherence</span>
+          <span style={{ fontSize: "36px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
+            {Math.round(data.adherence_rate * 100)}<span className="text-xl text-muted-foreground">%</span>
+          </span>
+        </div>
+        <div className="glass-card p-5 flex flex-col justify-between min-h-[120px]">
+          <span className="label-caps" style={{ color: "#60a5fa" }}>Macros Hit</span>
+          <span style={{ fontSize: "36px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
+            {data.macro_hit_rate == null ? "—" : Math.round(data.macro_hit_rate * 100)}<span className="text-xl text-muted-foreground">{data.macro_hit_rate != null ? "%" : ""}</span>
+          </span>
+        </div>
+        <div className="glass-card p-5 flex flex-col justify-between min-h-[120px]">
+          <span className="label-caps flex items-center gap-1.5" style={{ color: "#f87171" }}>
+            <HugeiconsIcon icon={FireIcon} className="h-4 w-4" /> Streak
+          </span>
+          <span style={{ fontSize: "36px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
+            {data.streak_days} <span className="text-[14px] text-muted-foreground uppercase tracking-widest">{data.streak_days === 1 ? "day" : "days"}</span>
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <ProjectionCard projection={data.projection} />
         {data.adaptive_tdee && <AdaptiveTDEECard adaptive={data.adaptive_tdee} />}
       </div>
@@ -137,20 +179,20 @@ function ProjectionCard({ projection }: { projection: Progress["projection"] }) 
 
   if (!projection.available) {
     body = (
-      <p className="text-sm leading-relaxed text-muted-foreground">
+      <p className="text-[13px] leading-relaxed" style={{ color: "#a1a1aa" }}>
         {projection.reason ?? "Projection unlocks once you have a few weigh-ins."} Keep logging your
         weight — projection unlocks at 5 entries.
       </p>
     );
   } else if (projection.stalled) {
     body = (
-      <p className="text-sm leading-relaxed text-muted-foreground">
+      <p className="text-[13px] leading-relaxed" style={{ color: "#a1a1aa" }}>
         Your weight is holding steady. If that&apos;s not the goal, nudge your intake.
       </p>
     );
   } else if (projection.moving_wrong_direction) {
     body = (
-      <p className="text-sm leading-relaxed text-destructive">
+      <p className="text-[13px] leading-relaxed" style={{ color: "#f87171" }}>
         You&apos;re currently trending away from your goal weight. Time to adjust the plan.
       </p>
     );
@@ -158,26 +200,28 @@ function ProjectionCard({ projection }: { projection: Progress["projection"] }) 
     const rate = projection.current_rate_kg_per_week ?? 0;
     const sign = rate >= 0 ? "+" : "";
     body = (
-      <div className="space-y-1.5">
-        <p className="text-sm leading-relaxed text-foreground/80">
+      <div className="space-y-3">
+        <p className="text-[13px] leading-relaxed" style={{ color: "#e2e2e2" }}>
           At your current rate ({sign}
           {rate} kg/wk), you&apos;ll hit your goal around{" "}
-          <span className="font-semibold text-foreground">{projection.projected_target_date}</span>.
+          <span className="font-bold text-white">{projection.projected_target_date}</span>.
         </p>
-        <p className={cn("text-sm font-medium", projection.on_track ? "text-accent" : "text-destructive")}>
-          {projection.on_track ? "✅ On track" : "⚠️ Off your target pace"}
+        <p className="text-[12px] font-bold uppercase tracking-wider" style={{ color: projection.on_track ? "#f59e0b" : "#f87171" }}>
+          {projection.on_track ? "✅ On track" : "⚠️ Off target pace"}
         </p>
       </div>
     );
   }
 
   return (
-    <section className={cn("p-4", CARD)}>
-      <div className="mb-2 flex items-center gap-2">
-        <HugeiconsIcon icon={TrendingUpDownIcon} className="h-4 w-4" style={{ color: "#818cf8" }} />
-        <h3 className="text-sm font-semibold text-foreground">Projection</h3>
+    <section className="glass-card p-6 flex flex-col">
+      <div className="mb-4 flex items-center gap-2">
+        <HugeiconsIcon icon={TrendingUpDownIcon} className="h-5 w-5" style={{ color: "#818cf8" }} />
+        <h3 className="label-caps" style={{ color: "#818cf8" }}>Projection</h3>
       </div>
-      {body}
+      <div className="flex-1 flex flex-col justify-end">
+        {body}
+      </div>
     </section>
   );
 }
@@ -188,57 +232,56 @@ function AdaptiveTDEECard({ adaptive }: { adaptive: Progress["adaptive_tdee"] })
   return (
     <section 
       className={cn(
-        "p-5 relative overflow-hidden", 
-        CARD,
-        adaptive.available && "border-accent/40 shadow-glow"
+        "glass-card p-6 flex flex-col group", 
       )}
+      style={adaptive.available ? { borderColor: "rgba(245,158,11,0.3)", boxShadow: "0 0 40px rgba(245,158,11,0.05)" } : {}}
     >
       {adaptive.available && (
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-50" />
       )}
       
-      <div className="relative z-10">
-        <div className="mb-3 flex items-center gap-2">
-          <HugeiconsIcon icon={FireIcon} className="h-4 w-4" style={{ color: "#f59e0b" }} />
-          <h3 className="text-sm font-bold text-foreground tracking-tight">Adaptive TDEE</h3>
+      <div className="relative z-10 flex-1 flex flex-col">
+        <div className="mb-4 flex items-center gap-2">
+          <HugeiconsIcon icon={FireIcon} className="h-5 w-5" style={{ color: "#f59e0b" }} />
+          <h3 className="label-caps" style={{ color: "#f59e0b" }}>Adaptive TDEE</h3>
           {adaptive.available && (
-            <span className="ml-auto rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold text-accent uppercase tracking-wider">
+            <span className="ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: "rgba(245,158,11,0.15)", color: "#f59e0b" }}>
               Active
             </span>
           )}
         </div>
         
         {adaptive.available ? (
-          <div className="space-y-2">
+          <div className="space-y-4 flex-1 flex flex-col justify-end">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold tracking-tight text-accent drop-shadow-md">
+              <span style={{ fontSize: "40px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
                 {Math.round(adaptive.tdee)}
               </span>
-              <span className="text-sm font-medium text-muted-foreground">kcal / day</span>
+              <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-widest">kcal / day</span>
             </div>
-            <p className="text-xs leading-relaxed text-foreground/80 font-medium">
+            <p className="text-[12px] leading-relaxed" style={{ color: "#a1a1aa" }}>
               Your true metabolic rate, dynamically calculated from {adaptive.data_days} days of weight & food data.
             </p>
-            <div className="mt-3 flex items-center gap-2">
-              <div className="h-1.5 flex-1 rounded-full bg-white/5 overflow-hidden">
+            <div className="mt-4 flex items-center gap-3">
+              <div className="h-1.5 flex-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
                 <div 
-                  className="h-full rounded-full bg-accent transition-all duration-1000" 
-                  style={{ width: adaptive.confidence === 'high' ? '100%' : adaptive.confidence === 'medium' ? '66%' : '33%' }}
+                  className="h-full rounded-full transition-all duration-1000" 
+                  style={{ width: adaptive.confidence === 'high' ? '100%' : adaptive.confidence === 'medium' ? '66%' : '33%', background: "#f59e0b" }}
                 />
               </div>
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider w-24 text-right">
-                {adaptive.confidence} Confidence
+              <span className="text-[10px] uppercase font-bold tracking-wider w-24 text-right" style={{ color: "#f59e0b" }}>
+                {adaptive.confidence} Conf
               </span>
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
-            <p className="text-sm leading-relaxed text-muted-foreground">
+          <div className="space-y-2 flex-1 flex flex-col justify-end">
+            <p className="text-[13px] leading-relaxed" style={{ color: "#a1a1aa" }}>
               {adaptive.reason ?? "Keep logging weight and meals to unlock adaptive TDEE insights."}
             </p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="h-1.5 flex-1 rounded-full bg-white/5 overflow-hidden" />
-              <span className="text-[10px] uppercase font-bold text-muted-foreground/50 tracking-wider w-24 text-right">
+            <div className="mt-4 flex items-center gap-2">
+              <div className="h-1.5 flex-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }} />
+              <span className="text-[10px] uppercase font-bold tracking-wider w-24 text-right" style={{ color: "#52525b" }}>
                 Needs Data
               </span>
             </div>
@@ -257,7 +300,7 @@ function LeaderboardCard() {
   });
 
   if (query.isLoading) {
-    return <Skeleton className="h-48 w-full rounded-xl bg-white/5" />;
+    return <Skeleton className="h-48 w-full rounded-3xl bg-white/5" />;
   }
 
   if (query.isError || !query.data) {
@@ -267,38 +310,36 @@ function LeaderboardCard() {
   const { entries, user_rank } = query.data;
 
   return (
-    <section className={cn("p-4", CARD)}>
-      <div className="mb-4 flex items-center gap-2 border-b border-white/5 pb-3">
-        <HugeiconsIcon icon={FireIcon} className="h-4 w-4" style={{ color: "#eab308" }} />
-        <h3 className="text-sm font-semibold text-foreground">College Leaderboard</h3>
-        <span className="ml-auto text-xs text-muted-foreground">Top Adherence (7d)</span>
+    <section className="glass-card p-6 mt-6">
+      <div className="mb-5 flex items-center gap-2 border-b pb-4" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
+        <HugeiconsIcon icon={FireIcon} className="h-5 w-5" style={{ color: "#f59e0b" }} />
+        <h3 className="label-caps" style={{ color: "#f59e0b" }}>College Leaderboard</h3>
+        <span className="ml-auto text-[11px] font-bold uppercase tracking-wider" style={{ color: "#71717a" }}>Top Adherence (7d)</span>
       </div>
 
       {entries.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No data available yet.</p>
+        <p className="text-[13px]" style={{ color: "#a1a1aa" }}>No data available yet.</p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {entries.slice(0, 5).map((entry, idx) => {
             const isUser = user_rank?.user_id === entry.user_id;
             return (
               <div 
                 key={entry.user_id} 
-                className={cn(
-                  "flex items-center justify-between rounded-md px-2 py-1.5",
-                  isUser ? "bg-accent/10 border border-accent/20" : ""
-                )}
+                className="flex items-center justify-between rounded-xl px-4 py-3 transition-colors"
+                style={isUser ? { background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" } : { background: "rgba(255,255,255,0.02)" }}
               >
-                <div className="flex items-center gap-3">
-                  <span className="w-5 text-center text-xs font-bold text-muted-foreground">
+                <div className="flex items-center gap-4">
+                  <span className="w-6 text-center text-[12px] font-bold" style={{ color: isUser ? "#f59e0b" : "#71717a" }}>
                     #{idx + 1}
                   </span>
-                  <div className="h-6 w-6 rounded-full bg-white/10" />
-                  <span className={cn("text-sm", isUser ? "font-semibold text-accent" : "text-foreground")}>
+                  <div className="h-8 w-8 rounded-full" style={{ background: "rgba(255,255,255,0.1)" }} />
+                  <span className="text-[14px] font-bold" style={{ color: isUser ? "#f59e0b" : "#f4f4f5" }}>
                     {isUser ? "You" : `User ${entry.user_id.slice(0,4)}`}
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="block text-sm font-bold">{entry.score}%</span>
+                  <span className="block text-[16px] font-extrabold" style={{ color: isUser ? "#f59e0b" : "#e2e2e2" }}>{entry.score}%</span>
                 </div>
               </div>
             );
@@ -313,14 +354,14 @@ function LeaderboardCard() {
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-5">
-      <Skeleton className="h-64 rounded-xl bg-white/5" />
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div className="space-y-6">
+      <Skeleton className="h-[300px] rounded-3xl bg-white/5" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[0, 1, 2].map((i) => (
-          <Skeleton key={i} className="h-24 rounded-xl bg-white/5" />
+          <Skeleton key={i} className="h-32 rounded-3xl bg-white/5" />
         ))}
       </div>
-      <Skeleton className="h-24 rounded-xl bg-white/5" />
+      <Skeleton className="h-40 rounded-3xl bg-white/5" />
     </div>
   );
 }
@@ -328,18 +369,21 @@ function LoadingSkeleton() {
 function ErrorState({ error }: { error: ApiError | null }) {
   const isOnboarding = error?.status === 409;
   return (
-    <EmptyState
-      icon={<HugeiconsIcon icon={Alert01Icon} className="h-6 w-6" />}
-      title={isOnboarding ? "Onboarding required" : "Couldn't load progress"}
-      description={error?.detail ?? "Please try again."}
-      action={
-        isOnboarding ? (
-          <Link href="/onboarding/hostel" className={buttonVariants({ variant: "default" })}>
-            Complete onboarding
-          </Link>
-        ) : undefined
-      }
-    />
+    <div className="glass-card flex flex-col items-center justify-center py-20 text-center mx-auto max-w-md mt-10">
+      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-3xl" style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b" }}>
+        <HugeiconsIcon icon={Alert01Icon} className="h-8 w-8" />
+      </div>
+      <p style={{ fontSize: "20px", fontWeight: 700, color: "#f4f4f5", marginBottom: "8px" }}>
+        {isOnboarding ? "Onboarding required" : "Couldn't load progress"}
+      </p>
+      <p style={{ fontSize: "14px", color: "#a1a1aa", marginBottom: "24px" }}>
+        {error?.detail ?? "Please try again."}
+      </p>
+      {isOnboarding && (
+        <Link href="/onboarding/hostel" className="rounded-full px-6 py-3 text-sm font-bold transition-all hover:scale-[1.02] active:scale-95" style={{ background: "#f59e0b", color: "#1b1304" }}>
+          Complete onboarding
+        </Link>
+      )}
+    </div>
   );
 }
-
