@@ -10,6 +10,7 @@ import {
   AiChat01Icon,
   Analytics01Icon,
 } from "@hugeicons/core-free-icons";
+import { cn } from "@/lib/utils";
 
 export default function LandingPage() {
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
