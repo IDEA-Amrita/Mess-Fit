@@ -107,7 +107,7 @@
     @apply bg-surface border border-border rounded-[1.5rem] p-6;
   }
   .surface-card-hover {
-    @apply surface-card transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl;
+    @apply bg-surface border border-border rounded-[1.5rem] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl;
   }
   
   .label-caps {
