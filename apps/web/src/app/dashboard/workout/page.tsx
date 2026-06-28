@@ -1,5 +1,6 @@
 "use client";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -41,12 +42,13 @@ function SetRow({
         const isDone = i < done;
         const isNext = i === done;
         return (
-          <button
+          <motion.button
             key={i}
+            whileTap={isNext ? { scale: 0.9 } : undefined}
             disabled={!isNext}
             onClick={onComplete}
             aria-label={`Set ${i + 1}${isDone ? " done" : ""}`}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition-all disabled:cursor-default"
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition-colors disabled:cursor-default"
             style={
               isDone
                 ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }
@@ -55,8 +57,14 @@ function SetRow({
                   : { background: "rgba(255,255,255,0.02)", color: "#555", border: "1px solid rgba(255,255,255,0.05)" }
             }
           >
-            {isDone ? <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-5 w-5" /> : i + 1}
-          </button>
+            {isDone ? (
+              <motion.div initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }}>
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-5 w-5" />
+              </motion.div>
+            ) : (
+              i + 1
+            )}
+          </motion.button>
         );
       })}
     </div>
@@ -80,20 +88,24 @@ function ExerciseCard({
   const allDone = done >= ex.sets;
 
   return (
-    <div className={`glass-card p-5 ${allDone ? "opacity-60 grayscale hover:grayscale-0" : ""}`}>
+    <motion.div 
+      layout
+      whileHover={{ y: -4, borderColor: "rgba(255,255,255,0.18)" }}
+      className={`glass-card p-5 transition-all duration-300 ${allDone ? "opacity-60 grayscale hover:grayscale-0" : ""}`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p style={{ fontSize: "16px", fontWeight: 700, color: "#f4f4f5", letterSpacing: "-0.01em", lineHeight: 1.3 }}>
+          <motion.p layout="position" style={{ fontSize: "16px", fontWeight: 700, color: "#f4f4f5", letterSpacing: "-0.01em", lineHeight: 1.3 }}>
             {ex.name}
-          </p>
-          <div className="mt-2 flex items-center gap-2">
+          </motion.p>
+          <motion.div layout="position" className="mt-2 flex items-center gap-2">
             <span className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: "rgba(143,213,255,0.1)", color: "#8fd5ff" }}>
               {ex.primary_muscle.replace(/_/g, " ")}
             </span>
             <span className="text-[12px] font-bold text-muted-foreground">
               {ex.sets} × {ex.reps}
             </span>
-          </div>
+          </motion.div>
         </div>
         <button
           onClick={() => setOpen((v) => !v)}
@@ -105,48 +117,57 @@ function ExerciseCard({
         </button>
       </div>
 
-      <div className="mt-5">
+      <motion.div layout="position" className="mt-5">
         <SetRow total={ex.sets} done={done} onComplete={onCompleteSet} />
-      </div>
+      </motion.div>
 
-      {open && (
-        <div className="mt-5 space-y-4 border-t pt-4" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-          {ex.instruction_text && (
-            <p className="text-[13px] leading-relaxed" style={{ color: "#a1a1aa" }}>
-              {ex.instruction_text}
-            </p>
-          )}
-          {ex.common_mistakes.length > 0 && (
-            <div>
-              <p className="label-caps mb-2" style={{ color: "#71717a" }}>
-                Common mistakes
+      <AnimatePresence>
+        {open && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-5 space-y-4 border-t overflow-hidden" 
+            style={{ borderColor: "rgba(255,255,255,0.05)", paddingTop: "1rem" }}
+          >
+            {ex.instruction_text && (
+              <p className="text-[13px] leading-relaxed" style={{ color: "#a1a1aa" }}>
+                {ex.instruction_text}
               </p>
-              <ul className="space-y-1.5">
-                {ex.common_mistakes.map((m, i) => (
-                  <li key={i} className="text-[13px] leading-relaxed flex gap-2" style={{ color: "#a1a1aa" }}>
-                    <span style={{ color: "#ef4444" }}>×</span> {m}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {ex.youtube_video_id ? (
-            <button
-              onClick={onWatch}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-[13px] font-bold transition-colors hover:bg-white/5"
-              style={{ background: "rgba(255,255,255,0.03)", color: "#e2e2e2", border: "1px solid rgba(255,255,255,0.08)" }}
-            >
-              <HugeiconsIcon icon={PlayCircle02Icon} className="h-4 w-4" style={{ color: "#f59e0b" }} />
-              Watch Demo
-            </button>
-          ) : (
-            <p className="text-[12px] font-medium" style={{ color: "#52525b" }}>
-              Demo video coming soon
-            </p>
-          )}
-        </div>
-      )}
-    </div>
+            )}
+            {ex.common_mistakes.length > 0 && (
+              <div>
+                <p className="label-caps mb-2" style={{ color: "#71717a" }}>
+                  Common mistakes
+                </p>
+                <ul className="space-y-1.5">
+                  {ex.common_mistakes.map((m, i) => (
+                    <li key={i} className="text-[13px] leading-relaxed flex gap-2" style={{ color: "#a1a1aa" }}>
+                      <span style={{ color: "#ef4444" }}>×</span> {m}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {ex.youtube_video_id ? (
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={onWatch}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-[13px] font-bold transition-colors hover:bg-white/5"
+                style={{ background: "rgba(255,255,255,0.03)", color: "#e2e2e2", border: "1px solid rgba(255,255,255,0.08)" }}
+              >
+                <HugeiconsIcon icon={PlayCircle02Icon} className="h-4 w-4" style={{ color: "#f59e0b" }} />
+                Watch Demo
+              </motion.button>
+            ) : (
+              <p className="text-[12px] font-medium" style={{ color: "#52525b" }}>
+                Demo video coming soon
+              </p>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
@@ -238,13 +259,26 @@ export default function WorkoutPage() {
     }
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
     <DashboardShell>
       <div className="mf-rise mx-auto w-full max-w-5xl flex-1 space-y-8 p-5 sm:p-6 lg:p-8">
         
         {/* Header section */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
             <h1 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", color: "#f4f4f5" }}>
               Training
             </h1>
@@ -253,139 +287,165 @@ export default function WorkoutPage() {
                 {workout.day_name} · Week {workout.week}, Day {workout.day}
               </p>
             )}
-          </div>
-          <div className="flex items-center gap-3">
-             <button
+          </motion.div>
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="flex items-center gap-3">
+             <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={fetchWorkout}
                 disabled={loading}
-                className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-all disabled:opacity-40 hover:bg-white/5"
+                className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-colors disabled:opacity-40 hover:bg-white/5"
                 style={{ background: "rgba(255,255,255,0.03)", color: "#f4f4f5", border: "1px solid rgba(255,255,255,0.1)" }}
               >
                 <HugeiconsIcon icon={RefreshIcon} className={cn("h-4 w-4", loading && "animate-spin")} />
                 Refresh
-              </button>
-          </div>
+              </motion.button>
+          </motion.div>
         </div>
 
-      {loading ? (
-        <LoadingSkeleton />
-      ) : error ? (
-        <ErrorState error={error} />
-      ) : workout ? (
-        <div className="space-y-8">
-          {/* Progress bar / Hero Card */}
-          <div className="glass-card min-h-[160px] flex flex-col justify-end overflow-hidden group">
-            <div className="absolute inset-0 z-0">
-               <Image src="/images/workout_texture.png" alt="Workout background" fill sizes="(max-width: 768px) 100vw, 80vw" priority className="object-cover opacity-30 mix-blend-overlay transition-transform duration-[2s] group-hover:scale-105" />
-               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-               <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background" />
-            </div>
-            
-            <div className="relative z-10 p-6 lg:p-8">
-              <div className="flex items-end justify-between mb-4">
-                <div>
-                  <p className="label-caps mb-1" style={{ color: "#8fd5ff" }}>Current Block</p>
-                  <span style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
-                    {workout.template_name}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-right">
-                   <div className="hidden sm:block">
-                     <p className="label-caps mb-1 text-right" style={{ color: "#a1a1aa" }}>Sets done</p>
-                     <p style={{ fontSize: "20px", fontWeight: 700, color: "#f4f4f5" }}>{completedSets} / {totalSets}</p>
-                   </div>
-                </div>
-              </div>
-              <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${totalSets > 0 ? (completedSets / totalSets) * 100 : 0}%`,
-                    background: "linear-gradient(90deg, #d97706, #f59e0b)",
-                    boxShadow: "0 0 10px rgba(245,158,11,0.5)"
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Exercises */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {workout.exercises.map((ex, idx) => (
-              <ExerciseCard
-                key={ex.exercise_id}
-                ex={ex}
-                done={setsDone[ex.exercise_id] ?? 0}
-                onCompleteSet={() => completeSet(ex, idx)}
-                onWatch={() =>
-                  ex.youtube_video_id && setVideo({ id: ex.youtube_video_id, title: ex.name })
-                }
-              />
-            ))}
-          </div>
-
-          {/* Actions */}
-          {saved ? (
-            <div
-              className="glass-card flex items-center justify-center gap-3 p-6"
-              style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)" }}
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+             <LoadingSkeleton />
+          </motion.div>
+        ) : error ? (
+          <motion.div key="error" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+             <ErrorState error={error} />
+          </motion.div>
+        ) : workout ? (
+          <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            {/* Progress bar / Hero Card */}
+            <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.5, delay: 0.1 }}
+               className="glass-card min-h-[160px] flex flex-col justify-end overflow-hidden group"
             >
-              <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-6 w-6" style={{ color: "#f59e0b" }} />
-              <p style={{ fontSize: "16px", fontWeight: 700, color: "#f4f4f5" }}>
-                {saved === "done" ? "Workout logged. Incredible effort! 💪" : "Workout marked as skipped."}
-              </p>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center gap-4 pt-4">
-              <button
-                onClick={() => save("skipped")}
-                disabled={saving}
-                className="rounded-full px-8 py-4 text-sm font-bold transition-all disabled:opacity-50 hover:bg-white/5"
-                style={{ border: "1px solid rgba(255,255,255,0.1)", color: "#a1a1aa" }}
-              >
-                Skip Workout
-              </button>
-              <button
-                onClick={() => save("done")}
-                disabled={saving}
-                className="rounded-full px-8 py-4 text-sm font-bold transition-all disabled:opacity-50 hover:scale-[1.02] active:scale-95"
-                style={{ background: "#f59e0b", color: "#1b1304", boxShadow: "0 0 20px rgba(245,158,11,0.2)" }}
-              >
-                {saving ? "Saving…" : completedSets >= totalSets ? "Finish Workout →" : "Save Partial Workout"}
-              </button>
-            </div>
-          )}
-        </div>
-      ) : null}
+              <div className="absolute inset-0 z-0">
+                 <Image src="/images/workout_texture.png" alt="Workout background" fill sizes="(max-width: 768px) 100vw, 80vw" priority className="object-cover opacity-30 mix-blend-overlay transition-transform duration-[2s] group-hover:scale-105" />
+                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+                 <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background" />
+              </div>
+              
+              <div className="relative z-10 p-6 lg:p-8">
+                <div className="flex items-end justify-between mb-4">
+                  <div>
+                    <p className="label-caps mb-1" style={{ color: "#8fd5ff" }}>Current Block</p>
+                    <span style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
+                      {workout.template_name}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-right">
+                     <div className="hidden sm:block">
+                       <p className="label-caps mb-1 text-right" style={{ color: "#a1a1aa" }}>Sets done</p>
+                       <p style={{ fontSize: "20px", fontWeight: 700, color: "#f4f4f5" }}>{completedSets} / {totalSets}</p>
+                     </div>
+                  </div>
+                </div>
+                <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                  <motion.div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${totalSets > 0 ? (completedSets / totalSets) * 100 : 0}%`,
+                      background: "linear-gradient(90deg, #d97706, #f59e0b)",
+                      boxShadow: "0 0 10px rgba(245,158,11,0.5)"
+                    }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Exercises */}
+            <motion.div 
+               variants={containerVariants}
+               initial="hidden"
+               animate="show"
+               className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              {workout.exercises.map((ex, idx) => (
+                <motion.div key={ex.exercise_id} variants={itemVariants}>
+                  <ExerciseCard
+                    ex={ex}
+                    done={setsDone[ex.exercise_id] ?? 0}
+                    onCompleteSet={() => completeSet(ex, idx)}
+                    onWatch={() =>
+                      ex.youtube_video_id && setVideo({ id: ex.youtube_video_id, title: ex.name })
+                    }
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Actions */}
+            <AnimatePresence mode="popLayout">
+              {saved ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="glass-card flex items-center justify-center gap-3 p-6"
+                  style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)" }}
+                >
+                  <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-6 w-6" style={{ color: "#f59e0b" }} />
+                  <p style={{ fontSize: "16px", fontWeight: 700, color: "#f4f4f5" }}>
+                    {saved === "done" ? "Workout logged. Incredible effort! 💪" : "Workout marked as skipped."}
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div 
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   exit={{ opacity: 0, y: -20 }}
+                   className="flex items-center justify-center gap-4 pt-4"
+                >
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => save("skipped")}
+                    disabled={saving}
+                    className="rounded-full px-8 py-4 text-sm font-bold transition-colors disabled:opacity-50 hover:bg-white/5"
+                    style={{ border: "1px solid rgba(255,255,255,0.1)", color: "#a1a1aa" }}
+                  >
+                    Skip Workout
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => save("done")}
+                    disabled={saving}
+                    className="rounded-full px-8 py-4 text-sm font-bold transition-all disabled:opacity-50 hover:brightness-110"
+                    style={{ background: "#f59e0b", color: "#1b1304", boxShadow: "0 0 20px rgba(245,158,11,0.2)" }}
+                  >
+                    {saving ? "Saving…" : completedSets >= totalSets ? "Finish Workout →" : "Save Partial Workout"}
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       {/* Overlays */}
-      {rest && (
-        <RestTimer
-          seconds={rest.seconds}
-          nextLabel={rest.next}
-          onDone={() => setRest(null)}
-        />
-      )}
-      {video && (
-        <VideoModal videoId={video.id} title={video.title} onClose={() => setVideo(null)} />
-      )}
+      <AnimatePresence>
+        {rest && (
+          <RestTimer
+            seconds={rest.seconds}
+            nextLabel={rest.next}
+            onDone={() => setRest(null)}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {video && (
+          <VideoModal videoId={video.id} title={video.title} onClose={() => setVideo(null)} />
+        )}
+      </AnimatePresence>
       </div>
 
       <style jsx global>{`
         .glass-card {
           position: relative;
-          overflow: hidden;
           border-radius: 1.5rem;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid rgba(255, 255, 255, 0.08);
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .glass-card:not(.group):hover {
-          transform: translateY(-4px);
-          border-color: rgba(255, 255, 255, 0.18);
-          box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
         }
         .label-caps {
           font-size: 11px;
