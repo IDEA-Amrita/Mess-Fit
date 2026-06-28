@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -134,7 +136,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
       {/* ── Main ── */}
       <main id="main-content" className="flex min-h-screen flex-1 flex-col pb-20 pt-14 lg:ml-60 lg:pb-0 lg:pt-0">
-        {children}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="flex-1 flex flex-col w-full h-full"
+        >
+          {children}
+        </motion.div>
       </main>
 
       {/* ── Mobile bottom tab bar (<lg) ── */}
@@ -261,7 +270,17 @@ function NavRow({
   }
   return (
     <Link href={item.href} className={base}>
-      {inner}
+      {active && (
+        <motion.div
+          layoutId="activeNavDesktop"
+          className="absolute inset-0 rounded-xl bg-accent/10 border border-accent/20"
+          initial={false}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        />
+      )}
+      <div className="relative z-10 flex items-center gap-3 w-full">
+        {inner}
+      </div>
     </Link>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -12,9 +13,6 @@ const TrendChart = dynamic(() => import("@/components/ui/trend-chart"), {
 });
 import { Alert01Icon, FireIcon, TrendingUpDownIcon, Clock01Icon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader } from "@/components/ui/page-header";
-import { EmptyState } from "@/components/ui/empty-state";
-import { buttonVariants } from "@/components/ui/button";
 import { DashboardShell } from "@/components/DashboardShell";
 import { cn } from "@/lib/utils";
 import { ApiError } from "@/lib/api";
@@ -36,38 +34,58 @@ export default function ProgressPage() {
       <div className="mf-rise mx-auto w-full max-w-4xl flex-1 space-y-8 p-5 sm:p-6 lg:p-8">
         
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
             <h1 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", color: "#f4f4f5" }}>
               Progress
             </h1>
             <p style={{ fontSize: "14px", fontWeight: 500, color: "#a1a1aa", marginTop: "4px" }}>
               Insights from the last {range}
             </p>
-          </div>
-          <div className="glass-card flex gap-1 p-1" style={{ borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
+          </motion.div>
+          <motion.div 
+             initial={{ opacity: 0, x: 20 }} 
+             animate={{ opacity: 1, x: 0 }} 
+             transition={{ duration: 0.5 }}
+             className="glass-card flex gap-1 p-1" style={{ borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}
+          >
             {RANGES.map((r) => (
               <button
                 key={r}
                 onClick={() => setRange(r)}
                 className={cn(
-                  "rounded-lg px-4 py-1.5 text-[13px] font-bold transition-all",
-                  r === range ? "bg-accent/20 text-accent" : "text-muted-foreground hover:text-white",
+                  "relative rounded-lg px-4 py-1.5 text-[13px] font-bold transition-all",
+                  r === range ? "text-accent" : "text-muted-foreground hover:text-white",
                 )}
-                style={r === range ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", boxShadow: "0 0 10px rgba(245,158,11,0.1)" } : {}}
               >
-                {r}
+                {r === range && (
+                  <motion.div
+                    layoutId="activeRange"
+                    className="absolute inset-0 rounded-lg"
+                    style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 10px rgba(245,158,11,0.1)" }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{r}</span>
               </button>
             ))}
-          </div>
+          </motion.div>
         </div>
 
-        {query.isLoading ? (
-          <LoadingSkeleton />
-        ) : query.isError ? (
-          <ErrorState error={query.error} />
-        ) : query.data ? (
-          <ProgressView data={query.data} />
-        ) : null}
+        <AnimatePresence mode="wait">
+          {query.isLoading ? (
+            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <LoadingSkeleton />
+            </motion.div>
+          ) : query.isError ? (
+            <motion.div key="error" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+              <ErrorState error={query.error} />
+            </motion.div>
+          ) : query.data ? (
+            <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <ProgressView data={query.data} />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
 
       <style jsx global>{`
@@ -79,12 +97,6 @@ export default function ProgressPage() {
           border: 1px solid rgba(255, 255, 255, 0.08);
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .glass-card:not(.group):hover {
-          transform: translateY(-4px);
-          border-color: rgba(255, 255, 255, 0.18);
-          box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
         }
         .label-caps {
           font-size: 11px;
@@ -107,9 +119,27 @@ function ProgressView({ data }: { data: Progress }) {
   const delta = weights.length >= 2 ? weights[weights.length - 1] - weights[0] : 0;
   const lastW = weights[weights.length - 1];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="space-y-6">
-      <section className="glass-card p-6">
+    <motion.div 
+       variants={containerVariants}
+       initial="hidden"
+       animate="show"
+       className="space-y-6"
+    >
+      <motion.section variants={itemVariants} className="glass-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl">
         <div className="mb-4 flex items-baseline justify-between">
           <h3 className="label-caps" style={{ color: "#a1a1aa" }}>Weight Trend</h3>
           {weights.length >= 2 && (
@@ -132,45 +162,53 @@ function ProgressView({ data }: { data: Progress }) {
              <p className="mt-2 text-sm text-muted-foreground">Log your weight to see the trend.</p>
           </div>
         ) : (
-          <>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
             <TrendChart series={series} lo={lo} hi={hi} />
             <p className="mt-3 text-[11px] font-medium uppercase tracking-wider text-center" style={{ color: "#52525b" }}>
               Y-axis is zoomed to your range, not zero-based.
             </p>
-          </>
+          </motion.div>
         )}
-      </section>
+      </motion.section>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="glass-card p-5 flex flex-col justify-between min-h-[120px]">
+        <motion.div variants={itemVariants} whileHover={{ y: -4, borderColor: "rgba(255,255,255,0.18)", boxShadow: "0 20px 60px -20px rgba(0,0,0,0.6)" }} className="glass-card p-5 flex flex-col justify-between min-h-[120px] transition-all duration-300">
           <span className="label-caps" style={{ color: "#f59e0b" }}>Adherence</span>
           <span style={{ fontSize: "36px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
-            {Math.round(data.adherence_rate * 100)}<span className="text-xl text-muted-foreground">%</span>
+            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>{Math.round(data.adherence_rate * 100)}</motion.span><span className="text-xl text-muted-foreground">%</span>
           </span>
-        </div>
-        <div className="glass-card p-5 flex flex-col justify-between min-h-[120px]">
+        </motion.div>
+        <motion.div variants={itemVariants} whileHover={{ y: -4, borderColor: "rgba(255,255,255,0.18)", boxShadow: "0 20px 60px -20px rgba(0,0,0,0.6)" }} className="glass-card p-5 flex flex-col justify-between min-h-[120px] transition-all duration-300">
           <span className="label-caps" style={{ color: "#60a5fa" }}>Macros Hit</span>
           <span style={{ fontSize: "36px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
-            {data.macro_hit_rate == null ? "—" : Math.round(data.macro_hit_rate * 100)}<span className="text-xl text-muted-foreground">{data.macro_hit_rate != null ? "%" : ""}</span>
+            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>{data.macro_hit_rate == null ? "—" : Math.round(data.macro_hit_rate * 100)}</motion.span><span className="text-xl text-muted-foreground">{data.macro_hit_rate != null ? "%" : ""}</span>
           </span>
-        </div>
-        <div className="glass-card p-5 flex flex-col justify-between min-h-[120px]">
+        </motion.div>
+        <motion.div variants={itemVariants} whileHover={{ y: -4, borderColor: "rgba(255,255,255,0.18)", boxShadow: "0 20px 60px -20px rgba(0,0,0,0.6)" }} className="glass-card p-5 flex flex-col justify-between min-h-[120px] transition-all duration-300">
           <span className="label-caps flex items-center gap-1.5" style={{ color: "#f87171" }}>
             <HugeiconsIcon icon={FireIcon} className="h-4 w-4" /> Streak
           </span>
           <span style={{ fontSize: "36px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
-            {data.streak_days} <span className="text-[14px] text-muted-foreground uppercase tracking-widest">{data.streak_days === 1 ? "day" : "days"}</span>
+            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>{data.streak_days}</motion.span> <span className="text-[14px] text-muted-foreground uppercase tracking-widest">{data.streak_days === 1 ? "day" : "days"}</span>
           </span>
-        </div>
+        </motion.div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <ProjectionCard projection={data.projection} />
-        {data.adaptive_tdee && <AdaptiveTDEECard adaptive={data.adaptive_tdee} />}
+        <motion.div variants={itemVariants}>
+           <ProjectionCard projection={data.projection} />
+        </motion.div>
+        {data.adaptive_tdee && (
+          <motion.div variants={itemVariants}>
+            <AdaptiveTDEECard adaptive={data.adaptive_tdee} />
+          </motion.div>
+        )}
       </div>
 
-      <LeaderboardCard />
-    </div>
+      <motion.div variants={itemVariants}>
+        <LeaderboardCard />
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -214,7 +252,7 @@ function ProjectionCard({ projection }: { projection: Progress["projection"] }) 
   }
 
   return (
-    <section className="glass-card p-6 flex flex-col">
+    <motion.section whileHover={{ y: -4, borderColor: "rgba(255,255,255,0.18)", boxShadow: "0 20px 60px -20px rgba(0,0,0,0.6)" }} className="glass-card p-6 flex flex-col transition-all duration-300">
       <div className="mb-4 flex items-center gap-2">
         <HugeiconsIcon icon={TrendingUpDownIcon} className="h-5 w-5" style={{ color: "#818cf8" }} />
         <h3 className="label-caps" style={{ color: "#818cf8" }}>Projection</h3>
@@ -222,7 +260,7 @@ function ProjectionCard({ projection }: { projection: Progress["projection"] }) 
       <div className="flex-1 flex flex-col justify-end">
         {body}
       </div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -230,9 +268,10 @@ function AdaptiveTDEECard({ adaptive }: { adaptive: Progress["adaptive_tdee"] })
   if (!adaptive) return null;
 
   return (
-    <section 
+    <motion.section 
+      whileHover={{ y: -4, borderColor: adaptive.available ? "rgba(245,158,11,0.5)" : "rgba(255,255,255,0.18)", boxShadow: adaptive.available ? "0 20px 60px -20px rgba(245,158,11,0.4)" : "0 20px 60px -20px rgba(0,0,0,0.6)" }}
       className={cn(
-        "glass-card p-6 flex flex-col group", 
+        "glass-card p-6 flex flex-col group transition-all duration-300", 
       )}
       style={adaptive.available ? { borderColor: "rgba(245,158,11,0.3)", boxShadow: "0 0 40px rgba(245,158,11,0.05)" } : {}}
     >
@@ -255,7 +294,7 @@ function AdaptiveTDEECard({ adaptive }: { adaptive: Progress["adaptive_tdee"] })
           <div className="space-y-4 flex-1 flex flex-col justify-end">
             <div className="flex items-baseline gap-2">
               <span style={{ fontSize: "40px", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
-                {Math.round(adaptive.tdee)}
+                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>{Math.round(adaptive.tdee)}</motion.span>
               </span>
               <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-widest">kcal / day</span>
             </div>
@@ -264,9 +303,12 @@ function AdaptiveTDEECard({ adaptive }: { adaptive: Progress["adaptive_tdee"] })
             </p>
             <div className="mt-4 flex items-center gap-3">
               <div className="h-1.5 flex-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-                <div 
-                  className="h-full rounded-full transition-all duration-1000" 
-                  style={{ width: adaptive.confidence === 'high' ? '100%' : adaptive.confidence === 'medium' ? '66%' : '33%', background: "#f59e0b" }}
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: adaptive.confidence === 'high' ? '100%' : adaptive.confidence === 'medium' ? '66%' : '33%' }}
+                  className="h-full rounded-full" 
+                  style={{ background: "#f59e0b" }}
+                  transition={{ type: "spring", stiffness: 60, damping: 15, delay: 0.5 }}
                 />
               </div>
               <span className="text-[10px] uppercase font-bold tracking-wider w-24 text-right" style={{ color: "#f59e0b" }}>
@@ -288,7 +330,7 @@ function AdaptiveTDEECard({ adaptive }: { adaptive: Progress["adaptive_tdee"] })
           </div>
         )}
       </div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -310,7 +352,7 @@ function LeaderboardCard() {
   const { entries, user_rank } = query.data;
 
   return (
-    <section className="glass-card p-6 mt-6">
+    <motion.section whileHover={{ y: -4, borderColor: "rgba(255,255,255,0.18)", boxShadow: "0 20px 60px -20px rgba(0,0,0,0.6)" }} className="glass-card p-6 mt-6 transition-all duration-300">
       <div className="mb-5 flex items-center gap-2 border-b pb-4" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
         <HugeiconsIcon icon={FireIcon} className="h-5 w-5" style={{ color: "#f59e0b" }} />
         <h3 className="label-caps" style={{ color: "#f59e0b" }}>College Leaderboard</h3>
@@ -324,8 +366,11 @@ function LeaderboardCard() {
           {entries.slice(0, 5).map((entry, idx) => {
             const isUser = user_rank?.user_id === entry.user_id;
             return (
-              <div 
+              <motion.div 
                 key={entry.user_id} 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + (idx * 0.1) }}
                 className="flex items-center justify-between rounded-xl px-4 py-3 transition-colors"
                 style={isUser ? { background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" } : { background: "rgba(255,255,255,0.02)" }}
               >
@@ -341,12 +386,12 @@ function LeaderboardCard() {
                 <div className="text-right">
                   <span className="block text-[16px] font-extrabold" style={{ color: isUser ? "#f59e0b" : "#e2e2e2" }}>{entry.score}%</span>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
       )}
-    </section>
+    </motion.section>
   );
 }
 
