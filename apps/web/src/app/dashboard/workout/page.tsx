@@ -1,41 +1,23 @@
 "use client";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { motion, AnimatePresence } from "framer-motion";
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { Alert01Icon, CheckmarkCircle01Icon, ArrowDown01Icon, Dumbbell01Icon, PlayCircle02Icon, RefreshIcon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/lib/supabase";
 import { DashboardShell } from "@/components/DashboardShell";
 import { RestTimer } from "@/components/workout/RestTimer";
 import { VideoModal } from "@/components/workout/VideoModal";
-import {
-  getTodayWorkout,
-  logWorkout,
-  type TodayWorkout,
-  type WorkoutExercise,
-} from "@/lib/workout-api";
+import { getTodayWorkout, logWorkout, type TodayWorkout, type WorkoutExercise } from "@/lib/workout-api";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 function todayIso(): string {
-  return new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local tz
+  return new Date().toLocaleDateString("en-CA");
 }
 
-// ── set checkboxes ─────────────────────────────────────────────────────────
-
-function SetRow({
-  total,
-  done,
-  onComplete,
-}: {
-  total: number;
-  done: number;
-  onComplete: () => void;
-}) {
+function SetRow({ total, done, onComplete }: { total: number; done: number; onComplete: () => void }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {Array.from({ length: total }, (_, i) => {
@@ -47,23 +29,12 @@ function SetRow({
             whileTap={isNext ? { scale: 0.9 } : undefined}
             disabled={!isNext}
             onClick={onComplete}
-            aria-label={`Set ${i + 1}${isDone ? " done" : ""}`}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition-colors disabled:cursor-default"
-            style={
-              isDone
-                ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }
-                : isNext
-                  ? { background: "rgba(255,255,255,0.05)", color: "#e2e2e2", border: "1px solid rgba(245,158,11,0.5)", boxShadow: "0 0 10px rgba(245,158,11,0.2)" }
-                  : { background: "rgba(255,255,255,0.02)", color: "#555", border: "1px solid rgba(255,255,255,0.05)" }
-            }
-          >
-            {isDone ? (
-              <motion.div initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }}>
-                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-5 w-5" />
-              </motion.div>
-            ) : (
-              i + 1
+            className={cn(
+              "flex h-11 w-11 items-center justify-center rounded-full text-[13px] font-black transition-colors disabled:cursor-default",
+              isDone ? "bg-accent text-black" : isNext ? "bg-surface-2 text-white hover:bg-border border-2 border-accent" : "bg-surface text-muted-foreground border border-border"
             )}
+          >
+            {isDone ? <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-5 w-5" strokeWidth={2} /> : i + 1}
           </motion.button>
         );
       })}
@@ -71,98 +42,64 @@ function SetRow({
   );
 }
 
-// ── exercise card ──────────────────────────────────────────────────────────
-
-function ExerciseCard({
-  ex,
-  done,
-  onCompleteSet,
-  onWatch,
-}: {
-  ex: WorkoutExercise;
-  done: number;
-  onCompleteSet: () => void;
-  onWatch: () => void;
-}) {
+function ExerciseCard({ ex, done, onCompleteSet, onWatch }: { ex: WorkoutExercise; done: number; onCompleteSet: () => void; onWatch: () => void }) {
   const [open, setOpen] = useState(false);
   const allDone = done >= ex.sets;
 
   return (
-    <motion.div 
-      layout
-      whileHover={{ y: -4, borderColor: "rgba(255,255,255,0.18)" }}
-      className={`glass-card p-5 transition-all duration-300 ${allDone ? "opacity-60 grayscale hover:grayscale-0" : ""}`}
-    >
+    <motion.div layout className={cn("surface-card p-5 transition-opacity duration-500", allDone && "opacity-50 grayscale hover:grayscale-0 hover:opacity-100")}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <motion.p layout="position" style={{ fontSize: "16px", fontWeight: 700, color: "#f4f4f5", letterSpacing: "-0.01em", lineHeight: 1.3 }}>
+          <motion.p layout="position" className="text-[16px] font-bold text-white leading-tight">
             {ex.name}
           </motion.p>
-          <motion.div layout="position" className="mt-2 flex items-center gap-2">
-            <span className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: "rgba(143,213,255,0.1)", color: "#8fd5ff" }}>
+          <motion.div layout="position" className="mt-2 flex items-center gap-3">
+            <span className="text-[12px] font-black text-muted-foreground uppercase tracking-widest">
               {ex.primary_muscle.replace(/_/g, " ")}
             </span>
-            <span className="text-[12px] font-bold text-muted-foreground">
+            <span className="text-[12px] font-bold text-white">
               {ex.sets} × {ex.reps}
             </span>
           </motion.div>
         </div>
         <button
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle details"
-          className="shrink-0 rounded-full p-2 transition-all hover:bg-white/5"
-          style={{ color: "#a1a1aa", transform: open ? "rotate(180deg)" : "none" }}
+          onClick={() => setOpen(!open)}
+          className="shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-white transition-colors hover:bg-border"
+          style={{ transform: open ? "rotate(180deg)" : "none" }}
         >
           <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
         </button>
       </div>
 
-      <motion.div layout="position" className="mt-5">
+      <motion.div layout="position" className="mt-6">
         <SetRow total={ex.sets} done={done} onComplete={onCompleteSet} />
       </motion.div>
 
       <AnimatePresence>
         {open && (
           <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mt-5 space-y-4 border-t overflow-hidden" 
-            style={{ borderColor: "rgba(255,255,255,0.05)", paddingTop: "1rem" }}
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+            className="mt-6 space-y-4 border-t border-border pt-4 overflow-hidden" 
           >
-            {ex.instruction_text && (
-              <p className="text-[13px] leading-relaxed" style={{ color: "#a1a1aa" }}>
-                {ex.instruction_text}
-              </p>
-            )}
+            {ex.instruction_text && <p className="text-[13px] font-medium text-muted-foreground leading-relaxed">{ex.instruction_text}</p>}
             {ex.common_mistakes.length > 0 && (
               <div>
-                <p className="label-caps mb-2" style={{ color: "#71717a" }}>
-                  Common mistakes
-                </p>
-                <ul className="space-y-1.5">
+                <p className="label-caps mb-2">Common mistakes</p>
+                <ul className="space-y-2">
                   {ex.common_mistakes.map((m, i) => (
-                    <li key={i} className="text-[13px] leading-relaxed flex gap-2" style={{ color: "#a1a1aa" }}>
-                      <span style={{ color: "#ef4444" }}>×</span> {m}
+                    <li key={i} className="text-[13px] font-medium text-muted-foreground flex gap-2">
+                      <span className="text-[#FF3B30] font-black">×</span> {m}
                     </li>
                   ))}
                 </ul>
               </div>
             )}
             {ex.youtube_video_id ? (
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={onWatch}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-[13px] font-bold transition-colors hover:bg-white/5"
-                style={{ background: "rgba(255,255,255,0.03)", color: "#e2e2e2", border: "1px solid rgba(255,255,255,0.08)" }}
-              >
-                <HugeiconsIcon icon={PlayCircle02Icon} className="h-4 w-4" style={{ color: "#f59e0b" }} />
-                Watch Demo
+              <motion.button whileTap={{ scale: 0.98 }} onClick={onWatch} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-surface-2 py-3 text-[13px] font-bold text-white transition-colors hover:bg-border">
+                <HugeiconsIcon icon={PlayCircle02Icon} className="h-4 w-4 text-accent" /> Watch Demo
               </motion.button>
             ) : (
-              <p className="text-[12px] font-medium" style={{ color: "#52525b" }}>
-                Demo video coming soon
-              </p>
+              <p className="text-[12px] font-medium text-muted-foreground">Demo video coming soon</p>
             )}
           </motion.div>
         )}
@@ -171,16 +108,12 @@ function ExerciseCard({
   );
 }
 
-
-// ── page ───────────────────────────────────────────────────────────────────
-
 export default function WorkoutPage() {
   const router = useRouter();
   const [workout, setWorkout] = useState<TodayWorkout | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{ message: string; status?: number } | null>(null);
 
-  // exercise_id → number of completed sets
   const [setsDone, setSetsDone] = useState<Record<string, number>>({});
   const [rest, setRest] = useState<{ seconds: number; next?: string } | null>(null);
   const [video, setVideo] = useState<{ id: string; title: string } | null>(null);
@@ -188,50 +121,25 @@ export default function WorkoutPage() {
   const [saved, setSaved] = useState<"done" | "skipped" | null>(null);
 
   const fetchWorkout = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    setSaved(null);
-    setSetsDone({});
-    try {
-      const data = await getTodayWorkout();
-      setWorkout(data);
-    } catch (err) {
-      if (err instanceof ApiError) setError({ message: err.detail, status: err.status });
-      else setError({ message: "Something went wrong. Please try again." });
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true); setError(null); setSaved(null); setSetsDone({});
+    try { setWorkout(await getTodayWorkout()); }
+    catch (err) { setError({ message: err instanceof ApiError ? err.detail : "Error", status: err instanceof ApiError ? err.status : undefined }); }
+    finally { setLoading(false); }
   }, []);
 
-  useEffect(() => {
-    fetchWorkout();
-  }, [fetchWorkout]);
+  useEffect(() => { fetchWorkout(); }, [fetchWorkout]);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.replace("/auth/login");
-  }
-
-  const totalSets = useMemo(
-    () => workout?.exercises.reduce((s, e) => s + e.sets, 0) ?? 0,
-    [workout],
-  );
-  const completedSets = useMemo(
-    () => Object.values(setsDone).reduce((s, n) => s + n, 0),
-    [setsDone],
-  );
+  const totalSets = useMemo(() => workout?.exercises.reduce((s, e) => s + e.sets, 0) ?? 0, [workout]);
+  const completedSets = useMemo(() => Object.values(setsDone).reduce((s, n) => s + n, 0), [setsDone]);
+  const progressPct = totalSets > 0 ? (completedSets / totalSets) * 100 : 0;
 
   function completeSet(ex: WorkoutExercise, idx: number) {
     if (!workout) return;
     setSetsDone((prev) => ({ ...prev, [ex.exercise_id]: (prev[ex.exercise_id] ?? 0) + 1 }));
-    // Rest after every set except the last set of the final exercise.
     const isLastExercise = idx === workout.exercises.length - 1;
     const willCompleteExercise = (setsDone[ex.exercise_id] ?? 0) + 1 >= ex.sets;
     if (!(isLastExercise && willCompleteExercise)) {
-      const next =
-        willCompleteExercise && !isLastExercise
-          ? workout.exercises[idx + 1]?.name
-          : ex.name;
+      const next = willCompleteExercise && !isLastExercise ? workout.exercises[idx + 1]?.name : ex.name;
       setRest({ seconds: ex.rest_seconds, next });
     }
   }
@@ -240,61 +148,32 @@ export default function WorkoutPage() {
     if (!workout) return;
     setSaving(true);
     try {
-      await logWorkout({
-        date: todayIso(),
-        template_id: workout.template_id,
-        status: completedSets > 0 && completedSets < totalSets && status === "done" ? "partial" : status,
-        exercises_done: workout.exercises.map((e) => ({
-          exercise_id: e.exercise_id,
-          sets_done: setsDone[e.exercise_id] ?? 0,
-          reps_done: [],
-        })),
-        skip_reason: status === "skipped" ? "Skipped from app" : null,
-      });
+      await logWorkout({ date: todayIso(), template_id: workout.template_id, status: completedSets > 0 && completedSets < totalSets && status === "done" ? "partial" : status, exercises_done: workout.exercises.map((e) => ({ exercise_id: e.exercise_id, sets_done: setsDone[e.exercise_id] ?? 0, reps_done: [] })), skip_reason: status === "skipped" ? "Skipped from app" : null });
       setSaved(status);
-    } catch {
-      setError({ message: "Couldn't save your workout. Please try again." });
-    } finally {
-      setSaving(false);
-    }
+    } catch { setError({ message: "Couldn't save your workout." }); }
+    finally { setSaving(false); }
   }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-  };
+  const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+  const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
 
   return (
     <DashboardShell>
-      <div className="mf-rise mx-auto w-full max-w-5xl flex-1 space-y-8 p-5 sm:p-6 lg:p-8">
+      <div className="mx-auto w-full max-w-4xl flex-1 p-5 sm:p-6 lg:p-8">
         
-        {/* Header section */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-            <h1 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", color: "#f4f4f5" }}>
-              Training
-            </h1>
-            {workout && (
-              <p style={{ fontSize: "14px", fontWeight: 500, color: "#a1a1aa", marginTop: "4px" }}>
-                {workout.day_name} · Week {workout.week}, Day {workout.day}
-              </p>
-            )}
+            <p className="text-[13px] font-bold text-accent uppercase tracking-widest mb-1">
+              {workout ? `${workout.day_name} · W${workout.week} D${workout.day}` : "Training"}
+            </p>
+            <h1 className="heading-heavy">Workout</h1>
           </motion.div>
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="flex items-center gap-3">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
              <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={fetchWorkout}
                 disabled={loading}
-                className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-colors disabled:opacity-40 hover:bg-white/5"
-                style={{ background: "rgba(255,255,255,0.03)", color: "#f4f4f5", border: "1px solid rgba(255,255,255,0.1)" }}
+                className="flex items-center gap-2 rounded-full bg-surface-2 px-5 py-2.5 text-[12px] font-bold text-white transition-colors hover:bg-border disabled:opacity-50"
               >
                 <HugeiconsIcon icon={RefreshIcon} className={cn("h-4 w-4", loading && "animate-spin")} />
                 Refresh
@@ -304,73 +183,51 @@ export default function WorkoutPage() {
 
       <AnimatePresence mode="wait">
         {loading ? (
-          <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-             <LoadingSkeleton />
+          <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-10 space-y-6">
+             <Skeleton className="h-32 w-full rounded-[1.5rem] bg-surface" />
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               {[0,1,2,3].map(i => <Skeleton key={i} className="h-48 rounded-[1.5rem] bg-surface" />)}
+             </div>
           </motion.div>
         ) : error ? (
-          <motion.div key="error" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-             <ErrorState error={error} />
+          <motion.div key="error" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="mt-10">
+             <div className="surface-card flex flex-col items-center justify-center py-24 text-center mx-auto max-w-md">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#FF3B30]/10 text-[#FF3B30]">
+                  <HugeiconsIcon icon={Alert01Icon} size={32} />
+                </div>
+                <h2 className="text-xl font-bold text-white mb-2">{error.status === 409 ? "Onboarding Required" : "No Workout Today"}</h2>
+                <p className="text-sm text-muted-foreground">{error.message}</p>
+             </div>
           </motion.div>
         ) : workout ? (
-          <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-            {/* Progress bar / Hero Card */}
-            <motion.div 
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.5, delay: 0.1 }}
-               className="glass-card min-h-[160px] flex flex-col justify-end overflow-hidden group"
-            >
-              <div className="absolute inset-0 z-0">
-                 <Image src="/images/workout_texture.png" alt="Workout background" fill sizes="(max-width: 768px) 100vw, 80vw" priority className="object-cover opacity-30 mix-blend-overlay transition-transform duration-[2s] group-hover:scale-105" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-                 <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background" />
+          <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 mt-8">
+            
+            {/* Hero Progress Card */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="surface-card flex flex-col justify-between min-h-[140px] relative overflow-hidden bg-surface-2">
+              <div className="flex items-start justify-between relative z-10">
+                <div>
+                  <p className="text-[24px] font-black text-white tracking-tighter mb-1">{workout.template_name}</p>
+                  <p className="text-[13px] font-bold text-muted-foreground">Current Block</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-black text-white">{completedSets} <span className="text-lg text-muted-foreground">/ {totalSets}</span></p>
+                  <p className="text-[11px] font-black uppercase tracking-widest text-accent">Sets Done</p>
+                </div>
               </div>
-              
-              <div className="relative z-10 p-6 lg:p-8">
-                <div className="flex items-end justify-between mb-4">
-                  <div>
-                    <p className="label-caps mb-1" style={{ color: "#8fd5ff" }}>Current Block</p>
-                    <span style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em" }}>
-                      {workout.template_name}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-right">
-                     <div className="hidden sm:block">
-                       <p className="label-caps mb-1 text-right" style={{ color: "#a1a1aa" }}>Sets done</p>
-                       <p style={{ fontSize: "20px", fontWeight: 700, color: "#f4f4f5" }}>{completedSets} / {totalSets}</p>
-                     </div>
-                  </div>
-                </div>
-                <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                  <motion.div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${totalSets > 0 ? (completedSets / totalSets) * 100 : 0}%`,
-                      background: "linear-gradient(90deg, #d97706, #f59e0b)",
-                      boxShadow: "0 0 10px rgba(245,158,11,0.5)"
-                    }}
-                  />
-                </div>
+              <div className="mt-8 h-2 w-full bg-surface rounded-full overflow-hidden relative z-10">
+                <motion.div
+                  className="h-full bg-accent rounded-full"
+                  animate={{ width: `${progressPct}%` }}
+                  transition={{ type: "spring", stiffness: 60, damping: 15 }}
+                />
               </div>
             </motion.div>
 
-            {/* Exercises */}
-            <motion.div 
-               variants={containerVariants}
-               initial="hidden"
-               animate="show"
-               className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-            >
+            {/* Exercises Grid */}
+            <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
               {workout.exercises.map((ex, idx) => (
                 <motion.div key={ex.exercise_id} variants={itemVariants}>
-                  <ExerciseCard
-                    ex={ex}
-                    done={setsDone[ex.exercise_id] ?? 0}
-                    onCompleteSet={() => completeSet(ex, idx)}
-                    onWatch={() =>
-                      ex.youtube_video_id && setVideo({ id: ex.youtube_video_id, title: ex.name })
-                    }
-                  />
+                  <ExerciseCard ex={ex} done={setsDone[ex.exercise_id] ?? 0} onCompleteSet={() => completeSet(ex, idx)} onWatch={() => ex.youtube_video_id && setVideo({ id: ex.youtube_video_id, title: ex.name })} />
                 </motion.div>
               ))}
             </motion.div>
@@ -378,41 +235,29 @@ export default function WorkoutPage() {
             {/* Actions */}
             <AnimatePresence mode="popLayout">
               {saved ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="glass-card flex items-center justify-center gap-3 p-6"
-                  style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)" }}
-                >
-                  <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-6 w-6" style={{ color: "#f59e0b" }} />
-                  <p style={{ fontSize: "16px", fontWeight: 700, color: "#f4f4f5" }}>
-                    {saved === "done" ? "Workout logged. Incredible effort! 💪" : "Workout marked as skipped."}
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="surface-card flex items-center justify-center gap-3 py-8">
+                  <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-6 w-6 text-accent" strokeWidth={2} />
+                  <p className="text-[16px] font-bold text-white">
+                    {saved === "done" ? "Workout logged." : "Workout skipped."}
                   </p>
                 </motion.div>
               ) : (
-                <motion.div 
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   exit={{ opacity: 0, y: -20 }}
-                   className="flex items-center justify-center gap-4 pt-4"
-                >
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => save("skipped")}
                     disabled={saving}
-                    className="rounded-full px-8 py-4 text-sm font-bold transition-colors disabled:opacity-50 hover:bg-white/5"
-                    style={{ border: "1px solid rgba(255,255,255,0.1)", color: "#a1a1aa" }}
+                    className="w-full sm:w-auto rounded-full bg-surface px-8 py-4 text-[14px] font-bold text-white transition-colors hover:bg-surface-2 disabled:opacity-50"
                   >
-                    Skip Workout
+                    Skip
                   </motion.button>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => save("done")}
                     disabled={saving}
-                    className="rounded-full px-8 py-4 text-sm font-bold transition-all disabled:opacity-50 hover:brightness-110"
-                    style={{ background: "#f59e0b", color: "#1b1304", boxShadow: "0 0 20px rgba(245,158,11,0.2)" }}
+                    className="w-full sm:w-auto rounded-full bg-accent px-10 py-4 text-[14px] font-black text-black transition-colors hover:bg-white disabled:opacity-50"
                   >
-                    {saving ? "Saving…" : completedSets >= totalSets ? "Finish Workout →" : "Save Partial Workout"}
+                    {saving ? "Saving" : completedSets >= totalSets ? "Finish Workout" : "Save Partial"}
                   </motion.button>
                 </motion.div>
               )}
@@ -421,89 +266,13 @@ export default function WorkoutPage() {
         ) : null}
       </AnimatePresence>
 
-      {/* Overlays */}
       <AnimatePresence>
-        {rest && (
-          <RestTimer
-            seconds={rest.seconds}
-            nextLabel={rest.next}
-            onDone={() => setRest(null)}
-          />
-        )}
+        {rest && <RestTimer seconds={rest.seconds} nextLabel={rest.next} onDone={() => setRest(null)} />}
       </AnimatePresence>
       <AnimatePresence>
-        {video && (
-          <VideoModal videoId={video.id} title={video.title} onClose={() => setVideo(null)} />
-        )}
+        {video && <VideoModal videoId={video.id} title={video.title} onClose={() => setVideo(null)} />}
       </AnimatePresence>
       </div>
-
-      <style jsx global>{`
-        .glass-card {
-          position: relative;
-          border-radius: 1.5rem;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
-        }
-        .label-caps {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-        }
-      `}</style>
     </DashboardShell>
-  );
-}
-
-// ── loading / error states ───────────────────────────────────────────────────
-
-function LoadingSkeleton() {
-  return (
-    <div className="space-y-8 mt-6">
-      <Skeleton className="h-40 rounded-3xl bg-white/5" />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} className="h-40 rounded-3xl bg-white/5" />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ErrorState({ error }: { error: { message: string; status?: number } }) {
-  const isOnboarding = error.status === 409;
-  return (
-    <div className="glass-card mx-auto mt-12 flex max-w-md flex-col items-center justify-center gap-4 p-10 text-center">
-      <div
-        className="flex h-16 w-16 items-center justify-center rounded-3xl"
-        style={{ background: isOnboarding ? "rgba(245,158,11,0.1)" : "rgba(248,113,113,0.1)" }}
-      >
-        {isOnboarding ? (
-          <HugeiconsIcon icon={Dumbbell01Icon} className="h-8 w-8" style={{ color: "#f59e0b" }} />
-        ) : (
-          <HugeiconsIcon icon={Alert01Icon} className="h-8 w-8" style={{ color: "#f87171" }} />
-        )}
-      </div>
-      <div>
-        <p style={{ fontSize: "20px", fontWeight: 700, color: "#f4f4f5" }}>
-          {isOnboarding ? "Onboarding Required" : "Training Data Unavailable"}
-        </p>
-        <p className="mt-2 text-[14px] leading-relaxed" style={{ color: "#a1a1aa" }}>
-          {error.message}
-        </p>
-      </div>
-      {isOnboarding && (
-        <Link
-          href="/onboarding/hostel"
-          className="mt-4 rounded-full px-6 py-3 text-sm font-bold transition-all hover:scale-[1.02]"
-          style={{ background: "#f59e0b", color: "#1b1304" }}
-        >
-          Complete Onboarding
-        </Link>
-      )}
-    </div>
   );
 }

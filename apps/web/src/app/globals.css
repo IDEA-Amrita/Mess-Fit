@@ -1,214 +1,130 @@
 @import "tailwindcss";
 
-/*
- * MessFit design tokens (pre-pilot UI refresh).
- * Dark + amber identity, elevated into a real system. Components consume these
- * via Tailwind utilities (bg-card, text-muted-foreground, rounded-lg, …) and the
- * `var(--token)` form — so a change here re-themes the whole app.
- */
-:root {
-  /* ── base palette ── */
-  --bg: #08080a;
-  --surface-1: #101014;
-  --surface-2: #17171c;
-  --surface-3: #202027;
+@plugin "tailwindcss-animate";
 
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-default: rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.16);
+@custom-variant dark (&:is(.dark *));
 
-  --accent: #f59e0b;
-  --accent-light: #fbbf24;
-  --accent-dark: #d97706;
-  --accent-muted: rgba(245, 158, 11, 0.12);
-  --accent-glow: rgba(245, 158, 11, 0.4);
-
-  --text-primary: #f4f4f5;
-  --text-secondary: #a1a1aa;
-  --text-muted: #9ca3af; /* improved contrast */
-
-  --glass: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.08);
-
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --destructive: #ef4444;
-
-  /* ── semantic aliases (consumed by the shadcn-style primitives) ── */
-  --card: var(--surface-1);
-  --card-foreground: var(--text-primary);
-  --popover: var(--surface-2);
-  --popover-foreground: var(--text-primary);
-  --primary: var(--accent);
-  --primary-foreground: #1b1304;
-  --secondary: var(--surface-2);
-  --secondary-foreground: var(--text-primary);
-  --muted: var(--surface-2);
-  --muted-foreground: var(--text-secondary);
-  --input: rgba(255, 255, 255, 0.06);
-  --ring: var(--accent);
-
-  /* ── radius scale ── */
-  --radius: 0.85rem;
-}
-
-@theme inline {
-  /* colors */
-  --color-background: var(--bg);
-  --color-foreground: var(--text-primary);
-
-  --color-surface-1: var(--surface-1);
-  --color-surface-2: var(--surface-2);
-  --color-surface-3: var(--surface-3);
-
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
+@theme {
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
 
   --color-accent: var(--accent);
-  --color-accent-light: var(--accent-light);
-  --color-accent-foreground: var(--primary-foreground);
-  --color-accent-muted: var(--accent-muted);
+  --color-accent-foreground: var(--accent-foreground);
 
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-border: var(--border-default);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
 
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: #ffffff;
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
 
-  /* radius scale (shadcn convention) */
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-
-  /* elevation + accent glow */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 6px 20px -8px rgba(0, 0, 0, 0.55);
-  --shadow-lg: 0 18px 40px -16px rgba(0, 0, 0, 0.65);
-  --shadow-glow: 0 0 0 1px var(--accent-glow), 0 10px 34px -14px var(--accent-glow);
-
-  /* type scale */
-  --text-display: 2.5rem;
-  --text-display--line-height: 1.05;
-  --text-display--letter-spacing: -0.02em;
-  --text-display--font-weight: 700;
-  --text-h1: 1.75rem;
-  --text-h1--line-height: 1.15;
-  --text-h1--letter-spacing: -0.015em;
-  --text-h1--font-weight: 600;
-  --text-h2: 1.25rem;
-  --text-h2--line-height: 1.25;
-  --text-h2--letter-spacing: -0.01em;
-  --text-h2--font-weight: 600;
-
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-
-  --animate-stagger-rise: stagger-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-pulse-glow: pulse-glow 2s infinite;
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
-body {
-  background: var(--bg);
-  color: var(--text-primary);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+:root {
+  /* Elite Tracker Theme - Pure OLED Black & Neon Lime */
+  --background: #000000;
+  --foreground: #FFFFFF;
+  
+  --surface: #121212;
+  --surface-2: #1C1C1E;
+  
+  /* Neon Lime Accent */
+  --accent: #CCFF00;
+  --accent-foreground: #000000;
+  
+  --primary: #FFFFFF;
+  --primary-foreground: #000000;
+  
+  --secondary: #2C2C2E;
+  --secondary-foreground: #E5E5EA;
+  
+  --muted: #1C1C1E;
+  --muted-foreground: #8E8E93;
+  
+  --border: #2C2C2E;
+  --input: #1C1C1E;
+  --ring: #CCFF00;
+  
+  --destructive: #FF3B30;
+  --destructive-foreground: #FFFFFF;
+  
+  --card: #121212;
+  --card-foreground: #FFFFFF;
+  --popover: #1C1C1E;
+  --popover-foreground: #FFFFFF;
+  
+  --radius: 1rem;
 }
 
-/* Page-level entrance: content fades/rises in slightly for a more "product" feel. */
-@keyframes mf-rise {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
+@layer base {
+  * {
+    @apply border-border;
   }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-accent selection:text-accent-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  
+  /* Modern WebKit Scrollbar styling for dark mode */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+}
+
+@layer utilities {
+  .surface-card {
+    @apply bg-surface border border-border rounded-[1.5rem] p-6;
+  }
+  .surface-card-hover {
+    @apply surface-card transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl;
+  }
+  
+  .label-caps {
+    @apply text-[11px] font-bold uppercase tracking-widest text-muted-foreground;
+  }
+  
+  .heading-heavy {
+    @apply text-3xl font-black tracking-tighter text-white sm:text-4xl;
+  }
+}
+
+/* Animations */
+@keyframes spin-slow {
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: rotate(360deg);
   }
 }
-.mf-rise {
-  animation: mf-rise 0.28s ease-out both;
-}
-
-@keyframes stagger-rise {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-.stagger-rise {
-  animation: stagger-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes pulse-glow {
-  0% { opacity: 0.6; transform: scale(0.98); }
-  50% { opacity: 1; transform: scale(1.02); }
-  100% { opacity: 0.6; transform: scale(0.98); }
-}
-
-@keyframes scan {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(256px); } /* 64 * 4 = 256px */
-}
-
-.bento-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(16px);
-  border-radius: 1.5rem;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.bento-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.12);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mf-rise {
-    animation: none;
-  }
-
-  /* Disable all CSS transitions for users who prefer reduced motion (WCAG 2.3.3) */
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
 }
