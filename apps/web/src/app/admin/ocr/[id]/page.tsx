@@ -222,7 +222,7 @@ export default function OcrReviewPage() {
                       className="flex flex-wrap items-center gap-2 rounded-md border px-2 py-1.5"
                       style={
                         dish.confidenceLow || (!dish.matchedDishId)
-                          ? { background: "rgba(245,158,11,0.08)" }
+                          ? { background: "rgba(204,255,0,0.08)" }
                           : undefined
                       }
                     >

@@ -76,7 +76,7 @@ export default function LogPage() {
                 "flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-[13px] font-bold transition-all",
                 t.id === tab ? "text-accent bg-accent/20" : "text-muted-foreground hover:text-white hover:bg-white/5",
               )}
-              style={t.id === tab ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", boxShadow: "0 0 10px rgba(245,158,11,0.1)" } : {}}
+              style={t.id === tab ? { background: "rgba(204,255,0,0.15)", color: "#ccff00", boxShadow: "0 0 10px rgba(204,255,0,0.1)" } : {}}
             >
               {t.icon}
               <span className="hidden sm:inline uppercase tracking-wider text-[11px]">{t.label}</span>
@@ -283,7 +283,7 @@ function MealSlot({
               className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-3 text-[12px] font-bold transition-all"
               style={
                 isActive
-                  ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }
+                  ? { background: "rgba(204,255,0,0.15)", color: "#ccff00", border: "1px solid rgba(204,255,0,0.3)" }
                   : { background: "rgba(255,255,255,0.03)", color: "#a1a1aa", border: "1px solid transparent" }
               }
             >
@@ -383,7 +383,7 @@ function WeightTab({ today, loading }: { today?: TodayLogs; loading: boolean }) 
         onClick={save} 
         disabled={mutation.isPending || !value} 
         className="w-full max-w-xs rounded-full py-4 text-[14px] font-bold transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
-        style={{ background: "#f59e0b", color: "#1b1304", boxShadow: "0 0 20px rgba(245,158,11,0.2)" }}
+        style={{ background: "#ccff00", color: "#1b1304", boxShadow: "0 0 20px rgba(204,255,0,0.2)" }}
       >
         {mutation.isPending ? "Saving…" : "Save weight"}
       </button>
@@ -442,7 +442,7 @@ function WorkoutTab({ today }: { today?: TodayLogs }) {
 
   return (
     <div className="glass-card p-6" style={{ borderRadius: "1.5rem" }}>
-      <h3 className="label-caps mb-2" style={{ color: "#f59e0b" }}>{w.template_name}</h3>
+      <h3 className="label-caps mb-2" style={{ color: "#ccff00" }}>{w.template_name}</h3>
       <p className="text-[14px] font-bold text-foreground">
         {w.day_name} <span className="text-muted-foreground ml-2">Week {w.week}, Day {w.day}</span>
       </p>
@@ -456,7 +456,7 @@ function WorkoutTab({ today }: { today?: TodayLogs }) {
               className="flex-1 rounded-xl py-3 text-[12px] font-bold uppercase tracking-wider transition-all"
               style={
                 isActive
-                  ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }
+                  ? { background: "rgba(204,255,0,0.15)", color: "#ccff00", border: "1px solid rgba(204,255,0,0.3)" }
                   : { background: "rgba(255,255,255,0.03)", color: "#a1a1aa", border: "1px solid transparent" }
               }
             >
@@ -501,14 +501,14 @@ function MoodTab({ today }: { today?: TodayLogs }) {
 
   return (
     <div className="space-y-4">
-      <Scale5 label="Energy" value={energy} onChange={setEnergy} color="#f59e0b" />
+      <Scale5 label="Energy" value={energy} onChange={setEnergy} color="#ccff00" />
       <Scale5 label="Hunger" value={hunger} onChange={setHunger} color="#8fd5ff" />
       <Scale5 label="Mood" value={mood} onChange={setMood} color="#818cf8" />
       <button
         onClick={save}
         disabled={mutation.isPending || (energy == null && hunger == null && mood == null)}
         className="mt-6 w-full rounded-full py-4 text-[14px] font-bold transition-all disabled:opacity-40 hover:scale-[1.02] active:scale-95"
-        style={{ background: "#f59e0b", color: "#1b1304", boxShadow: "0 0 20px rgba(245,158,11,0.2)" }}
+        style={{ background: "#ccff00", color: "#1b1304", boxShadow: "0 0 20px rgba(204,255,0,0.2)" }}
       >
         {mutation.isPending ? "Saving…" : "Save Check-in"}
       </button>

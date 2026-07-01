@@ -81,7 +81,7 @@ export function RestTimer({
             cy="150"
             r={R}
             fill="none"
-            stroke="#f59e0b"
+            stroke="#ccff00"
             strokeWidth="10"
             strokeLinecap="round"
             strokeDasharray={C}
@@ -116,7 +116,7 @@ export function RestTimer({
         <button
           onClick={finish}
           className="flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-semibold"
-          style={{ background: "rgba(245,158,11,0.14)", color: "#f59e0b" }}
+          style={{ background: "rgba(204,255,0,0.14)", color: "#ccff00" }}
         >
           <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4" />
           Skip rest
