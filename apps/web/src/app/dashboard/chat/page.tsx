@@ -178,7 +178,7 @@ export default function ChatPage() {
             <button
               onClick={startNew}
               className="rounded-full p-2 transition-colors hover:bg-white/10"
-              style={{ color: "#f59e0b" }}
+              style={{ color: "#ccff00" }}
               title="New Chat"
             >
               <HugeiconsIcon icon={Add01Icon} className="h-5 w-5" />
@@ -194,7 +194,7 @@ export default function ChatPage() {
                     key={c.id}
                     className={`group flex items-center gap-3 rounded-xl px-4 py-3 text-left transition-all ${
                       c.id === convId
-                        ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                        ? "bg-accent/10 text-accent border border-accent/20"
                         : "hover:bg-white/5 text-zinc-400 hover:text-zinc-200 border border-transparent"
                     }`}
                   >
@@ -212,7 +212,7 @@ export default function ChatPage() {
                            if (e.key === "Escape") setEditingId(null);
                          }}
                          onBlur={() => commitRename(c.id, editValue)}
-                         className="flex-1 min-w-0 bg-transparent text-[13px] font-medium outline-none border-b border-amber-500 pb-0.5"
+                         className="flex-1 min-w-0 bg-transparent text-[13px] font-medium outline-none border-b border-accent pb-0.5"
                          style={{ color: "#f4f4f5" }}
                          maxLength={120}
                       />
@@ -227,7 +227,7 @@ export default function ChatPage() {
                     {editingId === c.id ? (
                       <button
                         onClick={() => commitRename(c.id)}
-                        className="shrink-0 p-1 rounded-md text-amber-500 hover:bg-amber-500/20"
+                        className="shrink-0 p-1 rounded-md text-accent hover:bg-accent/20"
                         title="Confirm"
                       >
                         <HugeiconsIcon icon={Tick01Icon} className="h-3.5 w-3.5" />
@@ -312,8 +312,8 @@ export default function ChatPage() {
           text-transform: uppercase;
         }
         .msg-user {
-          background: rgba(245, 158, 11, 0.1);
-          border: 1px solid rgba(245, 158, 11, 0.2);
+          background: rgba(204, 255, 0, 0.1);
+          border: 1px solid rgba(204, 255, 0, 0.2);
           color: #f4f4f5;
         }
         .msg-ai {
@@ -332,7 +332,7 @@ function EmptyState({ onPick }: { onPick: (t: string) => void }) {
   return (
     <div className="mx-auto flex h-full max-w-2xl flex-col items-center justify-center gap-8 text-center pb-20">
       <div className="flex flex-col items-center gap-4">
-        <div className="flex h-20 w-20 items-center justify-center rounded-[2rem]" style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.2)", boxShadow: "0 0 40px rgba(245,158,11,0.1)" }}>
+        <div className="flex h-20 w-20 items-center justify-center rounded-[2rem]" style={{ background: "rgba(204,255,0,0.1)", color: "#ccff00", border: "1px solid rgba(204,255,0,0.2)", boxShadow: "0 0 40px rgba(204,255,0,0.1)" }}>
           <HugeiconsIcon icon={SparklesIcon} className="h-10 w-10" />
         </div>
         <div>
@@ -377,7 +377,7 @@ function ChatBubble({
       >
         <p className="whitespace-pre-wrap">
           {msg.content}
-          {streaming && <span className="ml-1 animate-pulse" style={{ color: "#f59e0b" }}>▌</span>}
+          {streaming && <span className="ml-1 animate-pulse" style={{ color: "#ccff00" }}>▌</span>}
         </p>
         {msg.citations && msg.citations.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2 pt-3 border-t border-white/5">
@@ -439,7 +439,7 @@ function ChatInput({
           disabled={busy || !value.trim()}
           aria-label="Send"
           className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full transition-all disabled:opacity-30 hover:scale-105 active:scale-95 mb-0.5"
-          style={{ background: value.trim() && !busy ? "#f59e0b" : "rgba(255,255,255,0.1)", color: value.trim() && !busy ? "#1b1304" : "#a1a1aa", boxShadow: value.trim() && !busy ? "0 0 20px rgba(245,158,11,0.3)" : "none" }}
+          style={{ background: value.trim() && !busy ? "#ccff00" : "rgba(255,255,255,0.1)", color: value.trim() && !busy ? "#1b1304" : "#a1a1aa", boxShadow: value.trim() && !busy ? "0 0 20px rgba(204,255,0,0.3)" : "none" }}
         >
           <HugeiconsIcon icon={SentIcon} className="h-5 w-5" />
         </button>

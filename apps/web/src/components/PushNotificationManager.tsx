@@ -142,7 +142,7 @@ export function PushNotificationManager() {
   if (status === "loading") {
     return (
       <div className="flex items-center gap-3">
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
         <p className="text-sm" style={{ color: "#a0a0a0" }}>
           Checking notification support…
         </p>
@@ -199,7 +199,7 @@ export function PushNotificationManager() {
           disabled={busy}
           className="rounded-xl px-4 py-2 text-sm font-semibold transition-all disabled:opacity-50"
           style={{
-            background: isSubscribed ? "rgba(255,255,255,0.1)" : "#f59e0b",
+            background: isSubscribed ? "rgba(255,255,255,0.1)" : "#ccff00",
             color: isSubscribed ? "#fff" : "#000",
           }}
         >
@@ -218,7 +218,7 @@ export function PushNotificationManager() {
       {message && (
         <p
           className="text-xs"
-          style={{ color: message.toLowerCase().includes("fail") || message.toLowerCase().includes("denied") ? "#f87171" : "#f59e0b" }}
+          style={{ color: message.toLowerCase().includes("fail") || message.toLowerCase().includes("denied") ? "#f87171" : "#ccff00" }}
         >
           {message}
         </p>

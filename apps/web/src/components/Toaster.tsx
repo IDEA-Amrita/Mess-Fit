@@ -18,14 +18,14 @@ export function Toaster() {
             className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm font-medium shadow-lg"
             style={{
               background: "#141414",
-              border: `1px solid ${isError ? "rgba(248,113,113,0.3)" : "rgba(245,158,11,0.3)"}`,
+              border: `1px solid ${isError ? "rgba(248,113,113,0.3)" : "rgba(204,255,0,0.3)"}`,
               color: "#e8e8e8",
             }}
           >
             {isError ? (
               <HugeiconsIcon icon={Alert01Icon} className="h-4 w-4 shrink-0" style={{ color: "#f87171" }} />
             ) : (
-              <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-4 w-4 shrink-0" style={{ color: "#f59e0b" }} />
+              <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-4 w-4 shrink-0" style={{ color: "#ccff00" }} />
             )}
             <span>{t.message}</span>
             <button

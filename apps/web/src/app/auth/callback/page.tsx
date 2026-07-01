@@ -42,14 +42,13 @@ export default function AuthCallbackPage() {
 
   return (
     <div
-      className="flex min-h-screen flex-col items-center justify-center gap-4"
-      style={{ background: "#080808" }}
+      className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background"
     >
       <div
         className="h-8 w-8 animate-spin rounded-full border-2"
         style={{
           borderColor: "rgba(255,255,255,0.12)",
-          borderTopColor: "#f59e0b",
+          borderTopColor: "#ccff00",
         }}
       />
       <p className="text-sm" style={{ color: "#555" }}>

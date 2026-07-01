@@ -49,9 +49,9 @@ export default function TrendChart({ series, lo, hi }: TrendChartProps) {
           <Line
             type="monotone"
             dataKey="weight"
-            stroke="#f59e0b"
+            stroke="#ccff00"
             strokeWidth={2}
-            dot={{ r: 3, fill: "#f59e0b" }}
+            dot={{ r: 3, fill: "#ccff00" }}
             activeDot={{ r: 5 }}
           />
         </LineChart>

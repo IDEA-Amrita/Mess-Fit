@@ -88,7 +88,7 @@ export default function TargetsPage() {
 
       {/* Main targets */}
       <div className="grid grid-cols-2 gap-3">
-        <TargetCard label="Calories" value={`${targets.daily_kcal}`} unit="kcal" accent="#f59e0b" />
+        <TargetCard label="Calories" value={`${targets.daily_kcal}`} unit="kcal" accent="#ccff00" />
         <TargetCard label="Protein" value={`${targets.daily_protein_g}`} unit="g" accent="#60a5fa" />
         <TargetCard label="Carbs" value={`${targets.daily_carbs_g}`} unit="g" accent="#34d399" />
         <TargetCard label="Fats" value={`${targets.daily_fats_g}`} unit="g" accent="#f472b6" />

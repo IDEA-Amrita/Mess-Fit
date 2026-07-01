@@ -20,8 +20,8 @@ import { Sun01Icon, Coffee01Icon, Moon01Icon, FireIcon, Location01Icon, ViewOffI
 
 const getMealIcon = (title: string) => {
   switch (title.toLowerCase()) {
-    case "breakfast": return <HugeiconsIcon icon={Sun01Icon} className="h-5 w-5 text-amber-500" />;
-    case "lunch": return <HugeiconsIcon icon={Sun01Icon} className="h-5 w-5 text-amber-400" />;
+    case "breakfast": return <HugeiconsIcon icon={Sun01Icon} className="h-5 w-5 text-accent" />;
+    case "lunch": return <HugeiconsIcon icon={Sun01Icon} className="h-5 w-5 text-accent/80" />;
     case "snack": return <HugeiconsIcon icon={Coffee01Icon} className="h-5 w-5 text-orange-500" />;
     case "dinner": return <HugeiconsIcon icon={Moon01Icon} className="h-5 w-5 text-indigo-400" />;
     default: return null;
@@ -172,7 +172,7 @@ export default function MenuPage() {
                   </div>
 
                   <div className="mb-4 flex items-center gap-2">
-                    <HugeiconsIcon icon={FireIcon} className="h-4 w-4" style={{ color: "#f59e0b" }} />
+                    <HugeiconsIcon icon={FireIcon} className="h-4 w-4" style={{ color: "#ccff00" }} />
                     <span className="text-[13px] font-bold" style={{ color: "#e2e2e2" }}>{item.dish.kcal} kcal</span>
                   </div>
 
@@ -275,7 +275,7 @@ export default function MenuPage() {
   const messSelector =
     messes.length > 0 ? (
       <label className="flex items-center gap-2 rounded-xl px-4 py-3 text-[14px] font-bold" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "#e2e2e2" }}>
-        <HugeiconsIcon icon={Location01Icon} className="h-5 w-5" style={{ color: "#f59e0b" }} />
+        <HugeiconsIcon icon={Location01Icon} className="h-5 w-5" style={{ color: "#ccff00" }} />
         <select
           className="scheme-dark cursor-pointer appearance-none bg-transparent outline-none pr-4"
           value={selectedMessId || ""}
@@ -295,7 +295,7 @@ export default function MenuPage() {
         
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
           <div>
-            <p className="label-caps mb-2" style={{ color: "#f59e0b" }}>Mess Menu</p>
+            <p className="label-caps mb-2" style={{ color: "#ccff00" }}>Mess Menu</p>
             <h1 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", color: "#f4f4f5" }}>
               What&apos;s Cooking
             </h1>
@@ -312,14 +312,14 @@ export default function MenuPage() {
           <button
             onClick={() => setActiveTab("today")}
             className="flex-1 rounded-xl py-3 text-[13px] font-bold transition-all"
-            style={activeTab === "today" ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", boxShadow: "0 0 10px rgba(245,158,11,0.1)" } : { color: "#a1a1aa" }}
+            style={activeTab === "today" ? { background: "rgba(204,255,0,0.15)", color: "#ccff00", boxShadow: "0 0 10px rgba(204,255,0,0.1)" } : { color: "#a1a1aa" }}
           >
             Today
           </button>
           <button
             onClick={() => setActiveTab("tomorrow")}
             className="flex-1 rounded-xl py-3 text-[13px] font-bold transition-all"
-            style={activeTab === "tomorrow" ? { background: "rgba(245,158,11,0.15)", color: "#f59e0b", boxShadow: "0 0 10px rgba(245,158,11,0.1)" } : { color: "#a1a1aa" }}
+            style={activeTab === "tomorrow" ? { background: "rgba(204,255,0,0.15)", color: "#ccff00", boxShadow: "0 0 10px rgba(204,255,0,0.1)" } : { color: "#a1a1aa" }}
           >
             Tomorrow
           </button>
