@@ -1,6 +1,6 @@
 "use client";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -97,8 +97,8 @@ function ProgressView({ data }: { data: Progress }) {
   const delta = weights.length >= 2 ? weights[weights.length - 1] - weights[0] : 0;
   const lastW = weights[weights.length - 1];
 
-  const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-  const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
+  const containerVariants: Variants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+  const itemVariants: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-4">
