@@ -37,8 +37,10 @@ export default function DashboardPage() {
   });
 
   const plannedKcal = plate.data?.daily_totals?.kcal;
-  const targetKcal = plate.data?.daily_targets?.kcal ?? 2500;
+  const userTargets = user?.user_metadata?.targets;
+  const targetKcal = plate.data?.daily_targets?.kcal ?? userTargets?.daily_kcal ?? 2500;
   const plannedProtein = plate.data?.daily_totals?.protein_g;
+  const targetProtein = plate.data?.daily_targets?.protein_g ?? userTargets?.daily_protein_g ?? 120;
   const mealsLogged = todayLogs.data?.meals?.length ?? 0;
 
   const firstName = displayName?.split(" ")[0] ?? "Athlete";
@@ -172,7 +174,7 @@ export default function DashboardPage() {
                 <div className="mt-2 h-2 w-full bg-surface-2 rounded-full overflow-hidden">
                   <motion.div 
                     initial={{ width: 0 }}
-                    animate={{ width: `${plannedProtein ? Math.min((plannedProtein/150)*100, 100) : 0}%` }}
+                    animate={{ width: `${plannedProtein ? Math.min((plannedProtein/targetProtein)*100, 100) : 0}%` }}
                     transition={{ duration: 1, delay: 0.8 }}
                     className="h-full bg-white rounded-full" 
                   />
