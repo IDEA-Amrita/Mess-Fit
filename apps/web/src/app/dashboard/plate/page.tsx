@@ -1,6 +1,6 @@
 "use client";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useCallback, useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Sun01Icon, Coffee01Icon, Moon01Icon, RefreshIcon, Alert01Icon, ShoppingBag01Icon, Tick01Icon, Camera02Icon } from "@hugeicons/core-free-icons";
@@ -156,8 +156,8 @@ function MealSection({ meal, items }: { meal: string; items: PlateItem[] }) {
     logMutation.mutate({ date: todayIso(), meal_type: meal as MealType, status: "as_planned", ...macros });
   }
 
-  const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
-  const itemVariants = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
+  const containerVariants: Variants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
+  const itemVariants: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
 
   return (
     <section className="space-y-4">
@@ -257,8 +257,8 @@ function ErrorState({ error }: { error: { message: string; status?: number } }) 
 function PlateView({ result }: { result: OptimizationResult }) {
   const { plan, daily_totals: totals, daily_targets: targets, gap_fills } = result;
   const mealsInPlan = MEAL_ORDER.filter((m) => (plan[m]?.length ?? 0) > 0);
-  const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-  const itemVariants = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
+  const containerVariants: Variants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+  const itemVariants: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
 
   return (
     <div className="space-y-10 mt-6">
