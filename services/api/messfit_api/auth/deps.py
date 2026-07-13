@@ -54,7 +54,6 @@ def _get_jwks_client() -> PyJWKClient:
         _jwks_client_initialized_at = now
     return _jwks_client
 
-
 # ─── verification ─────────────────────────────────────────────────────
 
 
