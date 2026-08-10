@@ -28,7 +28,6 @@ from ..profile.repository import get_hostel_context, get_profile
 from ..workouts.models import WorkoutLogORM
 from . import repository
 from .metrics import (
-    AdaptiveTDEE,
     compute_adaptive_tdee,
     compute_adherence,
     compute_macro_hit_rate,
@@ -69,7 +68,6 @@ async def log_meal_photo(
     confirming. Does NOT auto-save a meal log — the client should call
     POST /logs/meals after the user confirms.
     """
-    from fastapi import UploadFile, File
     # For proper multipart handling, we read from the request body
     form = await request.form()
     photo = form.get("photo")

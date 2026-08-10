@@ -11,15 +11,11 @@ health data is shared with other users.
 from __future__ import annotations
 
 import datetime as dt
-import uuid
 from typing import Any
 
-from sqlalchemy import func, select, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..tracking.models import MealLogORM, WeightLogORM
-from ..workouts.models import WorkoutLogORM
-from ..profile.models import Profile
 
 
 async def get_college_leaderboard(
