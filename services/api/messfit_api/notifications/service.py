@@ -39,5 +39,5 @@ async def send_push_notification(db: AsyncSession, user_id: uuid.UUID, payload: 
             # If the subscription is expired or unsubscribed, the provider returns a 410 Gone or 404 Not Found
             if e.response is not None and e.response.status_code in (404, 410):
                 await repository.remove_subscription(db, user_id, sub.endpoint)
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to send push notification to %s", sub.endpoint)

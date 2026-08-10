@@ -1,6 +1,6 @@
 import uuid
 from typing import Any
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..auth.deps import get_current_user_id

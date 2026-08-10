@@ -217,7 +217,7 @@ async def _aggregate_feedback(
     dish_id: uuid.UUID,
 ) -> dict:
     """Count confirm/deny votes for a specific dish on a given date and meal."""
-    from sqlalchemy import case, func as sa_func
+    from sqlalchemy import func as sa_func
 
     result = await db.execute(
         select(
