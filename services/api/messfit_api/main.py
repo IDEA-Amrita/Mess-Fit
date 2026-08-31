@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -5,11 +6,15 @@ import structlog
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .account.router import router as account_router
 from .auth.deps import get_active_user_id
+from .auth.models import UserORM
 from .chatbot.router import router as chatbot_router
 from .config import settings
+from .db import get_session
 from .mess.routes import router as mess_router
 from .observability.ratelimit import limiter
 from .observability.sentry import init_sentry
@@ -64,8 +69,16 @@ async def health() -> Any:
 
 
 @app.get("/api/v1/me")
-async def me(user_id: str = Depends(get_active_user_id)) -> Any:
-    return {"user_id": user_id}
+async def me(
+    user_id: str = Depends(get_active_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> Any:
+    # role comes from the DB, never the JWT — same rule require_admin
+    # already follows (see its docstring): the DB is the source of truth
+    # for app roles. The frontend's admin-route gate reads this.
+    result = await db.execute(select(UserORM.role).where(UserORM.id == uuid.UUID(user_id)))
+    role = result.scalar_one_or_none() or "user"
+    return {"user_id": user_id, "role": role}
 
 
 app.include_router(profile_router)

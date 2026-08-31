@@ -255,4 +255,14 @@ class TestExistingEndpointsStillWork:
         # /api/v1/me predates this PR; just confirm we didn't break it.
         r = await client.get("/api/v1/me")
         assert r.status_code == 200
-        assert r.json() == {"user_id": fake_user_id}
+        assert r.json() == {"user_id": fake_user_id, "role": "user"}
+
+    async def test_me_returns_admin_role_from_db_not_jwt(
+        self, admin_client: AsyncClient, fake_admin_id: str
+    ):
+        # The frontend's /admin/* route gate reads this field — it must come
+        # from the users table (source of truth for roles), matching the
+        # same rule require_admin already follows for backend routes.
+        r = await admin_client.get("/api/v1/me")
+        assert r.status_code == 200
+        assert r.json() == {"user_id": fake_admin_id, "role": "admin"}
