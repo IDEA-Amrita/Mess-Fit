@@ -20,7 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from messfit_api.auth.deps import get_current_user_id
+from messfit_api.auth.deps import get_active_user_id
 from messfit_api.db import get_session
 from messfit_api.mess.models import DishExclusionORM, MessMenuORM
 from messfit_api.observability.ratelimit import limiter
@@ -59,7 +59,7 @@ def _orm_to_dish(row: MessMenuORM) -> Dish:
 @limiter.limit("60/minute")
 async def optimize_today(
     request: Request,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> dict:
     """Return today's optimised plate for the authenticated user.
@@ -183,7 +183,7 @@ async def optimize_today(
 async def optimize_photo(
     request: Request,
     file: UploadFile = File(...),
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> dict:
     """Extract foods from a menu/buffet photo and optimize a plate."""

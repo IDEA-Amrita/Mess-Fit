@@ -52,6 +52,26 @@ async def test_deleted_user_blocked_on_protected_route(client, db_session: Async
     assert r.status_code == 403
 
 
+@pytest.mark.parametrize(
+    "method,path",
+    [
+        ("GET", "/api/v1/profile/me"),
+        ("GET", "/api/v1/logs/today"),
+        ("GET", "/api/v1/workouts/today"),
+        ("GET", "/mess/menu/exclusions"),
+    ],
+)
+async def test_deleted_user_blocked_across_all_routers(
+    client, db_session: AsyncSession, method: str, path: str
+):
+    # Regression guard: every router's default dependency must be
+    # get_active_user_id, not the raw get_current_user_id — a soft-deleted
+    # user must be rejected everywhere, not just on /me.
+    await repository.soft_delete_user(db_session, uuid.UUID(_TEST_UID))
+    r = await client.request(method, path)
+    assert r.status_code == 403
+
+
 async def test_hard_delete_pending_removes_expired(db_session: AsyncSession):
     # A user soft-deleted 31 days ago should be erased by the sweep.
     uid = uuid.uuid4()

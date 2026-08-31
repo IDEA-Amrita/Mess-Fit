@@ -17,7 +17,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..auth.deps import get_current_user_id
+from ..auth.deps import get_active_user_id
 from ..db import get_session
 from ..observability.ratelimit import limiter
 from ..profile.repository import get_hostel_context, get_profile
@@ -50,7 +50,7 @@ def _find_day(structure: dict[str, Any], week: int, day: int) -> dict[str, Any] 
 
 @router.get("/workouts/today", response_model=TodayWorkout)
 async def workout_today(
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> TodayWorkout:
     uid = uuid.UUID(user_id)
@@ -123,7 +123,7 @@ async def workout_today(
 
 @router.get("/workouts/templates", response_model=list[TemplateSummary])
 async def list_templates(
-    _: str = Depends(get_current_user_id),
+    _: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> Sequence[WorkoutTemplateORM]:
     return (
@@ -134,7 +134,7 @@ async def list_templates(
 @router.get("/exercises/{exercise_id}", response_model=ExerciseDetail)
 async def get_exercise(
     exercise_id: str,
-    _: str = Depends(get_current_user_id),
+    _: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> ExerciseORM:
     ex = await db.get(ExerciseORM, exercise_id)
@@ -148,7 +148,7 @@ async def get_exercise(
 async def log_workout(
     request: Request,
     payload: WorkoutLogIn,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> WorkoutLogORM:
     """Persist a workout. Idempotent on (user, date, template) — re-submitting

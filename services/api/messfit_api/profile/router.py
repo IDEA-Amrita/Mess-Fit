@@ -1,6 +1,6 @@
 """Profile + hostel-context HTTP endpoints.
 
-All routes require a valid Supabase JWT (via ``get_current_user_id``)
+All routes require a valid Supabase JWT (via ``get_active_user_id``)
 and operate on the calling user's own row only — RLS in the DB also
 enforces this; the auth check at the API layer is a defence-in-depth
 sanity belt.
@@ -15,7 +15,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..auth.deps import get_current_user_id
+from ..auth.deps import get_active_user_id
 from ..db import get_session
 from . import repository as repo
 from .goal_engine import Targets, compute_targets
@@ -30,7 +30,7 @@ router = APIRouter(prefix="/api/v1/profile", tags=["profile"])
 
 @router.get("/me", response_model=ProfileOut)
 async def get_my_profile(
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     session: AsyncSession = Depends(get_session),
 ) -> Any:
     """Return the calling user's profile, or 404 if not set up yet."""
@@ -46,7 +46,7 @@ async def get_my_profile(
 @router.put("/me", response_model=ProfileOut)
 async def upsert_my_profile(
     payload: ProfileIn,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     session: AsyncSession = Depends(get_session),
 ) -> Any:
     """Create or update the calling user's profile."""
@@ -58,7 +58,7 @@ async def upsert_my_profile(
 
 @router.get("/hostel-context", response_model=HostelContextOut)
 async def get_my_hostel_context(
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     session: AsyncSession = Depends(get_session),
 ) -> Any:
     ctx = await repo.get_hostel_context(session, UUID(user_id))
@@ -73,7 +73,7 @@ async def get_my_hostel_context(
 @router.put("/hostel-context", response_model=HostelContextOut)
 async def upsert_my_hostel_context(
     payload: HostelContextIn,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     session: AsyncSession = Depends(get_session),
 ) -> Any:
     return await repo.upsert_hostel_context(session, UUID(user_id), payload)
@@ -84,7 +84,7 @@ async def upsert_my_hostel_context(
 
 @router.get("/targets", response_model=Targets)
 async def get_my_targets(
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     session: AsyncSession = Depends(get_session),
 ) -> Any:
     """Run the goal engine over the calling user's profile.
