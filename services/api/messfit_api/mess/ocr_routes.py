@@ -229,6 +229,7 @@ async def _get_or_create_draft_dish(
             carbs_g=est.carbs_g,
             fats_g=est.fats_g,
             portion_icon=est.portion_icon,
+            allergens=est.allergens,
             confidence="estimated",
             source="ocr",
         )

@@ -14,7 +14,7 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from messfit_api.mess import routes
+from messfit_api.mess import ocr_routes, routes
 from messfit_api.mess.schemas import NutritionEstimate
 
 
@@ -156,9 +156,14 @@ async def test_approve_writes_menu_and_creates_draft(
     await db_session.commit()
 
     async def fake_estimate(name):
-        return NutritionEstimate(kcal=120, protein_g=6)
+        return NutritionEstimate(kcal=120, protein_g=6, allergens=["eggs"])
 
-    monkeypatch.setattr(routes, "estimate_dish_nutrition", fake_estimate)
+    # The real call site is ocr_routes._get_or_create_draft_dish, which reads
+    # the name bound in ocr_routes' own namespace — patching it on `routes`
+    # (the old target here) never takes effect, since routes.py doesn't import
+    # this name at all. That went unnoticed because the assertions below only
+    # ever checked row counts, never the estimated values themselves.
+    monkeypatch.setattr(ocr_routes, "estimate_dish_nutrition", fake_estimate)
 
     payload = {
         "effective_from": "2026-01-01",
@@ -192,6 +197,19 @@ async def test_approve_writes_menu_and_creates_draft(
         )
     ).scalar()
     assert count == 2
+
+    # The draft dish must carry the estimate's allergens and nutrition —
+    # proves the fake_estimate patch actually took effect (regression guard
+    # for the wrong-module monkeypatch target above) and that allergens flow
+    # from NutritionEstimate into the DB insert.
+    draft_row = (
+        await db_session.execute(
+            text("SELECT kcal, allergens FROM dishes WHERE name = :n"),
+            {"n": draft_name},
+        )
+    ).one()
+    assert float(draft_row.kcal) == 120
+    assert list(draft_row.allergens) == ["eggs"]
 
     # Cleanup: drop menu rows (RESTRICT) before the draft dish, then matched dish.
     await db_session.execute(
