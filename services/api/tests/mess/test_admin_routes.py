@@ -114,3 +114,61 @@ class TestCreateDish:
         assert list_r.status_code == 200
         names = [d["name"] for d in list_r.json()]
         assert payload["name"] in names
+
+
+# ─── PATCH /mess/admin/dishes/{id} ─────────────────────────────────────
+#
+# Exists so an admin can correct allergens/diet_type on a dish the OCR or
+# photo-scan pipeline created from an unverified LLM estimate — there was
+# previously no way to edit a dish once created.
+
+
+class TestUpdateDish:
+    async def test_no_auth_rejected(self, unauthed_client: AsyncClient, admin_client: AsyncClient):
+        created = await admin_client.post("/mess/admin/dishes", json=_dish_payload())
+        dish_id = created.json()["id"]
+
+        r = await unauthed_client.patch(f"/mess/admin/dishes/{dish_id}", json={"allergens": ["nuts"]})
+        assert r.status_code in (401, 422)
+
+    async def test_regular_user_gets_403(self, client: AsyncClient, admin_client: AsyncClient):
+        created = await admin_client.post("/mess/admin/dishes", json=_dish_payload())
+        dish_id = created.json()["id"]
+
+        r = await client.patch(f"/mess/admin/dishes/{dish_id}", json={"allergens": ["nuts"]})
+        assert r.status_code == 403
+
+    async def test_admin_can_add_allergens_after_creation(self, admin_client: AsyncClient):
+        # The exact gap this closes: a draft dish created with allergens=[]
+        # (the OCR/photo-scan default before this fix) had no way to be
+        # corrected once an admin actually knew what it contained.
+        created = await admin_client.post("/mess/admin/dishes", json=_dish_payload(allergens=[]))
+        dish_id = created.json()["id"]
+        assert created.json()["allergens"] == []
+
+        r = await admin_client.patch(f"/mess/admin/dishes/{dish_id}", json={"allergens": ["eggs", "gluten"]})
+        assert r.status_code == 200, r.text
+        assert sorted(r.json()["allergens"]) == ["eggs", "gluten"]
+
+        # Persisted, not just echoed back.
+        get_r = await admin_client.get(f"/mess/dishes?query={created.json()['name']}")
+        assert sorted(get_r.json()[0]["allergens"]) == ["eggs", "gluten"]
+
+    async def test_patch_only_touches_sent_fields(self, admin_client: AsyncClient):
+        payload = _dish_payload(diet_type="veg")
+        created = await admin_client.post("/mess/admin/dishes", json=payload)
+        dish_id = created.json()["id"]
+
+        r = await admin_client.patch(f"/mess/admin/dishes/{dish_id}", json={"diet_type": "egg"})
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["diet_type"] == "egg"
+        # Untouched fields survive the partial update.
+        assert body["name"] == payload["name"]
+        assert body["kcal"] == payload["kcal"]
+
+    async def test_missing_dish_404s(self, admin_client: AsyncClient):
+        r = await admin_client.patch(
+            f"/mess/admin/dishes/{uuid.uuid4()}", json={"allergens": ["nuts"]}
+        )
+        assert r.status_code == 404

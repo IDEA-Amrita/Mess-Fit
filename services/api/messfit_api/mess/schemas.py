@@ -165,6 +165,37 @@ class NutritionEstimate(BaseModel):
     fats_g: float = Field(default=4, ge=0)
     diet_type: DietTypeLiteral = "veg"
     portion_icon: PortionIcon = "katori"
+    # Best-effort LLM guess, not verified — confidence stays 'estimated' until
+    # an admin reviews it via PATCH /mess/admin/dishes/{id}.
+    allergens: list[str] = Field(default_factory=list)
+
+
+class DishUpdate(BaseModel):
+    """Partial update for an existing dish. All fields optional (PATCH
+    semantics) — only the fields an admin actually sends are changed.
+
+    Exists specifically so allergens/diet_type on a draft dish created from
+    OCR or a photo scan can be corrected after the fact; there was previously
+    no way to edit a dish once created.
+    """
+
+    name: str | None = None
+    name_local: dict[str, Any] | None = None
+    category: DishCategory | None = None
+    diet_type: DietTypeLiteral | None = None
+    default_serving_unit: str | None = None
+    default_serving_grams: float | None = None
+    kcal: float | None = None
+    protein_g: float | None = None
+    carbs_g: float | None = None
+    fats_g: float | None = None
+    fiber_g: float | None = None
+    sodium_mg: float | None = None
+    glycemic_index: int | None = None
+    allergens: list[str] | None = None
+    tags: list[str] | None = None
+    portion_icon: PortionIcon | None = None
+    confidence: str | None = None
 
 
 class ReviewedDish(BaseModel):

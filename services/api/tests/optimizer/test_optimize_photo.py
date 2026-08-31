@@ -26,6 +26,23 @@ _FAKE_EXTRACTION = MenuExtractionResult(
     ]
 )
 
+_FAKE_EXTRACTION_WITH_ALLERGEN = MenuExtractionResult(
+    dishes=[
+        ExtractedDish(
+            name="Egg Roast",
+            category="curry",
+            diet_type="egg",
+            portion_icon="katori",
+            serving_grams=100.0,
+            kcal=150.0,
+            protein_g=6.0,
+            carbs_g=5.0,
+            fats_g=10.0,
+            allergens=["eggs"],
+        )
+    ]
+)
+
 _FAKE_RESULT: dict = {
     "plan": {
         "scan": [
@@ -95,3 +112,82 @@ class TestHappyPath:
         assert "extracted_dishes" in body
         assert len(body["extracted_dishes"]) == 1
         assert body["extracted_dishes"][0]["name"] == "Paneer Butter Masala"
+
+
+class TestAllergenWiring:
+    async def test_extracted_allergens_reach_the_optimizer_payload(
+        self, client: AsyncClient, make_profile_payload, monkeypatch
+    ):
+        # Regression guard: photo-scanned dishes used to hardcode
+        # allergens=() regardless of what the vision model detected, so the
+        # solver's allergen exclusion never had anything to exclude on.
+        await client.put("/api/v1/profile/me", json=make_profile_payload(allergies=["eggs"]))
+
+        async def mock_extract(*args, **kwargs):
+            return _FAKE_EXTRACTION_WITH_ALLERGEN
+
+        captured: dict = {}
+
+        def mock_run_optimizer(payload):
+            captured.update(payload)
+            return _FAKE_RESULT
+
+        monkeypatch.setattr(
+            "messfit_api.tracking.vision.extract_menu_from_photo", mock_extract
+        )
+        monkeypatch.setattr(
+            "messfit_api.optimizer.routes.run_optimizer", mock_run_optimizer
+        )
+
+        file_content = b"fake image content"
+        files = {"file": ("test.jpg", file_content, "image/jpeg")}
+        r = await client.post(URL, files=files)
+
+        assert r.status_code == 200, r.text
+        scanned = captured["menu"]["scan"][0]
+        assert list(scanned["allergens"]) == ["eggs"]
+        assert captured["allergies"] == ["eggs"]
+
+    async def test_response_carries_a_disclaimer_when_user_has_allergies(
+        self, client: AsyncClient, make_profile_payload, monkeypatch
+    ):
+        await client.put("/api/v1/profile/me", json=make_profile_payload(allergies=["nuts"]))
+
+        async def mock_extract(*args, **kwargs):
+            return _FAKE_EXTRACTION
+
+        monkeypatch.setattr(
+            "messfit_api.tracking.vision.extract_menu_from_photo", mock_extract
+        )
+        monkeypatch.setattr(
+            "messfit_api.optimizer.routes.run_optimizer", lambda _payload: _FAKE_RESULT
+        )
+
+        file_content = b"fake image content"
+        files = {"file": ("test.jpg", file_content, "image/jpeg")}
+        r = await client.post(URL, files=files)
+
+        assert r.status_code == 200, r.text
+        assert "allergen_disclaimer" in r.json()
+
+    async def test_no_disclaimer_when_user_has_no_declared_allergies(
+        self, client: AsyncClient, make_profile_payload, monkeypatch
+    ):
+        await client.put("/api/v1/profile/me", json=make_profile_payload(allergies=[]))
+
+        async def mock_extract(*args, **kwargs):
+            return _FAKE_EXTRACTION
+
+        monkeypatch.setattr(
+            "messfit_api.tracking.vision.extract_menu_from_photo", mock_extract
+        )
+        monkeypatch.setattr(
+            "messfit_api.optimizer.routes.run_optimizer", lambda _payload: _FAKE_RESULT
+        )
+
+        file_content = b"fake image content"
+        files = {"file": ("test.jpg", file_content, "image/jpeg")}
+        r = await client.post(URL, files=files)
+
+        assert r.status_code == 200, r.text
+        assert "allergen_disclaimer" not in r.json()

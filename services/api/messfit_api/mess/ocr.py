@@ -161,8 +161,15 @@ Estimate per-serving nutrition for the Indian dish "{name}". Return ONLY JSON:
   "default_serving_grams": number,
   "kcal": number, "protein_g": number, "carbs_g": number, "fats_g": number,
   "diet_type": one of [vegan,veg,egg,non_veg],
-  "portion_icon": one of [katori,small_katori,fist,palm,thumb,cupped_hand,plate_quarter,piece,glass]}}
-Values are for one typical serving. No markdown, no commentary."""
+  "portion_icon": one of [katori,small_katori,fist,palm,thumb,cupped_hand,plate_quarter,piece,glass],
+  "allergens": array, zero or more of [eggs,gluten,lactose,mustard,nuts,soy] —
+    common allergens this dish plausibly contains as typically prepared,
+    e.g. Egg Roast -> ["eggs"], Chapati -> ["gluten"], Curd -> ["lactose"].
+    Empty array if none of these apply.}}
+Values are for one typical serving. This estimate is unverified — an admin
+reviews it before it reaches any student with a declared allergy, so include
+an allergen whenever it's plausible rather than only when certain.
+No markdown, no commentary."""
 
 
 async def _call_gemini_text(prompt: str) -> str:

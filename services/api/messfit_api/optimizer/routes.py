@@ -260,7 +260,7 @@ async def optimize_photo(
                 fiber_g=0,
                 sodium_mg=0,
                 glycemic_index=None,
-                allergens=(),
+                allergens=tuple(ed.allergens),
                 tags=()
             )
         )
@@ -289,5 +289,17 @@ async def optimize_photo(
     # If the solver is infeasible, it will still return the best it can, but let's add the raw extracted dishes
     # so the frontend can display them if it wants to.
     output["extracted_dishes"] = [d.model_dump() for d in extraction.dishes]
-    
+
+    # Unlike the admin OCR pipeline, no human ever reviews a single photo-scan
+    # dish before it reaches the solver — allergen exclusion here runs purely
+    # on the vision model's own guess. Surface that plainly rather than let a
+    # confident-looking response imply verified safety.
+    if profile.allergies:
+        output["allergen_disclaimer"] = (
+            "Allergen filtering on photo-scanned food is AI-estimated from "
+            "the image, not verified by a person. If you have a severe or "
+            "life-threatening allergy, don't rely on this alone — check with "
+            "mess staff before eating."
+        )
+
     return output
