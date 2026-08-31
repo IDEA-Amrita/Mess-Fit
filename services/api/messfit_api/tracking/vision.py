@@ -145,7 +145,10 @@ class ExtractedDish(BaseModel):
     protein_g: float = Field(..., ge=0, le=200, description="Protein in grams")
     carbs_g: float = Field(..., ge=0, le=300, description="Carbs in grams")
     fats_g: float = Field(..., ge=0, le=200, description="Fats in grams")
-    
+    # Best-effort LLM guess from a single photo, never admin-reviewed (this
+    # endpoint returns a plate synchronously) — see optimize_photo's warning.
+    allergens: list[str] = Field(default_factory=list)
+
     @model_validator(mode="after")
     def validate_macros(self):
         # A single macro cannot weigh more than the serving itself
@@ -165,6 +168,13 @@ You are a highly precise nutrition AI. Analyze this image of a restaurant menu, 
 Identify EVERY distinct food item available.
 For each item, estimate its macro-nutritional profile for a standard single serving.
 Do not hallucinate impossible calorie counts (e.g. 50,000). Keep estimates realistic for human consumption.
+
+For each item, also flag "allergens": zero or more of [eggs,gluten,lactose,mustard,nuts,soy]
+that the dish plausibly contains as typically prepared (e.g. a fried item likely
+containing egg batter -> ["eggs"], a wheat-based flatbread -> ["gluten"]).
+This is the ONLY signal used to keep an allergic user's plate safe, so include an
+allergen whenever it is plausible from the visual, not only when certain. Leave the
+array empty only when none of these apply.
 """
 
 async def extract_menu_from_photo(
