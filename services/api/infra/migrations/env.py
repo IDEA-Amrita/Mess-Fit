@@ -22,6 +22,8 @@ from messfit_api.profile import models as profile_models
 from messfit_api.mess import models as mess_models
 from messfit_api.chatbot import models as chatbot_models
 from messfit_api.notifications import models as notif_models
+from messfit_api.tracking import models as tracking_models
+from messfit_api.workouts import models as workouts_models
 
 target_metadata = Base.metadata
 
