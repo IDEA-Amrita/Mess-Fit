@@ -6,6 +6,7 @@
       "ml": "അപ്പം"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 40,
     "kcal": 90,
@@ -30,6 +31,7 @@
       "ml": "മുട്ട റോസ്റ്റ്"
     },
     "category": "curry",
+    "diet_type": "egg",
     "default_serving_unit": "katori",
     "default_serving_grams": 100,
     "kcal": 150,
@@ -57,6 +59,7 @@
       "ml": "ബ്രെഡ്"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 25,
     "kcal": 65,
@@ -83,6 +86,7 @@
       "ml": "ജാം"
     },
     "category": "sweet",
+    "diet_type": "vegan",
     "default_serving_unit": "spoon",
     "default_serving_grams": 15,
     "kcal": 40,
@@ -107,6 +111,7 @@
       "ml": "വെണ്ണ"
     },
     "category": "other",
+    "diet_type": "veg",
     "default_serving_unit": "spoon",
     "default_serving_grams": 10,
     "kcal": 70,
@@ -133,6 +138,7 @@
       "ml": "ചായ"
     },
     "category": "beverage",
+    "diet_type": "veg",
     "default_serving_unit": "glass",
     "default_serving_grams": 150,
     "kcal": 45,
@@ -159,6 +165,7 @@
       "ml": "പാൽ"
     },
     "category": "beverage",
+    "diet_type": "veg",
     "default_serving_unit": "glass",
     "default_serving_grams": 200,
     "kcal": 120,
@@ -187,6 +194,7 @@
       "ml": "ഇഡ്ഡലി"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 60,
     "kcal": 58,
@@ -212,6 +220,7 @@
       "ml": "ഉഴുന്ന് വട"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 40,
     "kcal": 120,
@@ -236,6 +245,7 @@
       "ml": "ഇഞ്ചി പുളി"
     },
     "category": "other",
+    "diet_type": "vegan",
     "default_serving_unit": "spoon",
     "default_serving_grams": 15,
     "kcal": 25,
@@ -261,6 +271,7 @@
       "ml": "തേങ്ങ ചമ്മന്തി"
     },
     "category": "other",
+    "diet_type": "vegan",
     "default_serving_unit": "small_katori",
     "default_serving_grams": 50,
     "kcal": 80,
@@ -285,6 +296,7 @@
       "ml": "സാമ്പാർ"
     },
     "category": "dal",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 110,
@@ -310,6 +322,7 @@
       "ml": "സേമിയ ഉപ്പുമാവ്"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 220,
@@ -336,6 +349,7 @@
       "ml": "കടല കറി"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 180,
@@ -363,6 +377,7 @@
       "ml": "തണ്ണിമത്തൻ"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 45,
@@ -389,6 +404,7 @@
       "ml": "ദോശ"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 60,
     "kcal": 110,
@@ -413,6 +429,7 @@
       "ml": "ഉരുളക്കിഴങ്ങ് മസാല"
     },
     "category": "sabzi",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 100,
     "kcal": 120,
@@ -437,6 +454,7 @@
       "ml": "നേന്ത്രപ്പഴം"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 120,
     "kcal": 135,
@@ -463,6 +481,7 @@
       "ml": "പഴം"
     },
     "category": "other",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 100,
     "kcal": 89,
@@ -489,6 +508,7 @@
       "ml": "പുട്ട്"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 150,
     "kcal": 210,
@@ -514,6 +534,7 @@
       "ml": "ചെറുപയർ കറി"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 165,
@@ -541,6 +562,7 @@
       "ml": "പൊങ്കൽ"
     },
     "category": "snack",
+    "diet_type": "veg",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 240,
@@ -565,6 +587,7 @@
       "ml": "അവൽ"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 100,
     "kcal": 180,
@@ -591,6 +614,7 @@
       "ml": "കൈതച്ചക്ക"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 75,
@@ -616,6 +640,7 @@
       "ml": "പൂരി"
     },
     "category": "roti",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 35,
     "kcal": 120,
@@ -642,6 +667,7 @@
       "ml": "ചന മസാല"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 190,
@@ -669,6 +695,7 @@
       "ml": "പുഴുങ്ങിയ മുട്ട"
     },
     "category": "protein",
+    "diet_type": "egg",
     "default_serving_unit": "piece",
     "default_serving_grams": 50,
     "kcal": 78,
@@ -696,6 +723,7 @@
       "ml": "വെജ് സേമിയ ഉപ്പുമാവ്"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 210,
@@ -722,6 +750,7 @@
       "ml": "ചപ്പാത്തി"
     },
     "category": "roti",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 40,
     "kcal": 105,
@@ -750,6 +779,7 @@
       "ml": "ദാൽ ഫ്രൈ"
     },
     "category": "dal",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 140,
@@ -776,6 +806,7 @@
       "ml": "വെള്ള ചോറ്"
     },
     "category": "rice",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 195,
@@ -801,6 +832,7 @@
       "ml": "മട്ട ചോറ്"
     },
     "category": "rice",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 185,
@@ -827,6 +859,7 @@
       "ml": "തോരൻ"
     },
     "category": "sabzi",
+    "diet_type": "vegan",
     "default_serving_unit": "small_katori",
     "default_serving_grams": 75,
     "kcal": 60,
@@ -852,6 +885,7 @@
       "ml": "മോര് കറി"
     },
     "category": "curry",
+    "diet_type": "veg",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 80,
@@ -878,6 +912,7 @@
       "ml": "രസം"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 45,
@@ -903,6 +938,7 @@
       "ml": "പച്ചക്കറികൾ"
     },
     "category": "salad",
+    "diet_type": "vegan",
     "default_serving_unit": "small_katori",
     "default_serving_grams": 50,
     "kcal": 15,
@@ -929,6 +965,7 @@
       "ml": "മുളപ്പിച്ച പയർ"
     },
     "category": "salad",
+    "diet_type": "vegan",
     "default_serving_unit": "small_katori",
     "default_serving_grams": 50,
     "kcal": 45,
@@ -955,6 +992,7 @@
       "ml": "തൈര്"
     },
     "category": "other",
+    "diet_type": "veg",
     "default_serving_unit": "small_katori",
     "default_serving_grams": 75,
     "kcal": 45,
@@ -981,6 +1019,7 @@
       "ml": "സംഭാരം"
     },
     "category": "beverage",
+    "diet_type": "veg",
     "default_serving_unit": "glass",
     "default_serving_grams": 150,
     "kcal": 30,
@@ -1007,6 +1046,7 @@
       "ml": "പപ്പടം"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 10,
     "kcal": 45,
@@ -1031,6 +1071,7 @@
       "ml": "അച്ചാർ"
     },
     "category": "other",
+    "diet_type": "vegan",
     "default_serving_unit": "spoon",
     "default_serving_grams": 15,
     "kcal": 30,
@@ -1057,6 +1098,7 @@
       "ml": "ഉള്ളി തീയൽ"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "small_katori",
     "default_serving_grams": 75,
     "kcal": 95,
@@ -1081,6 +1123,7 @@
       "ml": "ഗോബി മഞ്ചൂരിയൻ"
     },
     "category": "sabzi",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 210,
@@ -1108,6 +1151,7 @@
       "ml": "അവിയൽ"
     },
     "category": "sabzi",
+    "diet_type": "veg",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 160,
@@ -1135,6 +1179,7 @@
       "ml": "പാവയ്ക്ക പച്ചടി"
     },
     "category": "sabzi",
+    "diet_type": "veg",
     "default_serving_unit": "small_katori",
     "default_serving_grams": 75,
     "kcal": 65,
@@ -1161,6 +1206,7 @@
       "ml": "ഗ്രീൻ പീസ് മസാല"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 175,
@@ -1187,6 +1233,7 @@
       "ml": "ചീര തോരൻ"
     },
     "category": "sabzi",
+    "diet_type": "vegan",
     "default_serving_unit": "small_katori",
     "default_serving_grams": 75,
     "kcal": 55,
@@ -1213,6 +1260,7 @@
       "ml": "ഓലൻ"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "small_katori",
     "default_serving_grams": 100,
     "kcal": 110,
@@ -1238,6 +1286,7 @@
       "ml": "പുളി കുഴമ്പ്"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 130,
@@ -1262,6 +1311,7 @@
       "ml": "ചീര അവിയൽ"
     },
     "category": "sabzi",
+    "diet_type": "veg",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 140,
@@ -1289,6 +1339,7 @@
       "ml": "വെജ് കടായ്"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 185,
@@ -1314,6 +1365,7 @@
       "ml": "മത്തങ്ങ എരിശ്ശേരി"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 150,
@@ -1339,6 +1391,7 @@
       "ml": "ചെറുപയർ കുരുമ"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 170,
@@ -1365,6 +1418,7 @@
       "ml": "വെജ് ബിരിയാണി"
     },
     "category": "rice",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 200,
     "kcal": 290,
@@ -1389,6 +1443,7 @@
       "ml": "റൈത്ത"
     },
     "category": "other",
+    "diet_type": "veg",
     "default_serving_unit": "small_katori",
     "default_serving_grams": 75,
     "kcal": 35,
@@ -1415,6 +1470,7 @@
       "ml": "നെയ്യ്"
     },
     "category": "other",
+    "diet_type": "veg",
     "default_serving_unit": "spoon",
     "default_serving_grams": 10,
     "kcal": 90,
@@ -1441,6 +1497,7 @@
       "ml": "പരിപ്പ്"
     },
     "category": "dal",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 130,
@@ -1467,6 +1524,7 @@
       "ml": "സോയ മസാല"
     },
     "category": "curry",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 180,
@@ -1494,6 +1552,7 @@
       "ml": "ലെമൺ റൈസ്"
     },
     "category": "rice",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 210,
@@ -1520,6 +1579,7 @@
       "ml": "വടകം"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 15,
     "kcal": 65,
@@ -1544,6 +1604,7 @@
       "ml": "വെറൈറ്റി ദോശ"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 80,
     "kcal": 140,
@@ -1568,6 +1629,7 @@
       "ml": "വെജ് പുലാവ്"
     },
     "category": "rice",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 220,
@@ -1592,6 +1654,7 @@
       "ml": "പൊറോട്ട"
     },
     "category": "roti",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 70,
     "kcal": 230,
@@ -1618,6 +1681,7 @@
       "ml": "പനീർ കുരുമ"
     },
     "category": "curry",
+    "diet_type": "veg",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 240,
@@ -1646,6 +1710,7 @@
       "ml": "പുളി സാദം"
     },
     "category": "rice",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 225,
@@ -1672,6 +1737,7 @@
       "ml": "റവ ഇഡ്ഡലി"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 60,
     "kcal": 85,
@@ -1698,6 +1764,7 @@
       "ml": "ജീരക റൈസ്"
     },
     "category": "rice",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 210,
@@ -1722,6 +1789,7 @@
       "ml": "ഭട്ടൂര"
     },
     "category": "roti",
+    "diet_type": "vegan",
     "default_serving_unit": "piece",
     "default_serving_grams": 60,
     "kcal": 190,
@@ -1748,6 +1816,7 @@
       "ml": "നൂഡിൽസ്"
     },
     "category": "snack",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 220,
@@ -1775,6 +1844,7 @@
       "ml": "സോസ്"
     },
     "category": "other",
+    "diet_type": "vegan",
     "default_serving_unit": "spoon",
     "default_serving_grams": 15,
     "kcal": 15,
@@ -1799,6 +1869,7 @@
       "ml": "സാമ്പാർ റൈസ്"
     },
     "category": "rice",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 200,
     "kcal": 250,
@@ -1824,6 +1895,7 @@
       "ml": "ക്യാരറ്റ് റൈസ്"
     },
     "category": "rice",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 205,
@@ -1848,6 +1920,7 @@
       "ml": "പാലക് പനീർ"
     },
     "category": "curry",
+    "diet_type": "veg",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 210,
@@ -1876,6 +1949,7 @@
       "ml": "തക്കാളി റൈസ്"
     },
     "category": "rice",
+    "diet_type": "vegan",
     "default_serving_unit": "katori",
     "default_serving_grams": 150,
     "kcal": 200,
