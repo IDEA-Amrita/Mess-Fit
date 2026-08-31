@@ -55,6 +55,33 @@ function isOnboardingRoute(pathname: string): boolean {
   return pathname.startsWith("/onboarding");
 }
 
+function isAdminRoute(pathname: string): boolean {
+  return pathname.startsWith("/admin");
+}
+
+/**
+ * Server-verified admin check for /admin/* routes.
+ *
+ * Deliberately NOT read from the JWT: role lives only in the users table
+ * (there's no sync into Supabase user_metadata/app_metadata), and the
+ * backend's own require_admin dependency already treats the DB as the sole
+ * source of truth for roles — this mirrors that rule instead of trusting a
+ * claim that doesn't exist. Fails closed: any error means "not admin."
+ */
+async function isAdmin(accessToken: string): Promise<boolean> {
+  try {
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+    const res = await fetch(`${base}/api/v1/me`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!res.ok) return false;
+    const body = await res.json();
+    return body.role === "admin";
+  } catch {
+    return false;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -103,6 +130,21 @@ export async function middleware(request: NextRequest) {
 
   // ─── Authenticated ────────────────────────────────────────────────
   const onboarded = Boolean(user.user_metadata?.onboarded);
+
+  // Admin-only routes: verify the role server-side before anything else.
+  // There was previously no gate here at all — any onboarded student could
+  // reach /admin/ocr and the full menu-approval flow.
+  if (isAdminRoute(pathname)) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const allowed = session?.access_token ? await isAdmin(session.access_token) : false;
+    if (!allowed) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+  }
 
   // Logged in users on auth pages → bounce them out
   if (isAuthRoute(pathname)) {
