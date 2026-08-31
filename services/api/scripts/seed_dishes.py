@@ -45,6 +45,7 @@ DATA_FILE = _SCRIPT_DIR / "data" / "dishes.json"
 REQUIRED_FIELDS = {
     "name",
     "category",
+    "diet_type",
     "default_serving_unit",
     "default_serving_grams",
     "kcal",
@@ -77,12 +78,16 @@ VALID_CATEGORIES = {
     "other",
 }
 
+# Must match the CHECK constraint on dishes.diet_type (migration 006).
+VALID_DIET_TYPES = {"vegan", "veg", "egg", "non_veg"}
+
 VALID_CONFIDENCE = {"verified", "estimated", "user_reported"}
 
 # Columns to update on conflict (everything except the unique key)
 UPDATE_COLS = [
     "name_local",
     "category",
+    "diet_type",
     "default_serving_grams",
     "kcal",
     "protein_g",
@@ -139,6 +144,17 @@ def validate_dish(record: dict[str, Any], index: int) -> list[str]:
         errors.append(
             f"[{index}] Unknown category '{cat}'. "
             f"Valid: {sorted(VALID_CATEGORIES)}"
+        )
+
+    # Diet type — must match the DB's CHECK constraint exactly. No default:
+    # the column's own DB-level default of 'veg' is what silently mislabeled
+    # every egg dish in this catalog as vegetarian, so the seed script must
+    # never rely on it — every record has to state its diet explicitly.
+    diet_type = record.get("diet_type", "")
+    if not isinstance(diet_type, str) or diet_type.strip() not in VALID_DIET_TYPES:
+        errors.append(
+            f"[{index}] '{record.get('name', '?')}': diet_type must be one of "
+            f"{sorted(VALID_DIET_TYPES)}, got {diet_type!r}"
         )
 
     # Confidence
@@ -207,6 +223,7 @@ async def seed_dishes(*, data_file: Path = DATA_FILE, dry_run: bool = False) -> 
                     "name": rec["name"].strip(),
                     "name_local": rec.get("name_local", {}),
                     "category": rec["category"].strip(),
+                    "diet_type": rec["diet_type"].strip(),
                     "default_serving_unit": rec["default_serving_unit"].strip(),
                     "default_serving_grams": float(rec["default_serving_grams"]),
                     "kcal": float(rec["kcal"]),
