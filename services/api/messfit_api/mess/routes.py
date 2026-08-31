@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from messfit_api.auth.deps import get_current_user_id
+from messfit_api.auth.deps import get_active_user_id
 from messfit_api.db import get_session
 from messfit_api.mess.models import (
     DishExclusionORM,
@@ -104,7 +104,7 @@ async def get_daily_menu(
 @router.get("/menu/exclusions", response_model=list[DishExclusionOut])
 async def list_exclusions(
     date: datetime.date | None = None,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> Sequence[DishExclusionORM]:
     """List dishes the calling user has marked unavailable for a date (default: today)."""
@@ -121,7 +121,7 @@ async def list_exclusions(
 @router.post("/menu/exclusions", response_model=DishExclusionOut, status_code=status.HTTP_201_CREATED)
 async def exclude_dish(
     payload: DishExclusionIn,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> DishExclusionORM:
     """Mark a dish as unavailable for a meal on a specific date. Idempotent."""
@@ -158,7 +158,7 @@ async def unexclude_dish(
     dish_id: uuid.UUID,
     date: datetime.date,
     meal_type: str,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> None:
     """Remove a dish exclusion. No-op if the exclusion does not exist."""
@@ -179,7 +179,7 @@ async def unexclude_dish(
 @router.post("/dishes/feedback", status_code=status.HTTP_201_CREATED)
 async def submit_dish_feedback(
     payload: DishFeedbackIn,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> dict:
     """User confirms or denies that a scheduled dish is actually available today."""

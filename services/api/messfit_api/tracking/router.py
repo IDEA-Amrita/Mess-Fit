@@ -20,7 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..auth.deps import get_current_user_id
+from ..auth.deps import get_active_user_id
 from ..db import get_session
 from ..observability.ratelimit import limiter
 from ..profile.goal_engine import compute_targets
@@ -58,7 +58,7 @@ router = APIRouter(prefix="/api/v1", tags=["logging"])
 @limiter.limit("10/minute")
 async def log_meal_photo(
     request: Request,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> Any:
     """Accept a photo of a meal plate, estimate macros via Gemini Vision, and log it.
@@ -96,7 +96,7 @@ async def log_meal_photo(
 @router.get("/logs/leaderboard")
 async def leaderboard(
     days: int = Query(default=7, ge=1, le=90),
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> Any:
     """Weekly adherence leaderboard for the user's college."""
@@ -134,7 +134,7 @@ async def leaderboard(
 async def log_meal(
     request: Request,
     payload: MealLogIn,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> MealLogORM:
     """Idempotent on (user, date, meal_type) — re-submitting updates the row."""
@@ -160,7 +160,7 @@ async def log_meal(
 async def log_weight(
     request: Request,
     payload: WeightLogIn,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> WeightLogORM:
     """Idempotent on (user, date)."""
@@ -183,7 +183,7 @@ async def log_weight(
 async def log_subjective(
     request: Request,
     payload: SubjectiveLogIn,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> SubjectiveLogORM:
     """Idempotent on (user, date)."""
@@ -202,7 +202,7 @@ async def log_subjective(
 
 @router.get("/logs/today", response_model=TodayLogs)
 async def todays_logs(
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> TodayLogs:
     uid = uuid.UUID(user_id)
@@ -249,7 +249,7 @@ async def todays_logs(
 @router.get("/logs/progress", response_model=Progress)
 async def get_progress(
     range: Literal["7d", "30d", "90d"] = Query(default="7d"),
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> Progress:
     uid = uuid.UUID(user_id)

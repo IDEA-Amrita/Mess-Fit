@@ -24,7 +24,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .. import db as db_module
-from ..auth.deps import get_current_user_id
+from ..auth.deps import get_active_user_id
 from ..db import get_session
 from ..observability.ratelimit import limiter
 from ..observability.setup import get_tracer
@@ -67,7 +67,7 @@ def _profile_summary(profile: Profile | None, today: date) -> str:
 @limiter.limit("10/minute")
 async def create_conversation(
     request: Request,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> Any:
     return await repository.create_conversation(db, uuid.UUID(user_id), title=None)
@@ -77,7 +77,7 @@ async def create_conversation(
 async def list_conversations(
     limit: int = Query(50, le=100),
     offset: int = Query(0, ge=0),
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> Any:
     return await repository.list_conversations(db, uuid.UUID(user_id), limit=limit, offset=offset)
@@ -87,7 +87,7 @@ async def list_conversations(
 async def rename_conversation(
     conv_id: uuid.UUID,
     payload: RenameIn,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> Any:
     """Manually rename a conversation."""
@@ -101,7 +101,7 @@ async def rename_conversation(
 @router.get("/conversations/{conv_id}/messages", response_model=list[MessageOut])
 async def conversation_messages(
     conv_id: uuid.UUID,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> Any:
     conv = await repository.get_owned_conversation(db, conv_id, uuid.UUID(user_id))
@@ -116,7 +116,7 @@ async def post_message(
     request: Request,
     conv_id: uuid.UUID,
     payload: MessageIn,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> StreamingResponse:
     uid = uuid.UUID(user_id)
