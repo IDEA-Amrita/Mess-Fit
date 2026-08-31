@@ -136,22 +136,10 @@ export async function logMealPhoto(file: File, mealType: MealType): Promise<Phot
   formData.append("photo", file);
   formData.append("meal_type", mealType);
 
-  // Use raw fetch because we're sending FormData, not JSON.
-  const token = localStorage.getItem("messfit_access_token");
-  const headers: HeadersInit = {};
-  if (token) headers.Authorization = `Bearer ${token}`;
-
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/logs/photo`, {
+  return apiFetch<PhotoMealEstimate>("/api/v1/logs/photo", {
     method: "POST",
-    headers,
     body: formData,
   });
-
-  if (!res.ok) {
-    throw new Error("Failed to analyze photo");
-  }
-
-  return res.json();
 }
 
 export async function logWeight(payload: WeightLogIn): Promise<WeightLogOut> {
