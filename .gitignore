@@ -59,3 +59,8 @@ services/api/eval/reports/
 
 # --- Local Docker volumes ---
 pgdata/
+
+# --- Key material (never commit — see the VAPID key leak incident) ---
+*.pem
+*.key
+*.p12
