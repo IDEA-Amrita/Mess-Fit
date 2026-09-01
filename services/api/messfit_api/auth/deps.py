@@ -14,6 +14,7 @@ on every request.
 
 from __future__ import annotations
 
+import json
 import time
 import uuid
 from typing import Any
@@ -22,7 +23,7 @@ import httpx
 import jwt
 from fastapi import Depends, Header, HTTPException, status
 from jwt import PyJWKClient
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..config import settings
@@ -110,8 +111,26 @@ def _verify_token(token: str) -> dict[str, Any]:
 # ─── FastAPI dependency ───────────────────────────────────────────────
 
 
-async def get_current_user_id(authorization: str = Header(...)) -> str:
-    """Extract and validate the user ID from the Authorization header."""
+async def get_current_user_id(
+    authorization: str = Header(...),
+    db: AsyncSession = Depends(get_session),
+) -> str:
+    """Extract and validate the user ID from the Authorization header.
+
+    Also sets this request's Row-Level Security context on the DB session
+    via set_config(..., is_local=true) — transaction-scoped, so it can
+    never leak into another request that later reuses the same pooled
+    connection (unlike a plain session-level SET, which would). It resets
+    on the session's next commit/rollback, so this relies on the app's
+    existing one-commit-per-request pattern; a handler that commits more
+    than once must re-resolve identity (or re-run this) after the first.
+
+    Every route depending on this — directly, or via get_active_user_id /
+    require_admin, which both build on it — gets RLS-correct queries with
+    no per-router wiring. The JSON shape/session-variable name
+    ('request.jwt.claims') matches Supabase's actual auth.uid() convention
+    (see migration 013), not the older flat-key one.
+    """
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid auth header")
 
@@ -121,6 +140,11 @@ async def get_current_user_id(authorization: str = Header(...)) -> str:
     user_id = payload.get("sub")
     if not user_id:
         raise HTTPException(status_code=401, detail="Token missing 'sub' claim")
+
+    await db.execute(
+        text("SELECT set_config('request.jwt.claims', :claims, true)"),
+        {"claims": json.dumps({"sub": user_id, "role": "authenticated"})},
+    )
     return user_id
 
 

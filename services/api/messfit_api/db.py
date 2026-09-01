@@ -1,9 +1,17 @@
-"""Async SQLAlchemy engine + session factory.
+"""Async SQLAlchemy engines + session factories.
 
-We keep this tiny on purpose: one engine for the whole process, one
-session per request via the ``get_session`` dependency. RLS context
-(``request.jwt.claim.sub``) is set per-request in the auth dependency
-that hands off to ``get_session``.
+Two engines, matching the least-privilege role split in migration 013:
+
+- ``engine`` / ``SessionLocal`` — the FastAPI web process. Connects as
+  ``messfit_app``, which is subject to every RLS policy in the schema.
+  RLS context (``request.jwt.claims``) is set per-request in
+  ``auth.deps.get_current_user_id``, transaction-scoped so it can never
+  leak across pooled connections into another user's request.
+- ``worker_engine`` / ``WorkerSessionLocal`` — Celery tasks. Connects as
+  ``messfit_worker`` (BYPASSRLS), since background jobs (the deletion
+  sweep, OCR draft-dish creation) run on a schedule with no authenticated
+  user in context and legitimately need cross-user access. Never used to
+  serve an HTTP request.
 """
 
 from __future__ import annotations
@@ -37,6 +45,21 @@ engine = create_async_engine(
 SessionLocal = async_sessionmaker(
     engine,
     expire_on_commit=False,  # rows stay usable after commit
+    class_=AsyncSession,
+)
+
+worker_engine = create_async_engine(
+    settings.celery_database_url or settings.database_url,
+    echo=False,
+    pool_pre_ping=True,
+    pool_size=5,          # workers run a handful of tasks concurrently, not 20
+    max_overflow=5,
+    future=True,
+)
+
+WorkerSessionLocal = async_sessionmaker(
+    worker_engine,
+    expire_on_commit=False,
     class_=AsyncSession,
 )
 

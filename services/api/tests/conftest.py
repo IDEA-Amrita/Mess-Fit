@@ -17,9 +17,14 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import NullPool, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+import json
+
+from fastapi import Depends
+
 import messfit_api.db as db_module
 from messfit_api.auth.deps import get_current_user_id
 from messfit_api.config import settings
+from messfit_api.db import get_session
 from messfit_api.main import app
 
 
@@ -41,10 +46,27 @@ _TestSessionLocal = async_sessionmaker(
     _test_engine, expire_on_commit=False, class_=AsyncSession
 )
 
+# Worker-equivalent test engine: connects with whatever role bypasses RLS
+# (celery_database_url in prod; same as database_url whenever the two
+# roles haven't been split, e.g. today's single-role local Postgres — so
+# this is a no-op until migration 013's roles are actually provisioned).
+# Test scaffolding (seeding a fake user, purging the catalog) is trusted
+# maintenance, not a simulated user request, and needs the same
+# cross-user access production's Celery tasks get from messfit_worker.
+_test_worker_engine = create_async_engine(
+    settings.celery_database_url or settings.database_url,
+    poolclass=NullPool,
+    pool_pre_ping=True,
+)
+_TestWorkerSessionLocal = async_sessionmaker(
+    _test_worker_engine, expire_on_commit=False, class_=AsyncSession
+)
 
-# Replace the production session factory with the test one for the
+
+# Replace the production session factories with the test ones for the
 # whole test session.
 db_module.SessionLocal = _TestSessionLocal
+db_module.WorkerSessionLocal = _TestWorkerSessionLocal
 
 
 # Rate limiting uses process-global in-memory storage, so leave it OFF for the
@@ -85,7 +107,7 @@ async def _purge_test_catalog() -> None:
     mess_clause, mess_params = _like_any("name", _TEST_MESS_PATTERNS)
     dish_clause, dish_params = _like_any("name", _TEST_DISH_PATTERNS)
 
-    async with _TestSessionLocal() as session:
+    async with _TestWorkerSessionLocal() as session:
         await session.execute(
             text(
                 "UPDATE hostel_contexts SET mess_id = NULL WHERE mess_id IN "
@@ -133,8 +155,15 @@ def fake_user_id() -> str:
 
 @pytest_asyncio.fixture
 async def db_session() -> AsyncIterator[AsyncSession]:
-    """Plain DB session for direct DB assertions/cleanup."""
-    async with _TestSessionLocal() as session:
+    """Plain DB session for direct DB assertions/cleanup.
+
+    Uses the worker-equivalent (RLS-bypassing) connection deliberately —
+    this fixture does raw setup/teardown (seeding fake users with
+    arbitrary ids, deleting rows, cross-user assertions), not simulating
+    a real authenticated request. It has no auth.uid() context to give
+    RLS, the same way a Celery task doesn't.
+    """
+    async with _TestWorkerSessionLocal() as session:
         yield session
 
 
@@ -174,7 +203,16 @@ async def client(seed_test_user: str) -> AsyncIterator[AsyncClient]:
     it has its own (much smaller) test surface in PR 0's auth module.
     """
 
-    def _fake_user() -> str:
+    async def _fake_user(db: AsyncSession = Depends(get_session)) -> str:
+        # Mirrors what the real get_current_user_id does: set this
+        # request's RLS context on the session the route will actually
+        # use. Without this, every RLS-protected query in the test suite
+        # would silently see nothing (auth.uid() -> NULL), the moment
+        # DATABASE_URL is ever pointed at the restricted messfit_app role.
+        await db.execute(
+            text("SELECT set_config('request.jwt.claims', :claims, true)"),
+            {"claims": json.dumps({"sub": seed_test_user, "role": "authenticated"})},
+        )
         return seed_test_user
 
     app.dependency_overrides[get_current_user_id] = _fake_user
@@ -230,7 +268,11 @@ async def seed_admin_user(
 async def admin_client(seed_admin_user: str) -> AsyncIterator[AsyncClient]:
     """HTTP client whose requests are treated as the seeded admin user."""
 
-    def _fake_admin() -> str:
+    async def _fake_admin(db: AsyncSession = Depends(get_session)) -> str:
+        await db.execute(
+            text("SELECT set_config('request.jwt.claims', :claims, true)"),
+            {"claims": json.dumps({"sub": seed_admin_user, "role": "authenticated"})},
+        )
         return seed_admin_user
 
     app.dependency_overrides[get_current_user_id] = _fake_admin

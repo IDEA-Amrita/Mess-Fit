@@ -12,7 +12,7 @@ import structlog
 from sqlalchemy import select
 
 from ..celery_app import celery_app
-from ..db import SessionLocal
+from ..db import WorkerSessionLocal
 from ..profile.models import Profile
 from .service import send_push_notification
 
@@ -21,7 +21,7 @@ logger = structlog.get_logger(__name__)
 
 async def _notify_weekly_checkin() -> None:
     """Async implementation of the weekly check-in notification."""
-    async with SessionLocal() as db:
+    async with WorkerSessionLocal() as db:
         # Fetch all users who have an active profile.
         # In a real app, we'd batch this and check their timezone or push settings.
         result = await db.execute(select(Profile.user_id))

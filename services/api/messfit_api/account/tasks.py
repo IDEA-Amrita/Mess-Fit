@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..celery_app import celery_app
-from ..db import SessionLocal
+from ..db import WorkerSessionLocal
 from . import repository
 from .schemas import GRACE_PERIOD_DAYS
 
@@ -39,7 +39,7 @@ def hard_delete_pending() -> dict:
     """Daily entrypoint. Opens a session and runs the sweep."""
 
     async def _run() -> int:
-        async with SessionLocal() as db:
+        async with WorkerSessionLocal() as db:
             return await sweep_pending_deletions(db)
 
     return {"hard_deleted": asyncio.run(_run())}

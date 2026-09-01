@@ -6,6 +6,12 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str
+    # Connects as messfit_worker (BYPASSRLS) — Celery tasks run on a schedule
+    # with no authenticated user in context and legitimately need cross-user
+    # access (the deletion sweep, OCR draft-dish creation). Falls back to
+    # database_url so local dev (a single throwaway Postgres, one role) needs
+    # no extra config; production must set this to the worker role's URL.
+    celery_database_url: str = ""
     redis_url: str
     supabase_url: str
     supabase_jwt_secret: str
