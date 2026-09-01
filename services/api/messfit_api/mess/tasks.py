@@ -25,7 +25,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..celery_app import celery_app
-from ..db import SessionLocal
+from ..db import WorkerSessionLocal
 from .matching import best_match, match_dish_name
 from .models import OCRJobORM
 from .ocr import ocr_menu_image
@@ -106,7 +106,7 @@ def run_ocr_job(job_id: str) -> dict:
     """Celery entrypoint. Opens a session and drives the async processor."""
 
     async def _run() -> None:
-        async with SessionLocal() as db:
+        async with WorkerSessionLocal() as db:
             await _process_job(db, uuid.UUID(job_id))
 
     asyncio.run(_run())

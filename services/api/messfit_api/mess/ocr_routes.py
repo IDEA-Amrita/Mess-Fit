@@ -25,7 +25,7 @@ from messfit_api.mess.storage import signed_url, upload_menu_photo
 from messfit_api.mess.tasks import run_ocr_job
 from messfit_api.observability.ratelimit import limiter
 
-router = APIRouter(prefix="/mess/admin/ocr", tags=["mess-ocr"])
+router = APIRouter(prefix="/admin/ocr", tags=["mess-ocr"])
 
 _ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/jpg", "image/png", "image/webp", "image/heic"}
 _MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB

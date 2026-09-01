@@ -14,6 +14,7 @@ on every request.
 
 from __future__ import annotations
 
+import json
 import time
 import uuid
 from typing import Any
@@ -22,7 +23,7 @@ import httpx
 import jwt
 from fastapi import Depends, Header, HTTPException, status
 from jwt import PyJWKClient
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..config import settings
@@ -110,8 +111,34 @@ def _verify_token(token: str) -> dict[str, Any]:
 # ─── FastAPI dependency ───────────────────────────────────────────────
 
 
-async def get_current_user_id(authorization: str = Header(...)) -> str:
-    """Extract and validate the user ID from the Authorization header."""
+async def get_current_user_id(
+    authorization: str = Header(...),
+    db: AsyncSession = Depends(get_session),
+) -> str:
+    """Extract and validate the user ID from the Authorization header.
+
+    Also sets this request's Row-Level Security context on the DB session
+    via set_config(..., is_local=false) — session-scoped, not
+    transaction-scoped. is_local=true was the first thing tried here, but
+    this codebase's dominant handler shape is commit() immediately followed
+    by refresh() to read back server-generated defaults (every admin
+    create-and-return endpoint does this) — is_local=true resets at
+    commit(), so the refresh's SELECT would run with no RLS context and
+    silently see nothing. Verified failing this way against real Postgres
+    before switching to is_local=false.
+
+    is_local=false alone would leak across requests that later reuse the
+    same pooled physical connection — get_session's finally block resets
+    it explicitly before the connection returns to the pool, so it's still
+    request-scoped in effect, just not by relying on transaction boundaries
+    the app's own handlers don't consistently respect.
+
+    Every route depending on this — directly, or via get_active_user_id /
+    require_admin, which both build on it — gets RLS-correct queries with
+    no per-router wiring. The JSON shape/session-variable name
+    ('request.jwt.claims') matches Supabase's actual auth.uid() convention
+    (see migration 013), not the older flat-key one.
+    """
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid auth header")
 
@@ -121,6 +148,11 @@ async def get_current_user_id(authorization: str = Header(...)) -> str:
     user_id = payload.get("sub")
     if not user_id:
         raise HTTPException(status_code=401, detail="Token missing 'sub' claim")
+
+    await db.execute(
+        text("SELECT set_config('request.jwt.claims', :claims, false)"),
+        {"claims": json.dumps({"sub": user_id, "role": "authenticated"})},
+    )
     return user_id
 
 
