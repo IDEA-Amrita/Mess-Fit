@@ -14,7 +14,7 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from messfit_api.mess import ocr_routes, routes
+from messfit_api.mess import ocr_routes
 from messfit_api.mess.schemas import NutritionEstimate
 
 
@@ -73,8 +73,8 @@ async def test_upload_creates_pending_job_and_enqueues(
     async def fake_upload(image_bytes, content_type, mess):
         return f"{mess}/abc.jpg"
 
-    monkeypatch.setattr(routes, "upload_menu_photo", fake_upload)
-    monkeypatch.setattr(routes.run_ocr_job, "delay", lambda jid: enqueued.append(jid))
+    monkeypatch.setattr(ocr_routes, "upload_menu_photo", fake_upload)
+    monkeypatch.setattr(ocr_routes.run_ocr_job, "delay", lambda jid: enqueued.append(jid))
 
     resp = await admin_client.post(
         "/mess/admin/ocr/jobs",
@@ -90,7 +90,7 @@ async def test_upload_creates_pending_job_and_enqueues(
 
 
 async def test_upload_rejects_non_image(admin_client, mess_id, monkeypatch):
-    monkeypatch.setattr(routes, "upload_menu_photo", lambda *a, **k: "x")
+    monkeypatch.setattr(ocr_routes, "upload_menu_photo", lambda *a, **k: "x")
     resp = await admin_client.post(
         "/mess/admin/ocr/jobs",
         data={"mess_id": str(mess_id)},
@@ -100,7 +100,7 @@ async def test_upload_rejects_non_image(admin_client, mess_id, monkeypatch):
 
 
 async def test_upload_unknown_mess_404(admin_client, monkeypatch):
-    monkeypatch.setattr(routes, "upload_menu_photo", lambda *a, **k: "x")
+    monkeypatch.setattr(ocr_routes, "upload_menu_photo", lambda *a, **k: "x")
     resp = await admin_client.post(
         "/mess/admin/ocr/jobs",
         data={"mess_id": str(uuid.uuid4())},
@@ -119,7 +119,7 @@ async def test_list_and_get_job(admin_client, db_session, mess_id, monkeypatch):
     async def fake_signed(path, expires_in=600):
         return "https://signed.example/x.jpg"
 
-    monkeypatch.setattr(routes, "signed_url", fake_signed)
+    monkeypatch.setattr(ocr_routes, "signed_url", fake_signed)
 
     listed = (await admin_client.get(f"/mess/admin/ocr/jobs?mess_id={mess_id}")).json()
     assert any(j["id"] == str(jid) for j in listed)

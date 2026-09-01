@@ -96,7 +96,7 @@ class TestHappyPath:
         )
         monkeypatch.setattr(
             "messfit_api.optimizer.routes.run_optimizer",
-            lambda _payload: _FAKE_RESULT,
+            lambda _payload: dict(_FAKE_RESULT),
         )
 
         file_content = b"fake image content"
@@ -130,7 +130,7 @@ class TestAllergenWiring:
 
         def mock_run_optimizer(payload):
             captured.update(payload)
-            return _FAKE_RESULT
+            return dict(_FAKE_RESULT)
 
         monkeypatch.setattr(
             "messfit_api.tracking.vision.extract_menu_from_photo", mock_extract
@@ -160,7 +160,7 @@ class TestAllergenWiring:
             "messfit_api.tracking.vision.extract_menu_from_photo", mock_extract
         )
         monkeypatch.setattr(
-            "messfit_api.optimizer.routes.run_optimizer", lambda _payload: _FAKE_RESULT
+            "messfit_api.optimizer.routes.run_optimizer", lambda _payload: dict(_FAKE_RESULT)
         )
 
         file_content = b"fake image content"
@@ -182,7 +182,7 @@ class TestAllergenWiring:
             "messfit_api.tracking.vision.extract_menu_from_photo", mock_extract
         )
         monkeypatch.setattr(
-            "messfit_api.optimizer.routes.run_optimizer", lambda _payload: _FAKE_RESULT
+            "messfit_api.optimizer.routes.run_optimizer", lambda _payload: dict(_FAKE_RESULT)
         )
 
         file_content = b"fake image content"
