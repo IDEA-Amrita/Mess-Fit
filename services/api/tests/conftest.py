@@ -210,7 +210,7 @@ async def client(seed_test_user: str) -> AsyncIterator[AsyncClient]:
         # would silently see nothing (auth.uid() -> NULL), the moment
         # DATABASE_URL is ever pointed at the restricted messfit_app role.
         await db.execute(
-            text("SELECT set_config('request.jwt.claims', :claims, true)"),
+            text("SELECT set_config('request.jwt.claims', :claims, false)"),
             {"claims": json.dumps({"sub": seed_test_user, "role": "authenticated"})},
         )
         return seed_test_user
@@ -270,7 +270,7 @@ async def admin_client(seed_admin_user: str) -> AsyncIterator[AsyncClient]:
 
     async def _fake_admin(db: AsyncSession = Depends(get_session)) -> str:
         await db.execute(
-            text("SELECT set_config('request.jwt.claims', :claims, true)"),
+            text("SELECT set_config('request.jwt.claims', :claims, false)"),
             {"claims": json.dumps({"sub": seed_admin_user, "role": "authenticated"})},
         )
         return seed_admin_user

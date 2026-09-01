@@ -21,6 +21,7 @@ from datetime import date
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import StreamingResponse
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .. import db as db_module
@@ -127,8 +128,12 @@ async def post_message(
     query = payload.content
 
     async def event_stream() -> AsyncIterator[str]:
-        # Late binding (db_module.SessionLocal) so tests can swap the factory.
-        async with db_module.SessionLocal() as sdb:
+        # Late binding (db_module.get_rls_session) so tests can swap the
+        # factory it's built on. Sets request.jwt.claims itself — this
+        # session is opened fresh here, not the request-scoped one
+        # get_current_user_id already set it on, and chatbot_messages/
+        # chatbot_conversations are RLS-protected.
+        async with db_module.get_rls_session(user_id) as sdb:
             personalized = cache.is_personalized(query)
             citations: list[dict] = []
             full = ""

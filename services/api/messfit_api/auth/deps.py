@@ -118,12 +118,20 @@ async def get_current_user_id(
     """Extract and validate the user ID from the Authorization header.
 
     Also sets this request's Row-Level Security context on the DB session
-    via set_config(..., is_local=true) — transaction-scoped, so it can
-    never leak into another request that later reuses the same pooled
-    connection (unlike a plain session-level SET, which would). It resets
-    on the session's next commit/rollback, so this relies on the app's
-    existing one-commit-per-request pattern; a handler that commits more
-    than once must re-resolve identity (or re-run this) after the first.
+    via set_config(..., is_local=false) — session-scoped, not
+    transaction-scoped. is_local=true was the first thing tried here, but
+    this codebase's dominant handler shape is commit() immediately followed
+    by refresh() to read back server-generated defaults (every admin
+    create-and-return endpoint does this) — is_local=true resets at
+    commit(), so the refresh's SELECT would run with no RLS context and
+    silently see nothing. Verified failing this way against real Postgres
+    before switching to is_local=false.
+
+    is_local=false alone would leak across requests that later reuse the
+    same pooled physical connection — get_session's finally block resets
+    it explicitly before the connection returns to the pool, so it's still
+    request-scoped in effect, just not by relying on transaction boundaries
+    the app's own handlers don't consistently respect.
 
     Every route depending on this — directly, or via get_active_user_id /
     require_admin, which both build on it — gets RLS-correct queries with
@@ -142,7 +150,7 @@ async def get_current_user_id(
         raise HTTPException(status_code=401, detail="Token missing 'sub' claim")
 
     await db.execute(
-        text("SELECT set_config('request.jwt.claims', :claims, true)"),
+        text("SELECT set_config('request.jwt.claims', :claims, false)"),
         {"claims": json.dumps({"sub": user_id, "role": "authenticated"})},
     )
     return user_id
