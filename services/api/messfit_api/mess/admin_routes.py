@@ -8,7 +8,7 @@ from messfit_api.db import get_session
 from messfit_api.mess.models import DishORM, MessORM
 from messfit_api.mess.schemas import DishBase, DishResponse, DishUpdate, MessBase, MessResponse
 
-router = APIRouter(prefix="/mess/admin", tags=["mess-admin"])
+router = APIRouter(prefix="/admin", tags=["mess-admin"])
 
 
 @router.post("/messes", response_model=MessResponse)

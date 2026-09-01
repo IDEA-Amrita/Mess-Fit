@@ -124,18 +124,17 @@ class TestCreateDish:
 
 
 class TestUpdateDish:
-    async def test_no_auth_rejected(self, unauthed_client: AsyncClient, admin_client: AsyncClient):
-        created = await admin_client.post("/mess/admin/dishes", json=_dish_payload())
-        dish_id = created.json()["id"]
-
-        r = await unauthed_client.patch(f"/mess/admin/dishes/{dish_id}", json={"allergens": ["nuts"]})
+    # These two deliberately use a random, never-created dish id and only
+    # the one relevant client fixture: app.dependency_overrides is global
+    # (shared across every AsyncClient hitting the same in-process app), so
+    # requesting admin_client alongside unauthed_client/client in the same
+    # test leaks the admin override onto the "unauthed" request too.
+    async def test_no_auth_rejected(self, unauthed_client: AsyncClient):
+        r = await unauthed_client.patch(f"/mess/admin/dishes/{uuid.uuid4()}", json={"allergens": ["nuts"]})
         assert r.status_code in (401, 422)
 
-    async def test_regular_user_gets_403(self, client: AsyncClient, admin_client: AsyncClient):
-        created = await admin_client.post("/mess/admin/dishes", json=_dish_payload())
-        dish_id = created.json()["id"]
-
-        r = await client.patch(f"/mess/admin/dishes/{dish_id}", json={"allergens": ["nuts"]})
+    async def test_regular_user_gets_403(self, client: AsyncClient):
+        r = await client.patch(f"/mess/admin/dishes/{uuid.uuid4()}", json={"allergens": ["nuts"]})
         assert r.status_code == 403
 
     async def test_admin_can_add_allergens_after_creation(self, admin_client: AsyncClient):
