@@ -2,147 +2,129 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useOnboardingStore } from "@/lib/onboarding-store";
-import { apiFetch } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { apiErrorMessage, apiFetch } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
-import { getMesses, type Mess } from "@/lib/mess-api";
-import type { CanteenFreq, Equipment, ProfilePayload, HostelContextPayload } from "@/lib/types";
+import { useOnboardingStore } from "@/lib/onboarding-store";
 import {
-  Field,
-  OptionButton,
-  RangeInput,
-  StepActions,
-  StepHeading,
-} from "@/components/onboarding/controls";
-
-const canteenOptions: { value: CanteenFreq; label: string }[] = [
-  { value: "never", label: "Never" },
-  { value: "rare", label: "Rare (1–2×/week)" },
-  { value: "frequent", label: "Frequent (3–5×/week)" },
-  { value: "daily", label: "Daily" },
-];
-
-const equipmentOptions: { value: Equipment; label: string }[] = [
-  { value: "bodyweight", label: "Bodyweight only" },
-  { value: "bands", label: "Resistance bands" },
-  { value: "college_gym", label: "College gym" },
-  { value: "home_gym", label: "Home gym" },
-];
+  normalizeGoal,
+  toHostelPayload,
+  toProfilePayload,
+  validateBody,
+  validateGoal,
+} from "@/lib/profile-form";
+import type { Equipment, HostelContextPayload, ProfilePayload } from "@/lib/types";
+import { HostelFields } from "@/components/onboarding/fields";
+import { Notice, NoticeSlot, StepActions, StepHeading } from "@/components/onboarding/controls";
+import { useOnboardingForm } from "@/components/onboarding/use-onboarding-form";
 
 export default function HostelStep() {
   const router = useRouter();
-  const store = useOnboardingStore();
+  const queryClient = useQueryClient();
+  const form = useOnboardingForm();
+  const { values } = form;
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [messes, setMesses] = useState<Mess[]>([]);
+  // This step doubles as "update my mess" for users who already finished
+  // onboarding (see middleware). For them the earlier steps are off-limits, so
+  // "Back" must not point at them.
+  const [onboarded, setOnboarded] = useState(false);
 
   useEffect(() => {
-    getMesses().then(setMesses).catch(() => {});
+    let cancelled = false;
 
-    // Pre-populate store from API so re-entry ("update mess") doesn't overwrite
-    // the user's real profile with store defaults.
+    // Re-entry ("update my mess"): pre-populate the store from the API so saving
+    // doesn't overwrite the user's real profile with the store's defaults.
+    // Skipped for first-time users — they have nothing saved yet, and the two
+    // guaranteed 404s would each be reported to Sentry as an error.
     async function loadExisting() {
-      const { setField } = useOnboardingStore.getState();
       const [profileResult, hostelResult] = await Promise.allSettled([
         apiFetch<ProfilePayload & { activity_level: number }>("/api/v1/profile/me"),
         apiFetch<HostelContextPayload>("/api/v1/profile/hostel-context"),
       ]);
+      if (cancelled) return;
+      const { patch } = useOnboardingStore.getState();
       if (profileResult.status === "fulfilled") {
         const p = profileResult.value;
-        setField("dob", p.dob);
-        setField("sex", p.sex);
-        setField("height_cm", p.height_cm);
-        setField("current_weight_kg", p.current_weight_kg);
-        setField("target_weight_kg", p.target_weight_kg);
-        setField("target_rate_kg_per_week", p.target_rate_kg_per_week);
-        setField("goal", p.goal);
-        setField("activity_level", p.activity_level);
-        setField("diet_type", p.diet_type);
-        setField("allergies", p.allergies);
-        setField("conditions", p.conditions);
+        patch({
+          dob: p.dob,
+          sex: p.sex,
+          height_cm: p.height_cm,
+          current_weight_kg: p.current_weight_kg,
+          target_weight_kg: p.target_weight_kg,
+          target_rate_kg_per_week: p.target_rate_kg_per_week,
+          goal: p.goal,
+          activity_level: p.activity_level,
+          diet_type: p.diet_type,
+          allergies: p.allergies,
+          conditions: p.conditions,
+        });
       }
       if (hostelResult.status === "fulfilled") {
         const h = hostelResult.value;
-        setField("mess_id", h.mess_id);
-        setField("canteen_freq", h.canteen_freq);
-        setField("canteen_typical_spend_inr", h.canteen_typical_spend_inr);
-        setField("top_up_budget_inr_weekly", h.top_up_budget_inr_weekly);
-        setField("equipment", h.equipment as Equipment[]);
-        setField("workout_minutes_per_day", h.workout_minutes_per_day);
-        setField("workout_days_per_week", h.workout_days_per_week);
-        setField("gym_access_days", h.gym_access_days);
+        patch({
+          mess_id: h.mess_id,
+          canteen_freq: h.canteen_freq,
+          canteen_typical_spend_inr: h.canteen_typical_spend_inr,
+          top_up_budget_inr_weekly: h.top_up_budget_inr_weekly,
+          equipment: h.equipment as Equipment[],
+          workout_minutes_per_day: h.workout_minutes_per_day,
+          workout_days_per_week: h.workout_days_per_week,
+          gym_access_days: h.gym_access_days,
+        });
       }
     }
-    loadExisting().catch(() => {});
+    supabase.auth.getUser().then(({ data }) => {
+      if (cancelled) return;
+      const isOnboarded = Boolean(data.user?.user_metadata?.onboarded);
+      setOnboarded(isOnboarded);
+      if (isOnboarded) loadExisting().catch(() => {});
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
-
-  function toggleEquipment(eq: Equipment) {
-    const list = store.equipment.includes(eq)
-      ? store.equipment.filter((e) => e !== eq)
-      : [...store.equipment, eq];
-    store.setField("equipment", list);
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!store.mess_id) {
+    if (!values.mess_id) {
       setError("Please select your mess to continue.");
+      return;
+    }
+    // Earlier steps validate too, but the user can reach this URL directly.
+    const problem = validateBody(values) ?? validateGoal(values);
+    if (problem) {
+      setError(problem);
       return;
     }
     setError(null);
     setSubmitting(true);
 
     try {
-      // Save profile
-      const profilePayload: ProfilePayload = {
-        dob: store.dob,
-        sex: store.sex,
-        height_cm: store.height_cm,
-        current_weight_kg: store.current_weight_kg,
-        target_weight_kg: store.target_weight_kg,
-        target_rate_kg_per_week: store.target_rate_kg_per_week,
-        goal: store.goal,
-        activity_level: store.activity_level,
-        diet_type: store.diet_type,
-        allergies: store.allergies,
-        conditions: store.conditions,
-      };
+      const final = normalizeGoal(values);
+      // Both PUTs are upserts, so a retry after a partial failure is safe.
       await apiFetch("/api/v1/profile/me", {
         method: "PUT",
-        body: JSON.stringify(profilePayload),
+        body: JSON.stringify(toProfilePayload(final)),
       });
-
-      // Save hostel context
-      const hostelPayload: HostelContextPayload = {
-        mess_id: store.mess_id,
-        canteen_freq: store.canteen_freq,
-        canteen_typical_spend_inr: store.canteen_typical_spend_inr,
-        top_up_budget_inr_weekly: store.top_up_budget_inr_weekly,
-        equipment: store.equipment,
-        workout_minutes_per_day: store.workout_minutes_per_day,
-        workout_days_per_week: store.workout_days_per_week,
-        gym_access_days: store.gym_access_days,
-      };
       await apiFetch("/api/v1/profile/hostel-context", {
         method: "PUT",
-        body: JSON.stringify(hostelPayload),
+        body: JSON.stringify(toHostelPayload(final)),
       });
 
-      // Mark onboarding complete in Supabase user metadata.
-      // This refreshes the JWT so the middleware sees onboarded=true
-      // on the next request.
-      const { error: updateErr } = await supabase.auth.updateUser({
-        data: { onboarded: true },
-      });
+      // Mark onboarding complete in Supabase user metadata, then refresh so the
+      // new JWT (which the middleware reads) carries onboarded=true.
+      const { error: updateErr } = await supabase.auth.updateUser({ data: { onboarded: true } });
       if (updateErr) throw new Error(updateErr.message);
-
-      // Force a session refresh so the new JWT is used immediately.
       await supabase.auth.refreshSession();
 
-      // Navigate to targets page
+      // Anything derived from the profile is now out of date.
+      await queryClient.invalidateQueries({ queryKey: ["targets"] });
+      queryClient.invalidateQueries({ queryKey: ["plate"] });
+
       router.push("/onboarding/targets");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(apiErrorMessage(err));
     } finally {
       setSubmitting(false);
     }
@@ -150,125 +132,16 @@ export default function HostelStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <StepHeading
-        title="Hostel context"
-        description="Your mess, canteen access, and workout setup."
-      />
+      <StepHeading title="Hostel context" description="Your mess, canteen access, and workout setup." />
 
-      {/* Mess selector */}
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-medium text-muted-foreground">
-          Your mess <span className="text-destructive">*</span>
-        </label>
-        {messes.length === 0 ? (
-          <p className="text-xs text-muted-foreground/60">Loading messes…</p>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {messes.map((m) => {
-              const active = store.mess_id === m.id;
-              return (
-                <OptionButton
-                  key={m.id}
-                  active={active}
-                  onClick={() => store.setField("mess_id", m.id)}
-                  className="text-left"
-                >
-                  {m.name}
-                  <span
-                    className={`block text-xs font-normal ${active ? "text-accent/80" : "text-muted-foreground/60"}`}
-                  >
-                    {m.college}
-                  </span>
-                </OptionButton>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      <HostelFields {...form} />
 
-      {/* Canteen frequency */}
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-medium text-muted-foreground">
-          How often do you eat at the canteen?
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {canteenOptions.map((c) => (
-            <OptionButton
-              key={c.value}
-              active={store.canteen_freq === c.value}
-              onClick={() => store.setField("canteen_freq", c.value)}
-            >
-              {c.label}
-            </OptionButton>
-          ))}
-        </div>
-      </div>
-
-      {/* Budget */}
-      <Field label={`Weekly top-up budget — ₹${store.top_up_budget_inr_weekly}`}>
-        <RangeInput
-          min={0}
-          max={1000}
-          step={50}
-          value={store.top_up_budget_inr_weekly}
-          onChange={(e) => store.setField("top_up_budget_inr_weekly", Number(e.target.value))}
-        />
-        <div className="flex justify-between text-xs text-muted-foreground/60">
-          <span>₹0</span>
-          <span>₹1000</span>
-        </div>
-      </Field>
-
-      {/* Equipment */}
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-medium text-muted-foreground">
-          Workout equipment available
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {equipmentOptions.map((eq) => (
-            <OptionButton
-              key={eq.value}
-              active={store.equipment.includes(eq.value)}
-              onClick={() => toggleEquipment(eq.value)}
-              className="rounded-lg px-3 py-1.5 text-xs"
-            >
-              {eq.label}
-            </OptionButton>
-          ))}
-        </div>
-      </div>
-
-      {/* Workout days */}
-      <Field label={`Workout days/week — ${store.workout_days_per_week}`}>
-        <RangeInput
-          min={0}
-          max={7}
-          value={store.workout_days_per_week}
-          onChange={(e) => store.setField("workout_days_per_week", Number(e.target.value))}
-        />
-      </Field>
-
-      {/* Workout minutes */}
-      <Field label={`Minutes per session — ${store.workout_minutes_per_day}`}>
-        <RangeInput
-          min={0}
-          max={120}
-          step={5}
-          value={store.workout_minutes_per_day}
-          onChange={(e) => store.setField("workout_minutes_per_day", Number(e.target.value))}
-        />
-      </Field>
-
-      {error && (
-        <p className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-          {error}
-        </p>
-      )}
+      <NoticeSlot>{error && <Notice tone="error">{error}</Notice>}</NoticeSlot>
 
       <StepActions
-        onBack={() => router.push("/onboarding/diet")}
-        disabled={submitting}
-        nextLabel={submitting ? "Saving…" : "See my targets →"}
+        onBack={() => router.push(onboarded ? "/dashboard/settings" : "/onboarding/diet")}
+        pending={submitting}
+        nextLabel={submitting ? "Saving…" : onboarded ? "Save & see my targets →" : "See my targets →"}
       />
     </form>
   );

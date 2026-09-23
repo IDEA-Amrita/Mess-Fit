@@ -73,15 +73,11 @@ export function AvatarUpload() {
       if (updateError) throw updateError;
 
       setAvatarUrl(publicUrl);
+      // updateUser emits USER_UPDATED, which the dashboard shell listens for, so
+      // the sidebar avatar changes without a reload.
       toast.success("Profile picture updated!");
-      
-      // Dispatch an event so other components (like DashboardShell) can reload if they listen,
-      // or simply rely on page reload. (DashboardShell currently fetches once on mount).
-      // A quick reload ensures the sidebar picks it up instantly.
-      window.location.reload();
-      
-    } catch (error: any) {
-      toast.error(error.message || "Error uploading image");
+    } catch (error) {
+      toast.error(error instanceof Error && error.message ? error.message : "Error uploading image");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";

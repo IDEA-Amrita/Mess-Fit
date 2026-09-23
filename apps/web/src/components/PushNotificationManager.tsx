@@ -10,7 +10,8 @@ type Status = "loading" | "unsupported" | "denied" | "subscribed" | "unsubscribe
 export function PushNotificationManager() {
   const [status, setStatus] = useState<Status>("loading");
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
-  const [message, setMessage] = useState("");
+  // `error` drives the colour; deriving it from the wording ("fail", "denied") was fragile.
+  const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
 
   // On mount: check support, register SW, check existing subscription
@@ -48,7 +49,7 @@ export function PushNotificationManager() {
       } catch (err) {
         console.error("Service Worker registration failed:", err);
         setStatus("error");
-        setMessage("Could not initialize push notifications.");
+        setMessage({ text: "Could not initialize push notifications.", error: true });
       }
     }
 
@@ -57,24 +58,24 @@ export function PushNotificationManager() {
 
   const subscribeToPush = useCallback(async () => {
     if (!VAPID_PUBLIC_KEY) {
-      setMessage("Push notifications are not configured on the server.");
+      setMessage({ text: "Push notifications are not configured on the server.", error: true });
       return;
     }
 
     setBusy(true);
-    setMessage("");
+    setMessage(null);
 
     try {
       // Request notification permission
       const permission = await Notification.requestPermission();
       if (permission === "denied") {
         setStatus("denied");
-        setMessage("Notification permission was denied. You can re-enable it in your browser settings.");
+        setMessage({ text: "Notification permission was denied. You can re-enable it in your browser settings.", error: true });
         setBusy(false);
         return;
       }
       if (permission !== "granted") {
-        setMessage("Notification permission was dismissed. Try again when you're ready.");
+        setMessage({ text: "Notification permission was dismissed. Try again when you're ready.", error: false });
         setBusy(false);
         return;
       }
@@ -98,10 +99,10 @@ export function PushNotificationManager() {
         }),
       });
 
-      setMessage("Push notifications enabled!");
-    } catch (error: any) {
+      setMessage({ text: "Push notifications enabled!", error: false });
+    } catch (error) {
       console.error("Push subscription failed:", error);
-      setMessage("Failed to enable: " + (error.message || "Unknown error"));
+      setMessage({ text: "Failed to enable: " + (error instanceof Error && error.message ? error.message : "Unknown error"), error: true });
     } finally {
       setBusy(false);
     }
@@ -111,7 +112,7 @@ export function PushNotificationManager() {
     if (!subscription) return;
 
     setBusy(true);
-    setMessage("");
+    setMessage(null);
 
     try {
       const subJson = subscription.toJSON();
@@ -128,10 +129,10 @@ export function PushNotificationManager() {
         }),
       });
 
-      setMessage("Push notifications disabled.");
-    } catch (error: any) {
+      setMessage({ text: "Push notifications disabled.", error: false });
+    } catch (error) {
       console.error("Unsubscribe failed:", error);
-      setMessage("Failed to disable: " + (error.message || "Unknown error"));
+      setMessage({ text: "Failed to disable: " + (error instanceof Error && error.message ? error.message : "Unknown error"), error: true });
     } finally {
       setBusy(false);
     }
@@ -141,44 +142,35 @@ export function PushNotificationManager() {
 
   if (status === "loading") {
     return (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3" role="status">
         <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-        <p className="text-sm" style={{ color: "#a0a0a0" }}>
-          Checking notification support…
-        </p>
+        <p className="text-sm text-muted-foreground">Checking notification support…</p>
       </div>
     );
   }
 
   if (status === "unsupported") {
-    return (
-      <p className="text-sm" style={{ color: "#a0a0a0" }}>
-        Push notifications are not supported in this browser.
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground">Push notifications are not supported in this browser.</p>;
   }
 
   if (status === "denied") {
     return (
-      <div className="flex flex-col gap-2">
-        <p className="text-sm" style={{ color: "#f87171" }}>
-          Notification permission is blocked. To re-enable, click the lock icon in
-          your browser&apos;s address bar and allow notifications for this site.
-        </p>
-      </div>
+      <p className="text-sm text-destructive">
+        Notification permission is blocked. To re-enable, click the lock icon in your browser&apos;s address bar and
+        allow notifications for this site.
+      </p>
     );
   }
 
   if (status === "error") {
     return (
       <div className="flex flex-col gap-2">
-        <p className="text-sm" style={{ color: "#f87171" }}>
-          {message || "Something went wrong initializing push notifications."}
+        <p className="text-sm text-destructive">
+          {message?.text || "Something went wrong initializing push notifications."}
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="w-fit rounded-xl px-4 py-2 text-sm font-semibold transition-all"
-          style={{ background: "rgba(255,255,255,0.1)", color: "#fff" }}
+          className="w-fit rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-white/15"
         >
           Retry
         </button>
@@ -190,18 +182,17 @@ export function PushNotificationManager() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <p className="text-sm" style={{ color: "#a0a0a0" }}>
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm text-muted-foreground">
           Receive alerts for meal reviews, weekly check-ins, and reminders.
         </p>
         <button
           onClick={isSubscribed ? unsubscribeFromPush : subscribeToPush}
           disabled={busy}
-          className="rounded-xl px-4 py-2 text-sm font-semibold transition-all disabled:opacity-50"
-          style={{
-            background: isSubscribed ? "rgba(255,255,255,0.1)" : "#ccff00",
-            color: isSubscribed ? "#fff" : "#000",
-          }}
+          className={
+            "shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition-all disabled:opacity-50 " +
+            (isSubscribed ? "bg-white/10 text-foreground hover:bg-white/15" : "bg-accent text-accent-foreground hover:brightness-110")
+          }
         >
           {busy ? (
             <span className="flex items-center gap-2">
@@ -216,11 +207,8 @@ export function PushNotificationManager() {
         </button>
       </div>
       {message && (
-        <p
-          className="text-xs"
-          style={{ color: message.toLowerCase().includes("fail") || message.toLowerCase().includes("denied") ? "#f87171" : "#ccff00" }}
-        >
-          {message}
+        <p role={message.error ? "alert" : "status"} className={"text-xs " + (message.error ? "text-destructive" : "text-accent")}>
+          {message.text}
         </p>
       )}
     </div>

@@ -65,13 +65,19 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   useEffect(() => {
+    function apply(user: { email?: string; user_metadata?: Record<string, unknown> }) {
+      setEmail(user.email ?? null);
+      setDisplayName((user.user_metadata?.display_name as string) ?? null);
+      setAvatarUrl((user.user_metadata?.avatar_url as string) ?? null);
+    }
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        setEmail(data.user.email ?? null);
-        setDisplayName((data.user.user_metadata?.display_name as string) ?? null);
-        setAvatarUrl((data.user.user_metadata?.avatar_url as string) ?? null);
-      }
+      if (data.user) apply(data.user);
     });
+    // Settings edits the name/avatar; reflect it here without a page reload.
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "USER_UPDATED" && session?.user) apply(session.user);
+    });
+    return () => data.subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -176,7 +182,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ── Main ── */}
-      <main id="main-content" className="flex min-h-screen flex-1 flex-col pb-20 pt-14 lg:ml-64 lg:pb-0 lg:pt-0">
+      <main id="main-content" className="flex min-h-screen min-w-0 flex-1 flex-col pb-20 pt-14 lg:ml-64 lg:pb-0 lg:pt-0">
         {/* Route-change animation lives in app/template.tsx; animating here too
             made every page fade in twice. */}
         <div className="flex h-full w-full flex-1 flex-col">{children}</div>
