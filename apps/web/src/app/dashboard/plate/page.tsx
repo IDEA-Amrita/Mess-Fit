@@ -1,14 +1,18 @@
 "use client";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCallback, useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Sun01Icon, Coffee01Icon, Moon01Icon, RefreshIcon, Alert01Icon, ShoppingBag01Icon, Tick01Icon, Camera02Icon } from "@hugeicons/core-free-icons";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DashboardShell } from "@/components/DashboardShell";
 import { PortionIcon } from "@/components/PortionIcon";
+import { AnimatedNumber } from "@/components/motion/animated-number";
+import { ProgressRing } from "@/components/motion/progress-ring";
+import { Stagger, StaggerItem } from "@/components/motion/reveal";
+import { spring } from "@/lib/motion";
 import {
   optimizeToday,
   optimizeFromPhoto,
@@ -16,7 +20,7 @@ import {
   type PlateItem,
   type GapFill,
 } from "@/lib/optimizer-api";
-import { logMeal, todayIso, type MealType } from "@/lib/tracking-api";
+import { getTodayLogs, logMeal, todayIso, type MealType } from "@/lib/tracking-api";
 import { submitDishFeedback } from "@/lib/mess-api";
 import { toast } from "@/lib/toast-store";
 import { ApiError } from "@/lib/api";
@@ -39,32 +43,56 @@ function getMealMeta(meal: string) {
   }
 }
 
-function MacroCard({ label, current, target, unit, barColor }: { label: string; current: number; target: number; unit: string; barColor: string }) {
+type Totals = { kcal: number; protein_g: number; carbs_g: number; fats_g: number };
+
+function MacroRow({ label, current, target, color }: { label: string; current: number; target: number; color: string }) {
   const pct = target > 0 ? Math.min(100, (current / target) * 100) : 0;
+  // >5% over target reads as a warning; a small overshoot is normal rounding noise.
   const over = current > target * 1.05;
   return (
-    <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className="surface-card p-5 flex flex-col justify-between">
-      <div className="flex items-center justify-between mb-4">
+    <div>
+      <div className="mb-1.5 flex items-baseline justify-between">
         <span className="label-caps">{label}</span>
+        <span className="text-[12px] font-bold tabular-nums text-muted-foreground">
+          <AnimatedNumber value={current} className={cn("text-[15px] font-black", over ? "text-[#FF3B30]" : "text-white")} />
+          {" / "}
+          {Math.round(target)}g
+        </span>
       </div>
-      <div>
-        <div className="flex items-baseline gap-1">
-          <span className="text-3xl font-black text-white tracking-tighter">
-            {Math.round(current)}
-          </span>
-          <span className="text-xs font-bold text-muted-foreground">/ {Math.round(target)}{unit}</span>
-        </div>
-        <div className="mt-3 h-1.5 w-full bg-surface-2 rounded-full overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${pct}%` }}
-            transition={{ type: "spring", stiffness: 60, damping: 15, delay: 0.2 }}
-            className="h-full rounded-full"
-            style={{ backgroundColor: over ? "#FF3B30" : barColor }}
-          />
-        </div>
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ ...spring.soft, delay: 0.3 }}
+          className="h-full rounded-full"
+          style={{ backgroundColor: over ? "#FF3B30" : color }}
+        />
       </div>
-    </motion.div>
+    </div>
+  );
+}
+
+/** Hero card: calorie ring on the left, the three macros on the right. */
+function DaySummary({ totals, targets }: { totals: Totals; targets: Totals }) {
+  const kcalPct = targets.kcal > 0 ? (totals.kcal / targets.kcal) * 100 : 0;
+  return (
+    <div className="surface-card flex flex-col items-center gap-8 sm:flex-row">
+      <ProgressRing
+        pct={kcalPct}
+        size={148}
+        label={`${Math.round(kcalPct)}% of your ${Math.round(targets.kcal)} kcal target`}
+      >
+        <AnimatedNumber value={totals.kcal} className="text-2xl font-black tabular-nums text-white" />
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          of {Math.round(targets.kcal).toLocaleString()} kcal
+        </span>
+      </ProgressRing>
+      <div className="w-full flex-1 space-y-4">
+        <MacroRow label="Protein" current={totals.protein_g} target={targets.protein_g} color="var(--accent)" />
+        <MacroRow label="Carbs" current={totals.carbs_g} target={targets.carbs_g} color="#64D2FF" />
+        <MacroRow label="Fats" current={totals.fats_g} target={targets.fats_g} color="#FF9F0A" />
+      </div>
+    </div>
   );
 }
 
@@ -81,7 +109,7 @@ function DishCard({ item, meal }: { item: PlateItem; meal: string }) {
   });
 
   return (
-    <motion.div layout whileHover={{ y: -2 }} className="surface-card group flex flex-col p-5">
+    <motion.div whileHover={{ y: -2 }} transition={spring.snappy} className="surface-card group flex flex-col p-5">
       <div className="flex items-start justify-between gap-3">
         <p className="text-[15px] font-bold text-white leading-tight">{item.name}</p>
         <span className="text-[14px] font-black text-accent shrink-0">{Math.round(item.kcal)} kcal</span>
@@ -133,7 +161,7 @@ function DishCard({ item, meal }: { item: PlateItem; meal: string }) {
   );
 }
 
-function MealSection({ meal, items }: { meal: string; items: PlateItem[] }) {
+function MealSection({ meal, items, logged }: { meal: string; items: PlateItem[]; logged: boolean }) {
   const meta = getMealMeta(meal);
   const mealKcal = items.reduce((s, d) => s + d.kcal, 0);
   const qc = useQueryClient();
@@ -156,9 +184,6 @@ function MealSection({ meal, items }: { meal: string; items: PlateItem[] }) {
     logMutation.mutate({ date: todayIso(), meal_type: meal as MealType, status: "as_planned", ...macros });
   }
 
-  const containerVariants: Variants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
-  const itemVariants: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
-
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-3">
@@ -169,31 +194,45 @@ function MealSection({ meal, items }: { meal: string; items: PlateItem[] }) {
           <h3 className="text-[15px] font-bold text-white">{meta.label}</h3>
           <span className="text-[12px] font-bold text-muted-foreground">{Math.round(mealKcal)} kcal</span>
         </div>
+        {/* Logging is an upsert per (user, date, meal), so a logged meal stays
+            tappable - re-logging just overwrites it. */}
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={handleLogAsPlanned}
           disabled={logMutation.isPending}
-          className="ml-auto flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-[11px] font-black uppercase tracking-widest text-black transition-colors disabled:opacity-40"
+          aria-label={logged ? `${meta.label} logged - tap to log again as planned` : `Log ${meta.label} as planned`}
+          className={cn(
+            "ml-auto flex items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-widest transition-colors disabled:opacity-40",
+            logged ? "border border-accent/40 bg-accent/10 text-accent" : "bg-accent text-black",
+          )}
         >
-          <HugeiconsIcon icon={Tick01Icon} className="h-4 w-4" />
-          {logMutation.isPending ? "Logging" : "Log"}
+          <motion.span
+            key={logged ? "done" : "todo"}
+            initial={{ scale: logged ? 0.3 : 1, rotate: logged ? -30 : 0 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={spring.snappy}
+            className="flex"
+          >
+            <HugeiconsIcon icon={Tick01Icon} className="h-4 w-4" />
+          </motion.span>
+          {logMutation.isPending ? "Logging" : logged ? "Logged" : "Log"}
         </motion.button>
       </div>
 
-      <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <Stagger onMount gap={0.05} className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {items.map((item) => (
-          <motion.div key={item.dish_id} variants={itemVariants}>
-             <DishCard item={item} meal={meal} />
-          </motion.div>
+          <StaggerItem key={item.dish_id}>
+            <DishCard item={item} meal={meal} />
+          </StaggerItem>
         ))}
-      </motion.div>
+      </Stagger>
     </section>
   );
 }
 
 function GapFillCard({ fill }: { fill: GapFill }) {
   return (
-    <motion.div whileHover={{ y: -2 }} className="surface-card flex flex-col p-5">
+    <motion.div whileHover={{ y: -2 }} transition={spring.snappy} className="surface-card flex flex-col p-5">
       <div className="flex items-start justify-between gap-2">
         <p className="text-[15px] font-bold text-white leading-tight">{fill.name}</p>
         <span className="text-[14px] font-black text-white shrink-0">₹{fill.cost_inr}</span>
@@ -227,11 +266,21 @@ function LoadingSkeleton({ message = "", isScanning = false }: { message?: strin
     );
   }
   return (
-    <div className="space-y-8 mt-6">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {[0,1,2,3].map(i => <Skeleton key={i} className="h-28 rounded-[1.5rem] bg-surface" />)}
-      </div>
-      <Skeleton className="h-64 rounded-[1.5rem] bg-surface" />
+    <div className="mt-6 space-y-10" aria-busy="true" aria-label="Building your plate">
+      <Skeleton className="h-[204px] rounded-[1.5rem] sm:h-[148px]" />
+      {[3, 2].map((count, i) => (
+        <div key={i} className="space-y-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-10 w-10" />
+            <Skeleton className="h-8 w-32" />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: count }, (_, j) => (
+              <Skeleton key={j} className="h-44 rounded-[1.5rem]" />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -257,23 +306,20 @@ function ErrorState({ error }: { error: { message: string; status?: number } }) 
 function PlateView({ result }: { result: OptimizationResult }) {
   const { plan, daily_totals: totals, daily_targets: targets, gap_fills } = result;
   const mealsInPlan = MEAL_ORDER.filter((m) => (plan[m]?.length ?? 0) > 0);
-  const containerVariants: Variants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-  const itemVariants: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
+
+  // Same query key the dashboard uses, so this is usually a cache hit.
+  const todayLogs = useQuery({ queryKey: ["logs", "today"], queryFn: getTodayLogs, retry: 1 });
+  const loggedMeals = new Set(todayLogs.data?.meals?.map((m) => m.meal_type) ?? []);
 
   return (
     <div className="space-y-10 mt-6">
-      <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <motion.div variants={itemVariants}><MacroCard label="Calories" current={totals.kcal} target={targets.kcal} unit="" barColor="var(--accent)" /></motion.div>
-        <motion.div variants={itemVariants}><MacroCard label="Protein" current={totals.protein_g} target={targets.protein_g} unit="g" barColor="#FFFFFF" /></motion.div>
-        <motion.div variants={itemVariants}><MacroCard label="Carbs" current={totals.carbs_g} target={targets.carbs_g} unit="g" barColor="#FFFFFF" /></motion.div>
-        <motion.div variants={itemVariants}><MacroCard label="Fats" current={totals.fats_g} target={targets.fats_g} unit="g" barColor="#FFFFFF" /></motion.div>
-      </motion.div>
+      <DaySummary totals={totals} targets={targets} />
 
       {mealsInPlan.length === 0 ? (
         <EmptyState title="No dishes in plan" description="The solver returned an empty plate." />
       ) : (
         <div className="space-y-8">
-          {mealsInPlan.map((meal) => <MealSection key={meal} meal={meal} items={plan[meal]} />)}
+          {mealsInPlan.map((meal) => <MealSection key={meal} meal={meal} items={plan[meal]} logged={loggedMeals.has(meal as MealType)} />)}
         </div>
       )}
 
@@ -285,9 +331,9 @@ function PlateView({ result }: { result: OptimizationResult }) {
             </div>
             <h3 className="text-[15px] font-bold text-white">Canteen Add-ons</h3>
           </div>
-          <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {gap_fills.map((fill) => <motion.div key={fill.item_id} variants={itemVariants}><GapFillCard fill={fill} /></motion.div>)}
-          </motion.div>
+          <Stagger onMount gap={0.08} className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {gap_fills.map((fill) => <StaggerItem key={fill.item_id}><GapFillCard fill={fill} /></StaggerItem>)}
+          </Stagger>
         </section>
       )}
     </div>
