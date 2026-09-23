@@ -1,23 +1,44 @@
 "use client";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import dynamic from "next/dynamic";
-
-const TrendChart = dynamic(() => import("@/components/ui/trend-chart"), {
-  ssr: false,
-  loading: () => <Skeleton className="h-[220px] w-full rounded-[1.5rem] bg-surface" />,
-});
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Alert01Icon, FireIcon, TrendingUpDownIcon } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardShell } from "@/components/DashboardShell";
+import { StreakCard } from "@/components/StreakCard";
+import { AnimatedNumber } from "@/components/motion/animated-number";
+import { ProgressRing } from "@/components/motion/progress-ring";
+import { Stagger, StaggerItem } from "@/components/motion/reveal";
 import { cn } from "@/lib/utils";
+import { spring } from "@/lib/motion";
+import { weightTone, type Tone } from "@/lib/progress-tone";
 import { ApiError } from "@/lib/api";
-import { getProgress, getLeaderboard, type Progress, type ProgressRange, type LeaderboardResponse } from "@/lib/tracking-api";
+import {
+  getProgress,
+  getLeaderboard,
+  type LeaderboardEntry,
+  type LeaderboardResponse,
+  type Progress,
+  type ProgressRange,
+} from "@/lib/tracking-api";
+
+// recharts is heavy; load it only when this page renders a chart.
+const TrendChart = dynamic(() => import("@/components/ui/trend-chart"), {
+  ssr: false,
+  loading: () => <Skeleton className="h-60 w-full rounded-3xl" />,
+});
 
 const RANGES: ProgressRange[] = ["7d", "30d", "90d"];
+const LEADERBOARD_VISIBLE = 5;
+
+const DANGER = "#FF3B30";
+
+// ── page ─────────────────────────────────────────────────────────────────────
 
 export default function ProgressPage() {
   const [range, setRange] = useState<ProgressRange>("7d");
@@ -26,29 +47,25 @@ export default function ProgressPage() {
     queryKey: ["progress", range],
     queryFn: () => getProgress(range),
     retry: 0,
+    // Keep the previous range's data on screen while the next one loads, so
+    // switching 7d → 30d updates in place instead of flashing a skeleton.
+    placeholderData: keepPreviousData,
   });
 
   return (
     <DashboardShell>
       <div className="mx-auto w-full max-w-4xl flex-1 p-5 sm:p-6 lg:p-8">
-        
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-4">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-            <p className="text-[13px] font-bold text-accent uppercase tracking-widest mb-1">
-              Insights · {range}
-            </p>
+        <div className="mt-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={spring.soft}>
+            <p className="mb-1 text-[13px] font-bold uppercase tracking-widest text-accent">Insights · {range}</p>
             <h1 className="heading-heavy">Progress</h1>
           </motion.div>
-          <motion.div 
-             initial={{ opacity: 0, x: 20 }} 
-             animate={{ opacity: 1, x: 0 }} 
-             transition={{ duration: 0.5 }}
-             className="flex gap-1 p-1 rounded-xl bg-surface-2"
-          >
+          <div role="group" aria-label="Time range" className="flex gap-1 rounded-xl bg-surface-2 p-1">
             {RANGES.map((r) => (
               <button
                 key={r}
                 onClick={() => setRange(r)}
+                aria-pressed={r === range}
                 className={cn(
                   "relative rounded-lg px-5 py-2 text-[12px] font-black uppercase tracking-widest transition-colors",
                   r === range ? "text-black" : "text-muted-foreground hover:text-white",
@@ -58,29 +75,37 @@ export default function ProgressPage() {
                   <motion.div
                     layoutId="activeRange"
                     className="absolute inset-0 rounded-lg bg-white"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    transition={spring.snappy}
                   />
                 )}
                 <span className="relative z-10">{r}</span>
               </button>
             ))}
-          </motion.div>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
-          {query.isLoading ? (
+          {query.isError ? (
+            <motion.div key="error" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="mt-10">
+              <ErrorState error={query.error} onRetry={() => query.refetch()} />
+            </motion.div>
+          ) : query.data ? (
+            <motion.div
+              key="content"
+              initial={{ opacity: 0 }}
+              // Dim slightly while the next range is fetching behind the old data.
+              animate={{ opacity: query.isPlaceholderData ? 0.55 : 1 }}
+              transition={{ duration: 0.2 }}
+              aria-busy={query.isPlaceholderData}
+              className="mt-10"
+            >
+              <ProgressView data={query.data} />
+            </motion.div>
+          ) : (
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-10">
               <LoadingSkeleton />
             </motion.div>
-          ) : query.isError ? (
-            <motion.div key="error" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="mt-10">
-              <ErrorState error={query.error} />
-            </motion.div>
-          ) : query.data ? (
-            <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-10">
-              <ProgressView data={query.data} />
-            </motion.div>
-          ) : null}
+          )}
         </AnimatePresence>
       </div>
     </DashboardShell>
@@ -89,85 +114,137 @@ export default function ProgressPage() {
 
 // ── view ───────────────────────────────────────────────────────────────────
 
+const TONE_CLASS: Record<Tone, string> = {
+  good: "bg-accent/15 text-accent",
+  bad: "bg-[#FF3B30]/15 text-[#FF3B30]",
+  neutral: "bg-surface-2 text-muted-foreground",
+};
+
 function ProgressView({ data }: { data: Progress }) {
-  const series = data.weight_series.map((p) => ({ date: p.date.slice(5), weight: p.weight_kg }));
+  const series = data.weight_series.map((p) => ({ date: p.date, weight: p.weight_kg }));
   const weights = series.map((s) => s.weight);
   const lo = weights.length ? Math.floor(Math.min(...weights) - 1) : 0;
   const hi = weights.length ? Math.ceil(Math.max(...weights) + 1) : 1;
   const delta = weights.length >= 2 ? weights[weights.length - 1] - weights[0] : 0;
   const lastW = weights[weights.length - 1];
-
-  const containerVariants: Variants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-  const itemVariants: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
+  const tone = weightTone(delta, data.projection);
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-4">
-      <motion.section variants={itemVariants} className="surface-card p-6">
-        <div className="mb-6 flex items-baseline justify-between">
-          <h3 className="label-caps text-white">Weight Trend</h3>
-          {weights.length >= 2 && (
-            <span
-              className="rounded-lg px-3 py-1.5 text-[11px] font-black uppercase tracking-widest"
-              style={{
-                background: delta > 0 ? "rgba(255,59,48,0.15)" : delta < 0 ? "rgba(204,255,0,0.15)" : "var(--surface-2)",
-                color: delta > 0 ? "#FF3B30" : delta < 0 ? "var(--accent)" : "var(--muted-foreground)"
-              }}
-            >
-              {delta >= 0 ? "↑" : "↓"} {Math.abs(delta).toFixed(1)} kg · now {lastW.toFixed(1)} kg
-            </span>
-          )}
-        </div>
-
-        {series.length === 0 ? (
-          <div className="py-10 text-center">
-             <p className="text-[16px] font-bold text-white">No weigh-ins yet</p>
-             <p className="mt-2 text-[13px] font-medium text-muted-foreground">Log your weight to see the trend.</p>
+    <Stagger onMount gap={0.09} className="space-y-4">
+      <StaggerItem>
+        <section className="surface-card">
+          <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 className="label-caps text-white">Weight Trend</h3>
+              {weights.length > 0 && (
+                <p className="mt-2 text-[40px] font-black leading-none tracking-tighter text-white">
+                  <AnimatedNumber value={lastW} format={(n) => n.toFixed(1)} />
+                  <span className="ml-1.5 text-lg font-bold text-muted-foreground">kg</span>
+                </p>
+              )}
+            </div>
+            {weights.length >= 2 && (
+              <span
+                className={cn("rounded-lg px-3 py-1.5 text-[11px] font-black uppercase tracking-widest", TONE_CLASS[tone])}
+                title={
+                  tone === "neutral"
+                    ? "Change over this range"
+                    : tone === "good"
+                      ? "Moving toward your goal"
+                      : "Moving away from your goal"
+                }
+              >
+                {delta >= 0 ? "↑" : "↓"} {Math.abs(delta).toFixed(1)} kg · {data.range}
+              </span>
+            )}
           </div>
-        ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-            <TrendChart series={series} lo={lo} hi={hi} />
-          </motion.div>
-        )}
-      </motion.section>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <motion.div variants={itemVariants} className="surface-card p-6 flex flex-col justify-between min-h-[140px] bg-surface-2">
-          <span className="label-caps">Adherence</span>
-          <span className="text-[40px] font-black text-white tracking-tighter">
-            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>{Math.round(data.adherence_rate * 100)}</motion.span><span className="text-xl text-muted-foreground">%</span>
-          </span>
-        </motion.div>
-        <motion.div variants={itemVariants} className="surface-card p-6 flex flex-col justify-between min-h-[140px] bg-surface-2">
-          <span className="label-caps">Macros Hit</span>
-          <span className="text-[40px] font-black text-white tracking-tighter">
-            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>{data.macro_hit_rate == null ? "—" : Math.round(data.macro_hit_rate * 100)}</motion.span><span className="text-xl text-muted-foreground">{data.macro_hit_rate != null ? "%" : ""}</span>
-          </span>
-        </motion.div>
-        <motion.div variants={itemVariants} className="surface-card p-6 flex flex-col justify-between min-h-[140px] bg-surface-2">
-          <span className="label-caps flex items-center gap-1.5 text-white">
-            <HugeiconsIcon icon={FireIcon} className="h-4 w-4 text-[#FF3B30]" /> Streak
-          </span>
-          <span className="text-[40px] font-black text-white tracking-tighter">
-            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>{data.streak_days}</motion.span> <span className="text-[12px] font-bold text-muted-foreground uppercase tracking-widest ml-1">{data.streak_days === 1 ? "day" : "days"}</span>
-          </span>
-        </motion.div>
+          {series.length === 0 ? (
+            <div className="py-10 text-center">
+              <p className="text-[16px] font-bold text-white">No weigh-ins yet</p>
+              <p className="mt-2 text-[13px] font-medium text-muted-foreground">Log your weight to see the trend.</p>
+              <Link
+                href="/dashboard/log"
+                className="mt-5 inline-block rounded-full bg-accent px-6 py-3 text-[12px] font-black uppercase tracking-widest text-black transition-transform hover:scale-105 active:scale-95"
+              >
+                Log weight
+              </Link>
+            </div>
+          ) : (
+            <TrendChart series={series} lo={lo} hi={hi} />
+          )}
+        </section>
+      </StaggerItem>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <StaggerItem className="flex flex-col gap-4">
+          <StatRing label="Adherence" value={data.adherence_rate * 100} hint={`Last ${data.range}`} />
+          <StatRing
+            label="Macros Hit"
+            value={data.macro_hit_rate == null ? null : data.macro_hit_rate * 100}
+            hint={data.macro_hit_rate == null ? "Log meals with macros to unlock" : `Last ${data.range}`}
+            color="#64D2FF"
+          />
+        </StaggerItem>
+        <StaggerItem>
+          <StreakCard days={data.streak_days} className="h-full" />
+        </StaggerItem>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <motion.div variants={itemVariants}>
-           <ProjectionCard projection={data.projection} />
-        </motion.div>
+        <StaggerItem>
+          <ProjectionCard projection={data.projection} />
+        </StaggerItem>
         {data.adaptive_tdee && (
-          <motion.div variants={itemVariants}>
+          <StaggerItem>
             <AdaptiveTDEECard adaptive={data.adaptive_tdee} />
-          </motion.div>
+          </StaggerItem>
         )}
       </div>
 
-      <motion.div variants={itemVariants}>
+      <StaggerItem>
         <LeaderboardCard />
-      </motion.div>
-    </motion.div>
+      </StaggerItem>
+    </Stagger>
+  );
+}
+
+/** Ring + number for a 0–100 metric; `value === null` renders the "no data" state. */
+function StatRing({
+  label,
+  value,
+  hint,
+  color,
+}: {
+  label: string;
+  value: number | null;
+  hint?: string;
+  color?: string;
+}) {
+  return (
+    <div className="surface-card flex items-center gap-5 p-5!">
+      <ProgressRing
+        pct={value ?? 0}
+        size={80}
+        stroke={10}
+        color={color}
+        label={value == null ? `${label}: no data yet` : `${label}: ${Math.round(value)}%`}
+      >
+        {value == null ? (
+          <span className="text-lg font-black text-muted-foreground">—</span>
+        ) : (
+          <AnimatedNumber
+            value={value}
+            format={(n) => `${Math.round(n)}%`}
+            className="text-[15px] font-black tabular-nums text-white"
+          />
+        )}
+      </ProgressRing>
+      <div className="min-w-0">
+        <p className="label-caps text-white">{label}</p>
+        {hint && <p className="mt-1 text-[12px] font-medium text-muted-foreground">{hint}</p>}
+      </div>
+    </div>
   );
 }
 
@@ -176,32 +253,45 @@ function ProjectionCard({ projection }: { projection: Progress["projection"] }) 
 
   if (!projection.available) {
     body = (
-      <p className="text-[13px] font-medium text-muted-foreground leading-relaxed">
+      <p className="text-[13px] font-medium leading-relaxed text-muted-foreground">
         {projection.reason ?? "Projection unlocks once you have a few weigh-ins."}
       </p>
     );
   } else if (projection.stalled) {
     body = (
-      <p className="text-[13px] font-medium text-muted-foreground leading-relaxed">
+      <p className="text-[13px] font-medium leading-relaxed text-muted-foreground">
         Your weight is holding steady. If that&apos;s not the goal, nudge your intake.
       </p>
     );
   } else if (projection.moving_wrong_direction) {
     body = (
-      <p className="text-[13px] font-medium text-[#FF3B30] leading-relaxed">
+      <p className="text-[13px] font-medium leading-relaxed" style={{ color: DANGER }}>
         You&apos;re currently trending away from your goal weight.
       </p>
     );
   } else {
     const rate = projection.current_rate_kg_per_week ?? 0;
     const sign = rate >= 0 ? "+" : "";
+    const target = projection.projected_target_date ? parseISO(projection.projected_target_date) : null;
+    const days = target ? differenceInCalendarDays(target, new Date()) : null;
     body = (
       <div className="space-y-4">
-        <p className="text-[14px] font-bold text-white leading-relaxed">
-          At {sign}{rate} kg/wk, you&apos;ll hit your goal by{" "}
-          <span className="text-accent">{projection.projected_target_date}</span>.
+        <p className="text-[14px] font-bold leading-relaxed text-white">
+          At {sign}
+          {rate} kg/wk, you&apos;ll hit your goal by{" "}
+          <span className="text-accent">{target ? format(target, "d MMM yyyy") : projection.projected_target_date}</span>
+          {days != null && days > 0 && (
+            <span className="font-medium text-muted-foreground">
+              {" "}
+              (~{days >= 14 ? `${Math.round(days / 7)} weeks` : `${days} days`})
+            </span>
+          )}
+          .
         </p>
-        <p className="text-[11px] font-black uppercase tracking-widest" style={{ color: projection.on_track ? "var(--accent)" : "#FF3B30" }}>
+        <p
+          className={cn("text-[11px] font-black uppercase tracking-widest", projection.on_track ? "text-accent" : "")}
+          style={projection.on_track ? undefined : { color: DANGER }}
+        >
           {projection.on_track ? "On track" : "Off pace"}
         </p>
       </div>
@@ -209,74 +299,112 @@ function ProjectionCard({ projection }: { projection: Progress["projection"] }) 
   }
 
   return (
-    <section className="surface-card p-6 flex flex-col h-full min-h-[180px]">
+    <section className="surface-card flex h-full min-h-45 flex-col">
       <div className="mb-4 flex items-center gap-2">
         <HugeiconsIcon icon={TrendingUpDownIcon} className="h-5 w-5 text-white" />
         <h3 className="label-caps text-white">Projection</h3>
       </div>
-      <div className="flex-1 flex flex-col justify-end">
-        {body}
-      </div>
+      <div className="flex flex-1 flex-col justify-end">{body}</div>
     </section>
   );
 }
 
-function AdaptiveTDEECard({ adaptive }: { adaptive: Progress["adaptive_tdee"] }) {
-  if (!adaptive) return null;
+const CONFIDENCE_SEGMENTS = { low: 1, medium: 2, high: 3 } as const;
+
+function AdaptiveTDEECard({ adaptive }: { adaptive: NonNullable<Progress["adaptive_tdee"]> }) {
+  const filled = CONFIDENCE_SEGMENTS[adaptive.confidence] ?? 1;
 
   return (
-    <section className="surface-card p-6 flex flex-col h-full min-h-[180px]">
-      <div className="relative z-10 flex-1 flex flex-col">
-        <div className="mb-4 flex items-center gap-2">
-          <HugeiconsIcon icon={FireIcon} className="h-5 w-5 text-accent" />
-          <h3 className="label-caps text-white">Adaptive TDEE</h3>
-          {adaptive.available && (
-            <span className="ml-auto rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-widest bg-accent text-black">
-              Active
-            </span>
-          )}
-        </div>
-        
-        {adaptive.available ? (
-          <div className="space-y-4 flex-1 flex flex-col justify-end">
-            <div className="flex items-baseline gap-2">
-              <span className="text-[40px] font-black text-white tracking-tighter">
-                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>{Math.round(adaptive.tdee)}</motion.span>
-              </span>
-              <span className="text-[12px] font-bold text-muted-foreground uppercase tracking-widest">kcal / day</span>
-            </div>
-            <p className="text-[12px] font-medium text-muted-foreground leading-relaxed">
-              Based on {adaptive.data_days} days of data.
-            </p>
-            <div className="mt-4 flex items-center gap-4">
-              <div className="h-1.5 flex-1 rounded-full overflow-hidden bg-surface-2">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: adaptive.confidence === 'high' ? '100%' : adaptive.confidence === 'medium' ? '66%' : '33%' }}
-                  className="h-full rounded-full bg-white" 
-                  transition={{ type: "spring", stiffness: 60, damping: 15, delay: 0.5 }}
-                />
-              </div>
-              <span className="text-[11px] font-black uppercase tracking-widest w-24 text-right text-white">
-                {adaptive.confidence} Conf
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-2 flex-1 flex flex-col justify-end">
-            <p className="text-[13px] font-medium text-muted-foreground leading-relaxed">
-              {adaptive.reason ?? "Keep logging weight and meals to unlock."}
-            </p>
-            <div className="mt-4 flex items-center gap-2">
-              <div className="h-1.5 flex-1 rounded-full bg-surface-2" />
-              <span className="text-[10px] font-black uppercase tracking-widest w-24 text-right text-muted-foreground">
-                Needs Data
-              </span>
-            </div>
-          </div>
+    <section className="surface-card flex h-full min-h-45 flex-col">
+      <div className="mb-4 flex items-center gap-2">
+        <HugeiconsIcon icon={FireIcon} className="h-5 w-5 text-accent" />
+        <h3 className="label-caps text-white">Adaptive TDEE</h3>
+        {adaptive.available && (
+          <span className="ml-auto rounded-lg bg-accent px-2 py-1 text-[10px] font-black uppercase tracking-widest text-black">
+            Active
+          </span>
         )}
       </div>
+
+      {adaptive.available ? (
+        <div className="flex flex-1 flex-col justify-end space-y-4">
+          <div className="flex items-baseline gap-2">
+            <AnimatedNumber value={adaptive.tdee} className="text-[40px] font-black tracking-tighter text-white" />
+            <span className="text-[12px] font-bold uppercase tracking-widest text-muted-foreground">kcal / day</span>
+          </div>
+          <p className="text-[12px] font-medium leading-relaxed text-muted-foreground">
+            Based on {adaptive.data_days} days of data.
+          </p>
+          <div className="flex items-center gap-4">
+            <div className="flex flex-1 gap-1.5" aria-hidden>
+              {[1, 2, 3].map((i) => (
+                <motion.span
+                  key={i}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ ...spring.soft, delay: 0.5 + i * 0.1 }}
+                  className={cn("h-1.5 flex-1 origin-left rounded-full", i <= filled ? "bg-white" : "bg-surface-2")}
+                />
+              ))}
+            </div>
+            <span className="text-[11px] font-black uppercase tracking-widest text-white">
+              {adaptive.confidence} confidence
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-1 flex-col justify-end space-y-2">
+          <p className="text-[13px] font-medium leading-relaxed text-muted-foreground">
+            {adaptive.reason ?? "Keep logging weight and meals to unlock."}
+          </p>
+          <div className="mt-4 flex items-center gap-2">
+            <div className="h-1.5 flex-1 rounded-full bg-surface-2" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Needs data</span>
+          </div>
+        </div>
+      )}
     </section>
+  );
+}
+
+// ── leaderboard ──────────────────────────────────────────────────────────────
+
+const PODIUM = ["bg-[#FFD60A] text-black", "bg-[#C7C7CC] text-black", "bg-[#CD7F32] text-black"];
+
+function LeaderboardRow({ entry, isUser, delay }: { entry: LeaderboardEntry; isUser: boolean; delay: number }) {
+  return (
+    <motion.li
+      initial={{ opacity: 0, x: -16 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ ...spring.soft, delay }}
+      className={cn(
+        "flex items-center justify-between rounded-xl px-4 py-3",
+        isUser ? "border-l-4 border-accent bg-surface-2" : "bg-surface",
+      )}
+    >
+      <div className="flex min-w-0 items-center gap-4">
+        <span
+          className={cn(
+            "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-black",
+            PODIUM[entry.rank - 1] ?? (isUser ? "text-accent" : "text-muted-foreground"),
+          )}
+          aria-label={`Rank ${entry.rank}`}
+        >
+          {entry.rank}
+        </span>
+        <div className="min-w-0">
+          <p className={cn("truncate text-[14px] font-bold", isUser ? "text-white" : "text-muted-foreground")}>
+            {isUser ? "You" : `User ${entry.user_id.slice(0, 4)}`}
+          </p>
+          <p className="text-[11px] font-medium text-muted-foreground/70">
+            {entry.meals_followed} meals · {entry.workouts_done} workouts
+          </p>
+        </div>
+      </div>
+      <span className={cn("text-[16px] font-black tracking-tight tabular-nums", isUser ? "text-white" : "text-muted-foreground")}>
+        {entry.score}%
+      </span>
+    </motion.li>
   );
 }
 
@@ -287,75 +415,84 @@ function LeaderboardCard() {
     retry: 0,
   });
 
-  if (query.isLoading) return <Skeleton className="h-48 w-full rounded-[1.5rem] bg-surface" />;
-  if (query.isError || !query.data) return null; 
+  if (query.isLoading) return <Skeleton className="h-48 w-full rounded-3xl" />;
+  if (query.isError || !query.data) return null;
 
   const { entries, user_rank } = query.data;
+  const top = entries.slice(0, LEADERBOARD_VISIBLE);
+  // The API returns up to 20 ranks but we only show 5 — if the user is 6th or
+  // lower, pin their own row underneath so they can still see where they stand.
+  const userBelowFold = user_rank && !top.some((e) => e.user_id === user_rank.user_id) ? user_rank : null;
 
   return (
-    <section className="surface-card p-6 mt-6">
+    <section className="surface-card">
       <div className="mb-6 flex items-center gap-2 border-b border-border pb-4">
         <HugeiconsIcon icon={FireIcon} className="h-5 w-5 text-accent" />
         <h3 className="label-caps text-white">Leaderboard</h3>
-        <span className="ml-auto text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Top Adherence (7d)</span>
+        <span className="ml-auto text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+          Top Adherence (7d)
+        </span>
       </div>
 
       {entries.length === 0 ? (
         <p className="text-[13px] font-medium text-muted-foreground">No data available yet.</p>
       ) : (
-        <div className="space-y-2">
-          {entries.slice(0, 5).map((entry, idx) => {
-            const isUser = user_rank?.user_id === entry.user_id;
-            return (
-              <motion.div 
-                key={entry.user_id} 
-                initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + (idx * 0.1) }}
-                className={cn(
-                  "flex items-center justify-between rounded-xl px-4 py-3 transition-colors",
-                  isUser ? "bg-surface-2 border-l-4 border-accent" : "bg-surface"
-                )}
-              >
-                <div className="flex items-center gap-4">
-                  <span className={cn("w-6 text-center text-[13px] font-black", isUser ? "text-accent" : "text-muted-foreground")}>
-                    #{idx + 1}
-                  </span>
-                  <div className="h-8 w-8 rounded-full bg-surface-2 border border-border" />
-                  <span className={cn("text-[14px] font-bold", isUser ? "text-white" : "text-muted-foreground")}>
-                    {isUser ? "You" : `User ${entry.user_id.slice(0,4)}`}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className={cn("block text-[16px] font-black tracking-tight", isUser ? "text-white" : "text-muted-foreground")}>{entry.score}%</span>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+        <ol className="space-y-2">
+          {top.map((entry, idx) => (
+            <LeaderboardRow
+              key={entry.user_id}
+              entry={entry}
+              isUser={user_rank?.user_id === entry.user_id}
+              delay={0.2 + idx * 0.08}
+            />
+          ))}
+          {userBelowFold && (
+            <>
+              <li aria-hidden className="py-1 text-center text-[13px] font-black tracking-[0.4em] text-muted-foreground/50">
+                ···
+              </li>
+              <LeaderboardRow entry={userBelowFold} isUser delay={0.2 + top.length * 0.08} />
+            </>
+          )}
+        </ol>
       )}
     </section>
   );
 }
 
+// ── states ─────────────────────────────────────────────────────────────────
+
 function LoadingSkeleton() {
   return (
-    <div className="space-y-6">
-      <Skeleton className="h-[300px] rounded-[1.5rem] bg-surface" />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {[0, 1, 2].map((i) => <Skeleton key={i} className="h-32 rounded-[1.5rem] bg-surface" />)}
+    <div className="space-y-4" aria-busy="true" aria-label="Loading your progress">
+      <Skeleton className="h-90 rounded-3xl" />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="space-y-4">
+          <Skeleton className="h-28 rounded-3xl" />
+          <Skeleton className="h-28 rounded-3xl" />
+        </div>
+        <Skeleton className="h-60 rounded-3xl" />
       </div>
-      <Skeleton className="h-40 rounded-[1.5rem] bg-surface" />
+      <Skeleton className="h-44 rounded-3xl" />
     </div>
   );
 }
 
-function ErrorState({ error }: { error: ApiError | null }) {
+function ErrorState({ error, onRetry }: { error: ApiError | null; onRetry: () => void }) {
   return (
-    <div className="surface-card flex flex-col items-center justify-center py-20 text-center mx-auto max-w-md">
+    <div className="surface-card mx-auto flex max-w-md flex-col items-center justify-center py-16 text-center">
       <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#FF3B30]/10 text-[#FF3B30]">
         <HugeiconsIcon icon={Alert01Icon} className="h-8 w-8" />
       </div>
-      <p className="text-xl font-bold text-white mb-2">Couldn't load progress</p>
-      <p className="text-[14px] font-medium text-muted-foreground">{error?.detail ?? "Please try again."}</p>
+      <p className="mb-2 text-xl font-bold text-white">Couldn&apos;t load progress</p>
+      <p className="mb-6 text-[14px] font-medium text-muted-foreground">{error?.detail ?? "Please try again."}</p>
+      <motion.button
+        whileTap={{ scale: 0.96 }}
+        onClick={onRetry}
+        className="rounded-full bg-accent px-6 py-3 text-[12px] font-black uppercase tracking-widest text-black"
+      >
+        Try again
+      </motion.button>
     </div>
   );
 }
