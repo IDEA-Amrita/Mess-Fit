@@ -1,33 +1,30 @@
 "use client";
-import { HugeiconsIcon } from "@hugeicons/react";
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  SentIcon,
-  SparklesIcon,
-  BookOpen01Icon,
-  Cancel01Icon,
-  Add01Icon,
-  Message01Icon,
-  Menu01Icon,
-  PencilEdit01Icon,
-  Tick01Icon,
-} from "@hugeicons/core-free-icons";
+import { AnimatePresence, motion } from "framer-motion";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Add01Icon, ArrowDown01Icon, Menu01Icon, SparklesIcon } from "@hugeicons/core-free-icons";
 import { DashboardShell } from "@/components/DashboardShell";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ChatBubble, ThinkingBubble } from "@/components/chat/ChatBubble";
+import { CitationModal } from "@/components/chat/CitationModal";
+import { Composer } from "@/components/chat/Composer";
+import { ConversationList } from "@/components/chat/ConversationList";
+import { newMsgId, type Msg } from "@/components/chat/types";
 import { toast } from "@/lib/toast-store";
-import { ApiError } from "@/lib/api";
+import { spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
+  MAX_MESSAGE_LENGTH,
   createConversation,
-  listConversations,
+  describeChatError,
   getMessages,
+  listConversations,
   renameConversation,
   streamMessage,
-  type ChatMessage,
-  type Conversation,
   type Citation,
+  type Conversation,
 } from "@/lib/chat-api";
 
 const SUGGESTIONS = [
@@ -37,466 +34,406 @@ const SUGGESTIONS = [
   "Is creatine safe to take?",
 ];
 
-type Msg = { role: "user" | "assistant"; content: string; citations?: Citation[] };
-
-function dedupeCitations(citations: Citation[]): Citation[] {
-  const seen = new Set<string>();
-  const out: Citation[] = [];
-  for (const c of citations) {
-    const key = c.slug ?? c.title ?? c.chunk_id;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(c);
-  }
-  return out;
-}
+/** Within this many px of the bottom counts as "reading the latest message". */
+const STICK_THRESHOLD_PX = 80;
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [streaming, setStreaming] = useState("");
   const [busy, setBusy] = useState(false);
+  const [loadingConv, setLoadingConv] = useState(false);
   const [input, setInput] = useState("");
   const [convId, setConvId] = useState<string | null>(null);
   const [openCitation, setOpenCitation] = useState<Citation | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showJump, setShowJump] = useState(false);
 
-  const { data: conversations, refetch: refetchConvs } = useQuery({
-    queryKey: ["chat", "conversations"],
-    queryFn: listConversations,
-  });
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
+
+  // Refs let long-lived callbacks (send/retry) read fresh values without
+  // being re-created — which keeps memoised bubbles from re-rendering.
+  const convIdRef = useRef<string | null>(null);
+  const messagesRef = useRef<Msg[]>([]);
+  const busyRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
+  /** Bumped whenever the active conversation changes so in-flight sends go stale. */
+  const genRef = useRef(0);
+  /** Bumped per conversation load so a slow earlier load can't overwrite a later one. */
+  const loadRef = useRef(0);
+  const stickRef = useRef(true);
+
+  const {
+    data: conversations,
+    isLoading: convsLoading,
+    refetch: refetchConvs,
+  } = useQuery({ queryKey: ["chat", "conversations"], queryFn: listConversations });
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, streaming]);
+    messagesRef.current = messages;
+  }, [messages]);
 
-  async function send(text: string) {
-    const content = text.trim();
-    if (!content || busy) return;
-    setInput("");
-    setBusy(true);
-    setMessages((m) => [...m, { role: "user", content }]);
-    setStreaming("");
-
-    try {
-      let id = convId;
-      if (!id) {
-        id = (await createConversation()).id;
-        setConvId(id);
-      }
-      let acc = "";
-      await streamMessage(id, content, {
-        onToken: (t) => {
-          acc += t;
-          setStreaming(acc);
-        },
-        onDone: (citations) => {
-          setMessages((m) => [...m, { role: "assistant", content: acc, citations }]);
-          setStreaming("");
-          refetchConvs(); 
-        },
-      });
-    } catch (err) {
-      const detail = err instanceof ApiError ? err.detail : "Something went wrong.";
-      toast.error(detail);
-      setStreaming("");
-    } finally {
-      setBusy(false);
+  // ── scrolling: follow new content only while the user is at the bottom ──
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el && stickRef.current) {
+      // "auto" while streaming: a smooth-scroll animation per token queues up and janks.
+      el.scrollTo({ top: el.scrollHeight, behavior: streaming ? "auto" : "smooth" });
     }
+  }, [messages, streaming, busy]);
+
+  function onScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    const near = el.scrollHeight - el.scrollTop - el.clientHeight < STICK_THRESHOLD_PX;
+    stickRef.current = near;
+    setShowJump(!near);
+  }
+
+  function jumpToLatest() {
+    stickRef.current = true;
+    setShowJump(false);
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSidebarOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [sidebarOpen]);
+
+  // Only pull focus into the composer where it won't pop a mobile keyboard.
+  function focusComposer() {
+    if (window.matchMedia("(pointer: fine)").matches) composerRef.current?.focus();
+  }
+
+  // ── sending ──────────────────────────────────────────────────────────────
+
+  const send = useCallback(
+    async (text: string) => {
+      const content = text.trim();
+      if (!content || content.length > MAX_MESSAGE_LENGTH || busyRef.current) return;
+
+      const myGen = ++genRef.current;
+      const stale = () => genRef.current !== myGen;
+      const ctrl = new AbortController();
+      abortRef.current = ctrl;
+      busyRef.current = true;
+      stickRef.current = true;
+      setShowJump(false);
+
+      const userMsg: Msg = { id: newMsgId(), role: "user", content };
+      setInput("");
+      setBusy(true);
+      setStreaming("");
+      setMessages((m) => [...m, userMsg]);
+
+      let acc = "";
+      const markFailed = (error: string) =>
+        setMessages((m) => m.map((x) => (x.id === userMsg.id ? { ...x, status: "failed", error } : x)));
+      // Keep whatever arrived instead of silently discarding it.
+      const keepPartial = (status: "interrupted" | "stopped", error?: string) => {
+        if (acc.trim()) setMessages((m) => [...m, { id: newMsgId(), role: "assistant", content: acc, status, error }]);
+        else if (status === "interrupted") markFailed(error ?? "No response received. Please try again.");
+      };
+
+      try {
+        let id = convIdRef.current;
+        if (!id) {
+          id = (await createConversation()).id;
+          if (stale()) return;
+          convIdRef.current = id;
+          setConvId(id);
+        }
+        const completed = await streamMessage(
+          id,
+          content,
+          {
+            onToken: (t) => {
+              if (stale()) return;
+              acc += t;
+              setStreaming(acc);
+            },
+            onDone: (citations) => {
+              if (stale()) return;
+              setMessages((m) => [...m, { id: newMsgId(), role: "assistant", content: acc, citations }]);
+              setStreaming("");
+              refetchConvs();
+            },
+          },
+          ctrl.signal,
+        );
+        if (stale()) return;
+        // Stream ended without the server's `done` event: the answer is truncated.
+        if (!completed) keepPartial("interrupted");
+      } catch (err) {
+        if (stale()) return;
+        if (ctrl.signal.aborted) keepPartial("stopped");
+        else if (acc.trim()) keepPartial("interrupted", describeChatError(err));
+        else markFailed(describeChatError(err));
+      } finally {
+        if (!stale()) {
+          busyRef.current = false;
+          abortRef.current = null;
+          setBusy(false);
+          setStreaming("");
+        }
+      }
+    },
+    [refetchConvs],
+  );
+
+  const stop = useCallback(() => abortRef.current?.abort(), []);
+
+  // Retry a failed send, or re-ask the question behind an interrupted answer.
+  // The server only saves an exchange once it completes, so re-sending can't duplicate it.
+  const retry = useCallback(
+    (id: string) => {
+      const list = messagesRef.current;
+      const idx = list.findIndex((m) => m.id === id);
+      if (idx < 0) return;
+      const userIdx = list[idx].role === "user" ? idx : idx - 1;
+      const userMsg = list[userIdx];
+      if (!userMsg || userMsg.role !== "user") return;
+      setMessages(list.slice(0, userIdx));
+      void send(userMsg.content);
+    },
+    [send],
+  );
+
+  // ── switching conversations ──────────────────────────────────────────────
+
+  /** Cancel any in-flight reply and make its late results irrelevant. */
+  function cancelActive() {
+    genRef.current++;
+    abortRef.current?.abort();
+    abortRef.current = null;
+    busyRef.current = false;
+    setBusy(false);
+    setStreaming("");
   }
 
   async function loadConversation(c: Conversation) {
-    if (busy) return;
+    if (c.id === convIdRef.current && messagesRef.current.length > 0) {
+      setSidebarOpen(false);
+      return;
+    }
+    cancelActive();
     setSidebarOpen(false);
+    convIdRef.current = c.id;
     setConvId(c.id);
-    setMessages([]); 
+    setMessages([]);
+    stickRef.current = true;
+    const myLoad = ++loadRef.current;
+    setLoadingConv(true);
     try {
       const msgs = await getMessages(c.id);
+      if (loadRef.current !== myLoad) return; // user already moved on
       setMessages(
-        msgs.map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-          citations: m.citations,
-        }))
+        msgs
+          .filter((m) => m.role === "user" || m.role === "assistant")
+          .map((m) => ({ id: newMsgId(), role: m.role as "user" | "assistant", content: m.content, citations: m.citations })),
       );
-    } catch (err) {
+    } catch {
+      if (loadRef.current !== myLoad) return;
       toast.error("Failed to load conversation");
+    } finally {
+      if (loadRef.current === myLoad) setLoadingConv(false);
     }
   }
 
   function startNew() {
-    if (busy) return;
+    cancelActive();
+    loadRef.current++; // abandon any pending load
+    setLoadingConv(false);
     setSidebarOpen(false);
+    convIdRef.current = null;
     setConvId(null);
     setMessages([]);
+    stickRef.current = true;
+    focusComposer();
   }
 
-  // Rename logic
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
-  const editRef = useRef<HTMLInputElement>(null);
+  const rename = useCallback(
+    async (id: string, title: string) => {
+      try {
+        await renameConversation(id, title);
+        await refetchConvs();
+      } catch {
+        toast.error("Failed to rename");
+      }
+    },
+    [refetchConvs],
+  );
 
-  function startEditing(c: Conversation) {
-    setEditingId(c.id);
-    setEditValue(c.title || "");
-    setTimeout(() => editRef.current?.focus(), 0);
-  }
-
-  const isRenaming = useRef(false);
-
-  async function commitRename(id: string, valueToCommit?: string) {
-    if (isRenaming.current) return;
-    const trimmed = (valueToCommit ?? editValue).trim();
-    setEditingId(null);
-    if (!trimmed) return;
-    
-    isRenaming.current = true;
-    try {
-      await renameConversation(id, trimmed);
-      refetchConvs();
-    } catch {
-      toast.error("Failed to rename");
-    } finally {
-      isRenaming.current = false;
-    }
-  }
-
-  const empty = messages.length === 0 && !streaming;
+  const empty = messages.length === 0 && !busy && !loadingConv;
+  const thinking = busy && !streaming;
 
   return (
     <DashboardShell>
-      <div className="flex h-[calc(100vh-theme(spacing.16))] sm:h-[calc(100vh-theme(spacing.24))] sm:m-6 sm:rounded-3xl relative overflow-hidden glass-card">
-        {/* Sidebar */}
-        <div
-          className={`absolute inset-y-0 left-0 z-20 flex w-72 flex-col border-r transition-transform sm:static sm:translate-x-0 ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-          style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(255,255,255,0.05)" }}
+      {/* Height = viewport minus the shell's chrome at each breakpoint:
+          <sm  top bar (3.5rem) + bottom tab-bar padding (5rem)
+          sm–lg same bars + the card's 1.5rem margins
+          lg   sidebar layout, margins only. dvh tracks mobile browser bars. */}
+      <div className="relative flex h-[calc(100dvh-8.5rem)] overflow-hidden border-white/5 bg-white/2 backdrop-blur-2xl sm:m-6 sm:h-[calc(100dvh-11.5rem)] sm:rounded-3xl sm:border lg:h-[calc(100dvh-3rem)]">
+        {/* Conversations */}
+        <aside
+          className={cn(
+            "absolute inset-y-0 left-0 z-20 w-72 border-r border-white/5 bg-black/60 backdrop-blur-xl transition-[transform,visibility] duration-200 sm:static sm:visible sm:translate-x-0 sm:bg-black/20",
+            // `invisible` also removes the off-screen links from the tab order.
+            sidebarOpen ? "translate-x-0" : "-translate-x-full max-sm:invisible",
+          )}
         >
-          <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-            <h2 className="label-caps" style={{ color: "#a1a1aa" }}>Chat History</h2>
-            <button
-              onClick={startNew}
-              className="rounded-full p-2 transition-colors hover:bg-white/10"
-              style={{ color: "#ccff00" }}
-              title="New Chat"
-            >
-              <HugeiconsIcon icon={Add01Icon} className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-3">
-            {!conversations?.length ? (
-              <p className="px-3 py-4 text-[13px]" style={{ color: "#71717a" }}>No past conversations.</p>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                {conversations.map((c) => (
-                  <div
-                    key={c.id}
-                    className={`group flex items-center gap-3 rounded-xl px-4 py-3 text-left transition-all ${
-                      c.id === convId
-                        ? "bg-accent/10 text-accent border border-accent/20"
-                        : "hover:bg-white/5 text-zinc-400 hover:text-zinc-200 border border-transparent"
-                    }`}
-                  >
-                    <HugeiconsIcon icon={Message01Icon} className="h-4 w-4 shrink-0 opacity-70" />
-                    {editingId === c.id ? (
-                      <input
-                         ref={editRef}
-                         value={editValue}
-                         onChange={(e) => setEditValue(e.target.value)}
-                         onKeyDown={(e) => {
-                           if (e.key === "Enter") {
-                             e.preventDefault();
-                             commitRename(c.id, editValue);
-                           }
-                           if (e.key === "Escape") setEditingId(null);
-                         }}
-                         onBlur={() => commitRename(c.id, editValue)}
-                         className="flex-1 min-w-0 bg-transparent text-[13px] font-medium outline-none border-b border-accent pb-0.5"
-                         style={{ color: "#f4f4f5" }}
-                         maxLength={120}
-                      />
-                    ) : (
-                      <button
-                        onClick={() => loadConversation(c)}
-                        className="flex-1 min-w-0 truncate text-left text-[13px] font-medium"
-                      >
-                        {c.title || "New Conversation"}
-                      </button>
-                    )}
-                    {editingId === c.id ? (
-                      <button
-                        onClick={() => commitRename(c.id)}
-                        className="shrink-0 p-1 rounded-md text-accent hover:bg-accent/20"
-                        title="Confirm"
-                      >
-                        <HugeiconsIcon icon={Tick01Icon} className="h-3.5 w-3.5" />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); startEditing(c); }}
-                        className="shrink-0 p-1 rounded-md opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-zinc-300 hover:bg-white/10 transition-all"
-                        title="Rename"
-                      >
-                        <HugeiconsIcon icon={PencilEdit01Icon} className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Overlay for mobile */}
-        {sidebarOpen && (
-          <div
-            className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm sm:hidden"
-            onClick={() => setSidebarOpen(false)}
+          <ConversationList
+            conversations={conversations}
+            loading={convsLoading}
+            activeId={convId}
+            onSelect={loadConversation}
+            onNew={startNew}
+            onRename={rename}
           />
-        )}
+        </aside>
 
-        {/* Main Chat Area */}
-        <div className="flex flex-1 flex-col relative z-0 bg-transparent">
-          <header className="flex h-[72px] shrink-0 items-center justify-between border-b px-6" style={{ borderColor: "rgba(255,255,255,0.05)", background: "rgba(0,0,0,0.1)" }}>
-            <div className="flex items-center gap-4">
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm sm:hidden"
+              onClick={() => setSidebarOpen(false)}
+              aria-hidden
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Conversation */}
+        <div className="relative z-0 flex min-w-0 flex-1 flex-col">
+          <header className="flex h-18 shrink-0 items-center justify-between border-b border-white/5 bg-black/10 px-4 sm:px-6">
+            <div className="flex items-center gap-3">
               <button
-                className="sm:hidden -ml-2 p-2 rounded-lg transition-colors hover:bg-white/10"
-                style={{ color: "#a1a1aa" }}
+                className="-ml-2 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-white/10 sm:hidden"
                 onClick={() => setSidebarOpen(true)}
+                aria-label="Open chat history"
               >
                 <HugeiconsIcon icon={Menu01Icon} className="h-5 w-5" />
               </button>
               <div>
-                <h1 style={{ fontSize: "16px", fontWeight: 700, color: "#f4f4f5" }}>AI Coach</h1>
-                <p className="text-[12px] font-medium" style={{ color: "#71717a" }}>Digital Athlete Intelligence</p>
+                <h1 className="text-[16px] font-bold text-white">AI Coach</h1>
+                <p className="text-[12px] font-medium text-muted-foreground">Grounded in curated sources</p>
               </div>
             </div>
+            <button
+              onClick={startNew}
+              className="rounded-full p-2 text-accent transition-colors hover:bg-white/10 sm:hidden"
+              aria-label="New chat"
+            >
+              <HugeiconsIcon icon={Add01Icon} className="h-5 w-5" />
+            </button>
           </header>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
-            {empty ? (
-              <EmptyState onPick={send} />
-            ) : (
-              <div className="mx-auto flex max-w-3xl flex-col gap-6 pb-4">
-                {messages.map((m, i) => (
-                  <ChatBubble key={i} msg={m} onCitation={setOpenCitation} />
-                ))}
-                {streaming && (
-                  <ChatBubble msg={{ role: "assistant", content: streaming }} streaming onCitation={setOpenCitation} />
-                )}
-              </div>
-            )}
+          <div className="relative flex-1 overflow-hidden">
+            <div
+              ref={scrollRef}
+              onScroll={onScroll}
+              role="log"
+              aria-label="Conversation"
+              aria-busy={busy}
+              className="h-full space-y-6 overflow-y-auto p-4 sm:p-6 lg:p-8"
+            >
+              {loadingConv ? (
+                <div className="mx-auto flex max-w-3xl flex-col gap-6" aria-busy="true" aria-label="Loading conversation">
+                  <Skeleton className="ml-auto h-14 w-2/3 rounded-3xl" />
+                  <Skeleton className="h-28 w-5/6 rounded-3xl" />
+                  <Skeleton className="ml-auto h-14 w-1/2 rounded-3xl" />
+                </div>
+              ) : empty ? (
+                <EmptyState onPick={send} />
+              ) : (
+                <div className="mx-auto flex max-w-3xl flex-col gap-6 pb-4">
+                  {messages.map((m) => (
+                    <ChatBubble key={m.id} msg={m} onCitation={setOpenCitation} onRetry={retry} />
+                  ))}
+                  {streaming && (
+                    <ChatBubble
+                      msg={{ id: "streaming", role: "assistant", content: streaming }}
+                      streaming
+                      onCitation={setOpenCitation}
+                    />
+                  )}
+                  {thinking && <ThinkingBubble />}
+                </div>
+              )}
+            </div>
+
+            <AnimatePresence>
+              {showJump && (
+                <motion.button
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={spring.snappy}
+                  onClick={jumpToLatest}
+                  className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-border bg-popover px-4 py-2 text-[12px] font-bold text-white shadow-xl"
+                >
+                  <HugeiconsIcon icon={ArrowDown01Icon} className="h-4 w-4" />
+                  Jump to latest
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
 
-          <ChatInput value={input} onChange={setInput} onSend={() => send(input)} busy={busy} />
+          <Composer
+            value={input}
+            onChange={setInput}
+            onSend={() => send(input)}
+            onStop={stop}
+            busy={busy}
+            inputRef={composerRef}
+          />
         </div>
       </div>
 
-      {openCitation && (
-        <CitationModal citation={openCitation} onClose={() => setOpenCitation(null)} />
-      )}
-
-      <style jsx global>{`
-        .glass-card {
-          position: relative;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(40px);
-          -webkit-backdrop-filter: blur(40px);
-        }
-        .label-caps {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-        }
-        .msg-user {
-          background: rgba(204, 255, 0, 0.1);
-          border: 1px solid rgba(204, 255, 0, 0.2);
-          color: #f4f4f5;
-        }
-        .msg-ai {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          color: #d4d4d8;
-        }
-      `}</style>
+      <AnimatePresence>
+        {openCitation && <CitationModal citation={openCitation} onClose={() => setOpenCitation(null)} />}
+      </AnimatePresence>
     </DashboardShell>
   );
 }
 
-// ── components ────────────────────────────────────────────────────────────────
-
 function EmptyState({ onPick }: { onPick: (t: string) => void }) {
   return (
-    <div className="mx-auto flex h-full max-w-2xl flex-col items-center justify-center gap-8 text-center pb-20">
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex h-20 w-20 items-center justify-center rounded-[2rem]" style={{ background: "rgba(204,255,0,0.1)", color: "#ccff00", border: "1px solid rgba(204,255,0,0.2)", boxShadow: "0 0 40px rgba(204,255,0,0.1)" }}>
+    <div className="mx-auto flex min-h-full max-w-2xl flex-col items-center justify-center gap-8 pb-10 text-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={spring.soft}
+        className="flex flex-col items-center gap-4"
+      >
+        <div className="flex h-20 w-20 items-center justify-center rounded-4xl border border-accent/20 bg-accent/10 text-accent shadow-[0_0_40px_rgba(204,255,0,0.1)]">
           <HugeiconsIcon icon={SparklesIcon} className="h-10 w-10" />
         </div>
         <div>
-          <p style={{ fontSize: "24px", fontWeight: 800, color: "#f4f4f5", letterSpacing: "-0.02em" }}>Ask your AI Coach</p>
-          <p className="mt-2 text-[14px]" style={{ color: "#a1a1aa" }}>
-            Grounded in curated science. Not a substitute for a doctor.
-          </p>
+          <p className="text-[24px] font-extrabold tracking-tight text-white">Ask your AI Coach</p>
+          <p className="mt-2 text-[14px] text-muted-foreground">Grounded in curated science. Not a substitute for a doctor.</p>
         </div>
-      </div>
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 mt-4">
-        {SUGGESTIONS.map((s) => (
-          <button
+      </motion.div>
+      <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+        {SUGGESTIONS.map((s, i) => (
+          <motion.button
             key={s}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...spring.soft, delay: 0.1 + i * 0.07 }}
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => onPick(s)}
-            className="rounded-2xl px-6 py-5 text-left text-[14px] font-medium transition-all hover:-translate-y-1 hover:bg-white/5"
-            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "#e2e2e2" }}
+            className="rounded-2xl border border-white/6 bg-white/2 px-6 py-5 text-left text-[14px] font-medium text-zinc-200 transition-colors hover:bg-white/5"
           >
             {s}
-          </button>
+          </motion.button>
         ))}
-      </div>
-    </div>
-  );
-}
-
-function ChatBubble({
-  msg,
-  streaming,
-  onCitation,
-}: {
-  msg: Msg;
-  streaming?: boolean;
-  onCitation: (c: Citation) => void;
-}) {
-  const isUser = msg.role === "user";
-  return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div
-        className={`max-w-[85%] rounded-[1.5rem] px-6 py-4 text-[15px] leading-relaxed shadow-sm ${
-          isUser ? "msg-user rounded-tr-sm" : "msg-ai rounded-tl-sm"
-        }`}
-      >
-        <p className="whitespace-pre-wrap">
-          {msg.content}
-          {streaming && <span className="ml-1 animate-pulse" style={{ color: "#ccff00" }}>▌</span>}
-        </p>
-        {msg.citations && msg.citations.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2 pt-3 border-t border-white/5">
-            {dedupeCitations(msg.citations).map((c, i) => {
-              const label = `${i + 1}. ${c.title ?? c.source ?? "Source"}`;
-              const chipClass =
-                "flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition-all hover:-translate-y-0.5";
-              const chipStyle = { background: "rgba(99,102,241,0.15)", color: "#818cf8", border: "1px solid rgba(99,102,241,0.2)" };
-
-              return c.slug ? (
-                <Link key={c.chunk_id} href={`/learn/${c.slug}`} className={chipClass} style={chipStyle}>
-                  <HugeiconsIcon icon={BookOpen01Icon} className="h-3.5 w-3.5" />
-                  {label}
-                </Link>
-              ) : (
-                <button key={c.chunk_id} onClick={() => onCitation(c)} className={chipClass} style={chipStyle}>
-                  <HugeiconsIcon icon={BookOpen01Icon} className="h-3.5 w-3.5" />
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ChatInput({
-  value,
-  onChange,
-  onSend,
-  busy,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  onSend: () => void;
-  busy: boolean;
-}) {
-  return (
-    <div className="shrink-0 p-4 sm:p-6" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)" }}>
-      <div className="mx-auto flex max-w-3xl items-end gap-3 rounded-[2rem] p-2 pr-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(20px)" }}>
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              onSend();
-            }
-          }}
-          rows={1}
-          aria-label="Message"
-          placeholder="Message Coach..."
-          className="max-h-32 flex-1 resize-none bg-transparent px-5 py-4 text-[15px] font-medium text-foreground outline-none placeholder:text-zinc-500"
-        />
-        <button
-          onClick={onSend}
-          disabled={busy || !value.trim()}
-          aria-label="Send"
-          className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full transition-all disabled:opacity-30 hover:scale-105 active:scale-95 mb-0.5"
-          style={{ background: value.trim() && !busy ? "#ccff00" : "rgba(255,255,255,0.1)", color: value.trim() && !busy ? "#1b1304" : "#a1a1aa", boxShadow: value.trim() && !busy ? "0 0 20px rgba(204,255,0,0.3)" : "none" }}
-        >
-          <HugeiconsIcon icon={SentIcon} className="h-5 w-5" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function CitationModal({ citation, onClose }: { citation: Citation; onClose: () => void }) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-label="Source"
-    >
-      <div
-        className="mf-rise w-full max-w-md rounded-3xl p-6"
-        onClick={(e) => e.stopPropagation()}
-        style={{ background: "#18181b", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: "rgba(99,102,241,0.1)", color: "#818cf8" }}>
-               <HugeiconsIcon icon={BookOpen01Icon} className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-[15px] font-bold text-foreground">
-                {citation.title ?? "Source"}
-              </p>
-              <p className="text-[11px] font-bold uppercase tracking-wider mt-1" style={{ color: "#71717a" }}>
-                {citation.source ?? "knowledge base"}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="rounded-full p-2 transition-colors hover:bg-white/10"
-            style={{ color: "#a1a1aa" }}
-          >
-            <HugeiconsIcon icon={Cancel01Icon} className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="mt-5 rounded-xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-          <p className="text-[13px] leading-relaxed" style={{ color: "#a1a1aa" }}>
-            This answer drew on the curated MessFit knowledge base. Full article text is
-            available in the knowledge base under this title.
-          </p>
-        </div>
-        <button
-           onClick={onClose}
-           className="mt-6 w-full rounded-full py-3 text-[14px] font-bold transition-all hover:bg-white/10"
-           style={{ background: "rgba(255,255,255,0.05)", color: "#f4f4f5" }}
-        >
-           Close
-        </button>
       </div>
     </div>
   );
