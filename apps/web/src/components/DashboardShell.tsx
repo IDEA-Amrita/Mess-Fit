@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -16,9 +16,11 @@ import {
   Target01Icon,
   Settings01Icon,
 } from "@hugeicons/core-free-icons";
-import { MoreHorizontalIcon, Cancel01Icon, Logout01Icon } from "@hugeicons/core-free-icons";
+import { MoreHorizontalIcon, Cancel01Icon, Logout01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { spring } from "@/lib/motion";
+import { CommandPalette, type PaletteCommand } from "@/components/CommandPalette";
 
 type NavItem = {
   icon: typeof PlateIcon;
@@ -60,6 +62,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -79,6 +82,28 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
     router.replace("/auth/login");
   }
+
+  const commands = useMemo<PaletteCommand[]>(
+    () => [
+      ...NAV_ITEMS.filter((i) => !i.comingSoon).map((i) => ({
+        id: i.href,
+        label: i.label,
+        hint: "Go to",
+        icon: i.icon,
+        run: () => router.push(i.href),
+      })),
+      {
+        id: "sign-out",
+        label: "Sign out",
+        keywords: "logout log out",
+        icon: Logout01Icon,
+        run: () => {
+          void supabase.auth.signOut().then(() => router.replace("/auth/login"));
+        },
+      },
+    ],
+    [router],
+  );
 
   const displayLabel = displayName ?? email ?? "User";
   const initial = displayLabel.charAt(0).toUpperCase();
@@ -100,7 +125,18 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <Logo />
         </div>
 
-        <nav aria-label="Main navigation" className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-6">
+        <div className="px-4">
+          <button
+            onClick={() => setPaletteOpen(true)}
+            className="flex w-full items-center gap-2 rounded-xl border border-border bg-surface-2/60 px-3 py-2.5 text-left text-[13px] font-bold text-muted-foreground transition-colors hover:border-white/20 hover:text-white"
+          >
+            <HugeiconsIcon icon={Search01Icon} size={16} />
+            <span className="flex-1">Search…</span>
+            <kbd className="rounded border border-border px-1.5 py-0.5 text-[10px]">Ctrl K</kbd>
+          </button>
+        </div>
+
+        <nav aria-label="Main navigation" className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
           {NAV_ITEMS.map((item) => (
             <NavRow key={item.label} item={item} active={isActive(item.href)} />
           ))}
@@ -127,19 +163,23 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       {/* ── Mobile top bar (<lg) ── */}
       <header className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between bg-background/80 px-5 backdrop-blur-xl lg:hidden border-b border-border/50">
         <Logo />
-        <Avatar initial={initial} imageUrl={avatarUrl} />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setPaletteOpen(true)}
+            aria-label="Search"
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:text-white"
+          >
+            <HugeiconsIcon icon={Search01Icon} size={20} strokeWidth={2} />
+          </button>
+          <Avatar initial={initial} imageUrl={avatarUrl} />
+        </div>
       </header>
 
       {/* ── Main ── */}
       <main id="main-content" className="flex min-h-screen flex-1 flex-col pb-20 pt-14 lg:ml-64 lg:pb-0 lg:pt-0">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="flex-1 flex flex-col w-full h-full"
-        >
-          {children}
-        </motion.div>
+        {/* Route-change animation lives in app/template.tsx; animating here too
+            made every page fade in twice. */}
+        <div className="flex h-full w-full flex-1 flex-col">{children}</div>
       </main>
 
       {/* ── Mobile bottom tab bar (<lg) ── */}
@@ -170,6 +210,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           More
         </button>
       </nav>
+
+      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} commands={commands} />
 
       {/* ── Mobile "More" sheet ── */}
       {moreOpen && (
@@ -242,11 +284,15 @@ function NavRow({
   active: boolean;
   compact?: boolean;
 }) {
+  // The full-size (sidebar) row draws its active state as a shared-layout pill
+  // that glides between rows; the compact "More" sheet variant stays static
+  // since both can be mounted at once and would fight over the layoutId.
+  const slidingPill = active && !compact;
   const base = cn(
-    "flex items-center gap-3 rounded-xl px-4 font-bold transition-all",
+    "relative flex items-center gap-3 rounded-xl px-4 font-bold transition-colors",
     compact ? "py-3 text-sm bg-surface-2" : "py-3.5 text-[14px]",
     active
-      ? "bg-accent text-black"
+      ? compact ? "bg-accent text-black" : "text-black"
       : item.comingSoon
         ? "cursor-not-allowed opacity-40 text-muted-foreground"
         : compact ? "text-muted-foreground hover:text-white" : "text-muted-foreground hover:bg-surface-2 hover:text-white",
@@ -254,10 +300,17 @@ function NavRow({
   
   const inner = (
     <>
-      <div className="flex h-6 w-6 items-center justify-center">
+      {slidingPill && (
+        <motion.span
+          layoutId="nav-pill"
+          transition={spring.snappy}
+          className="absolute inset-0 -z-0 rounded-xl bg-accent"
+        />
+      )}
+      <div className="relative flex h-6 w-6 items-center justify-center">
         <HugeiconsIcon icon={item.icon} size={20} strokeWidth={2} color="currentColor" />
       </div>
-      <span className="flex-1 truncate">{item.label}</span>
+      <span className="relative flex-1 truncate">{item.label}</span>
       {item.comingSoon && (
         <span className="rounded bg-black/20 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
           Soon
@@ -300,9 +353,20 @@ function TabButton({
         active ? "text-accent" : "text-muted-foreground hover:text-white",
       )}
     >
-      <div className="flex h-6 w-6 items-center justify-center">
+      {active && (
+        <motion.span
+          layoutId="tab-indicator"
+          transition={spring.snappy}
+          className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-accent shadow-[0_0_10px_var(--accent)]"
+        />
+      )}
+      <motion.div
+        whileTap={{ scale: 0.85 }}
+        transition={spring.snappy}
+        className="flex h-6 w-6 items-center justify-center"
+      >
         <HugeiconsIcon icon={icon} size={22} strokeWidth={active ? 2.5 : 2} color="currentColor" />
-      </div>
+      </motion.div>
       {label}
     </Link>
   );
