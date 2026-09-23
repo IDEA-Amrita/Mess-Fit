@@ -50,8 +50,10 @@ export function ProgressRing({
           stroke={color}
           strokeWidth={stroke}
           strokeLinecap="round"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: clamped / 100 }}
+          initial={{ pathLength: 0, opacity: 0 }}
+          // A zero-length arc with round caps still paints a dot, so hide the
+          // arc entirely at 0% instead of letting "no progress" look like a tiny bit.
+          animate={{ pathLength: clamped / 100, opacity: clamped > 0 ? 1 : 0 }}
           transition={{ duration: 1.4, delay, ease: [0.16, 1, 0.3, 1] }}
           style={{ filter: `drop-shadow(0 0 6px ${color})` }}
         />
