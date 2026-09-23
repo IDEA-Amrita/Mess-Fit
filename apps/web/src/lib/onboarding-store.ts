@@ -50,10 +50,12 @@ interface OnboardingState {
     key: K,
     value: OnboardingState[K],
   ) => void;
+  /** Apply several fields at once (one render, one persist). */
+  patch: (fields: Partial<Omit<OnboardingState, "setField" | "patch" | "reset">>) => void;
   reset: () => void;
 }
 
-const defaults: Omit<OnboardingState, "setField" | "reset"> = {
+const defaults: Omit<OnboardingState, "setField" | "patch" | "reset"> = {
   dob: "",
   sex: "male",
   height_cm: 170,
@@ -80,6 +82,7 @@ export const useOnboardingStore = create<OnboardingState>()(
     (set) => ({
       ...defaults,
       setField: (key, value) => set({ [key]: value } as Partial<OnboardingState>),
+      patch: (fields) => set(fields),
       reset: () => set(defaults),
     }),
     {
@@ -88,3 +91,14 @@ export const useOnboardingStore = create<OnboardingState>()(
     }
   )
 );
+
+/**
+ * Forget everything the user typed, in memory *and* in sessionStorage.
+ * Call on sign-out / account deletion / onboarding completion: the store is
+ * persisted per tab, so without this the next person to sign up in the same tab
+ * would see the previous person's date of birth, weight and conditions.
+ */
+export function clearOnboardingData(): void {
+  useOnboardingStore.getState().reset();
+  useOnboardingStore.persist.clearStorage();
+}

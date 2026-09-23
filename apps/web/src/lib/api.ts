@@ -72,3 +72,20 @@ export async function apiFetch<T>(
 
   return res.json() as Promise<T>;
 }
+
+/**
+ * A message safe to render for any error thrown by `apiFetch`.
+ *
+ * FastAPI answers validation failures (422) with `detail` as an *array* of
+ * objects, not a string — rendering that as a React child throws, so anything
+ * that isn't a plain string is replaced with a readable sentence.
+ */
+export function apiErrorMessage(err: unknown, fallback = "Something went wrong"): string {
+  if (err instanceof ApiError) {
+    if (typeof err.detail === "string" && err.detail) return err.detail;
+    if (err.status === 422) return "Some of your details look invalid. Please review them and try again.";
+    if (err.status === 429) return "Too many requests. Please wait a moment and try again.";
+    return fallback;
+  }
+  return err instanceof Error && err.message ? err.message : fallback;
+}
