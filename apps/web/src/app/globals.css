@@ -128,3 +128,82 @@
 .animate-spin-slow {
   animation: spin-slow 8s linear infinite;
 }
+
+/* ── Motion utilities ─────────────────────────────────────────────── */
+
+/* Endless horizontal ticker. Content is rendered twice, so -50% loops seamlessly. */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 38s linear infinite;
+}
+.marquee-mask {
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* Subtle blinking caret for typewriter-style demos. */
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+.animate-caret {
+  animation: caret 1s steps(1) infinite;
+}
+
+/* Slow ambient drift for background glows. */
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.08);
+  }
+}
+.animate-drift {
+  animation: drift 14s ease-in-out infinite;
+}
+
+/* Faint engineering-paper grid, faded out toward the edges. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
+}
+
+.text-gradient {
+  background: linear-gradient(180deg, #fff 30%, rgba(255, 255, 255, 0.55));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Skeleton shimmer (use with .bg-surface-2). */
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--surface-2) 25%, #2a2a2d 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* CSS-driven animations aren't covered by framer's MotionConfig, so honour the
+   OS reduced-motion preference here explicitly. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-drift,
+  .animate-caret,
+  .animate-spin-slow,
+  .shimmer {
+    animation: none;
+  }
+}

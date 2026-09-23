@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/Toaster";
+import { MotionProvider } from "@/components/motion/motion-provider";
 
 /**
  * App-wide client providers. The QueryClient is created in state so it's stable
@@ -20,8 +21,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster />
+      <MotionProvider>
+        {children}
+        <Toaster />
+      </MotionProvider>
     </QueryClientProvider>
   );
 }
