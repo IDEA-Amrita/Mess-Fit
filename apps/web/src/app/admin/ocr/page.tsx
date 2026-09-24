@@ -97,8 +97,9 @@ export default function AdminOcrPage() {
       <form onSubmit={handleUpload} className="rounded-lg border p-4 space-y-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-1">
-            <label className="text-sm font-medium">Mess</label>
+            <label htmlFor="ocr-mess" className="text-sm font-medium">Mess</label>
             <select
+              id="ocr-mess"
               value={messId}
               onChange={(e) => setMessId(e.target.value)}
               className="w-full rounded-md border bg-background px-3 py-2 text-sm"
@@ -111,8 +112,9 @@ export default function AdminOcrPage() {
             </select>
           </div>
           <div className="flex-1 space-y-1">
-            <label className="text-sm font-medium">Menu photo</label>
+            <label htmlFor="ocr-photo" className="text-sm font-medium">Menu photo</label>
             <input
+              id="ocr-photo"
               ref={fileRef}
               type="file"
               accept="image/png,image/jpeg,image/webp,image/heic"

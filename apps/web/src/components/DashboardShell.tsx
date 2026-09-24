@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -63,6 +63,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const moreCloseRef = useRef<HTMLButtonElement>(null);
+  const moreTriggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     function apply(user: { email?: string; user_metadata?: Record<string, unknown> }) {
@@ -83,6 +85,23 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMoreOpen(false);
   }, [pathname]);
+
+  // The "More" sheet is a real modal (role="dialog") but was keyboard-dead:
+  // Escape didn't close it, opening never moved focus in, and closing never
+  // gave it back to whatever button opened it.
+  useEffect(() => {
+    if (!moreOpen) return;
+    moreTriggerRef.current = document.activeElement as HTMLElement | null;
+    moreCloseRef.current?.focus();
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMoreOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      moreTriggerRef.current?.focus();
+    };
+  }, [moreOpen]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -238,6 +257,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <div className="mb-4 flex items-center justify-between">
               <p className="text-lg font-black tracking-tight text-white">More</p>
               <button
+                ref={moreCloseRef}
                 onClick={() => setMoreOpen(false)}
                 aria-label="Close"
                 className="rounded-full bg-surface-2 p-2 text-muted-foreground transition-colors hover:text-white"

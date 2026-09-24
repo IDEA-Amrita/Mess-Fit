@@ -14,12 +14,37 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // Only set when PLAYWRIGHT_CHROMIUM_PATH is exported — lets a
+        // machine with a non-standard browser cache (missing the exact
+        // headless-shell build `playwright install` would normally fetch)
+        // point at an already-installed Chromium without affecting normal
+        // CI/dev machines, which always leave this unset.
+        launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH
+          ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH }
+          : {},
+      },
     },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-  },
+  // Two processes: a Supabase-auth mock (tests/mocks/auth-server.mjs, so e2e
+  // never depends on the real — sandbox/CI-unreachable — Supabase project)
+  // and `next dev` pointed at it via env overrides. Next.js only fills in
+  // .env.local values that aren't already set in process.env, so these win.
+  webServer: [
+    {
+      command: 'node tests/mocks/auth-server.mjs',
+      url: 'http://localhost:54321/auth/v1/user',
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: 'npm run dev',
+      url: 'http://localhost:3000',
+      reuseExistingServer: !process.env.CI,
+      env: {
+        NEXT_PUBLIC_SUPABASE_URL: 'http://localhost:54321',
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: 'e2e-mock-anon-key',
+      },
+    },
+  ],
 });

@@ -38,6 +38,7 @@ export function CommandPalette({
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -57,16 +58,20 @@ export function CommandPalette({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onOpenChange]);
 
-  // Reset on open; lock background scroll while open.
+  // Reset on open; lock background scroll while open; on close, return focus
+  // to whatever triggered the palette (button, Ctrl/Cmd+K) — a modal that
+  // steals focus and never gives it back strands keyboard/screen-reader users.
   useEffect(() => {
     if (!open) return;
     setQuery("");
     setActive(0);
+    triggerRef.current = document.activeElement as HTMLElement | null;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     inputRef.current?.focus();
     return () => {
       document.body.style.overflow = prev;
+      triggerRef.current?.focus();
     };
   }, [open]);
 
@@ -95,6 +100,12 @@ export function CommandPalette({
       choose(results[active]);
     } else if (e.key === "Escape") {
       onOpenChange(false);
+    } else if (e.key === "Tab") {
+      // The input is the only focusable element inside the dialog (rows are
+      // role="option", not tabbable — arrow keys move the aria-activedescendant
+      // instead) — without this, Tab would carry focus out to the page behind
+      // the modal, which a true modal dialog must never allow.
+      e.preventDefault();
     }
   }
 
