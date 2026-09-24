@@ -34,6 +34,7 @@ celery_app = Celery(
         "messfit_api.optimizer.tasks",
         "messfit_api.account.tasks",
         "messfit_api.notifications.tasks",
+        "messfit_api.analytics.tasks",
     ],
 )
 
@@ -56,6 +57,11 @@ celery_app.conf.update(
         "weekly-checkin-reminder": {
             "task": "messfit.notifications.weekly_checkin",
             "schedule": crontab(hour=12, minute=30, day_of_week=0),
+        },
+        # Analytics retention: prune events past the window, 04:00 UTC.
+        "analytics-prune-old-events": {
+            "task": "messfit.analytics.prune_old_events",
+            "schedule": crontab(hour=4, minute=0),
         },
     },
 )
