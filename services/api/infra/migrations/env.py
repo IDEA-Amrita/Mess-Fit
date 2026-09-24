@@ -13,7 +13,9 @@ if config.config_file_name is not None:
 
 # alembic doesn't speak asyncpg; swap the driver for sync psycopg / psycopg2
 sync_url = settings.database_url.replace("+asyncpg", "")
-config.set_main_option("sqlalchemy.url", sync_url)
+# ConfigParser treats "%" as interpolation; a percent-encoded password (e.g. %40)
+# must have it doubled or alembic refuses to start.
+config.set_main_option("sqlalchemy.url", sync_url.replace("%", "%%"))
 
 from messfit_api.db import Base
 # Import all model modules so they register with Base

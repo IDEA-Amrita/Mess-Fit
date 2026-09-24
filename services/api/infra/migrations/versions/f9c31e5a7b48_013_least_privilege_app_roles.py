@@ -59,8 +59,10 @@ _WORKER_ROLE = "messfit_worker"
 def upgrade() -> None:
     # ─── 1. Fix the local-dev auth.uid() shim ──────────────────────────────
     # Only replaces a function whose source is recognizably OUR old shim
-    # (contains the old flat-key setting name). A pre-existing Supabase
-    # auth.uid() — which will never contain that string — is left untouched.
+    # (reads ONLY the old flat-key setting). Supabase's own auth.uid() reads
+    # the flat key too, as a fallback, but ALSO the `request.jwt.claims` blob,
+    # so requiring that blob to be absent keeps us from touching it (the
+    # postgres role can't: schema auth belongs to supabase_auth_admin).
     op.execute(
         """
         DO $$
@@ -72,7 +74,10 @@ def upgrade() -> None:
           JOIN pg_namespace n ON n.oid = p.pronamespace
           WHERE n.nspname = 'auth' AND p.proname = 'uid';
 
-          IF fn_src IS NULL OR fn_src LIKE '%request.jwt.claim.sub%' THEN
+          IF fn_src IS NULL OR (
+            fn_src LIKE '%request.jwt.claim.sub%'
+            AND fn_src NOT LIKE '%request.jwt.claims%'
+          ) THEN
             CREATE OR REPLACE FUNCTION auth.uid()
             RETURNS UUID AS $body$
               SELECT NULLIF(
