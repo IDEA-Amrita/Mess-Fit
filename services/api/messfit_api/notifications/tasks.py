@@ -9,11 +9,10 @@ from __future__ import annotations
 import asyncio
 import json
 import structlog
-from sqlalchemy import select
 
 from ..celery_app import celery_app
 from ..db import WorkerSessionLocal
-from ..profile.models import Profile
+from . import repository
 from .service import send_push_notification
 
 logger = structlog.get_logger(__name__)
@@ -22,10 +21,8 @@ logger = structlog.get_logger(__name__)
 async def _notify_weekly_checkin() -> None:
     """Async implementation of the weekly check-in notification."""
     async with WorkerSessionLocal() as db:
-        # Fetch all users who have an active profile.
-        # In a real app, we'd batch this and check their timezone or push settings.
-        result = await db.execute(select(Profile.user_id))
-        user_ids = result.scalars().all()
+        # Only users with a registered device who haven't opted out.
+        user_ids = await repository.list_weekly_checkin_recipients(db)
 
         payload = json.dumps({
             "title": "Weekly Check-in 📈",

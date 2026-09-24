@@ -9,7 +9,7 @@ from ..auth.deps import get_active_user_id
 from ..db import get_session
 from ..observability.ratelimit import limiter
 from . import repository
-from .schemas import PushSubscriptionIn, TestNotificationOut
+from .schemas import NotificationPreferences, PushSubscriptionIn, TestNotificationOut
 from .service import send_push_notification
 
 router = APIRouter(prefix="/api/v1/notifications", tags=["notifications"])
@@ -50,3 +50,23 @@ async def send_test_notification(
     })
     delivered = await send_push_notification(db, uuid.UUID(user_id), payload)
     return TestNotificationOut(delivered=delivered)
+
+
+@router.get("/preferences", response_model=NotificationPreferences)
+async def get_preferences(
+    user_id: str = Depends(get_active_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> NotificationPreferences:
+    return NotificationPreferences(
+        weekly_checkin=await repository.get_weekly_checkin_enabled(db, uuid.UUID(user_id))
+    )
+
+
+@router.put("/preferences", response_model=NotificationPreferences)
+async def put_preferences(
+    prefs: NotificationPreferences,
+    user_id: str = Depends(get_active_user_id),
+    db: AsyncSession = Depends(get_session),
+) -> NotificationPreferences:
+    await repository.set_weekly_checkin_enabled(db, uuid.UUID(user_id), prefs.weekly_checkin)
+    return prefs
