@@ -164,7 +164,9 @@ export async function getProgress(range: ProgressRange): Promise<Progress> {
 
 export interface LeaderboardEntry {
   rank: number;
-  user_id: string;
+  /** True for the calling user's own row. The server never sends a raw user_id. */
+  is_you: boolean;
+  display_name: string;
   meals_followed: number;
   workouts_done: number;
   score: number;

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { PwaStatus } from "@/components/PwaStatus";
 import { Toaster } from "@/components/Toaster";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { clearOnboardingData } from "@/lib/onboarding-store";
@@ -42,6 +43,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <MotionProvider>
         {children}
         <Toaster />
+        <PwaStatus />
       </MotionProvider>
     </QueryClientProvider>
   );

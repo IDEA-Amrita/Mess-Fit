@@ -119,12 +119,10 @@ async def leaderboard(
     if mess is None:
         return {"entries": [], "user_rank": None}
 
-    entries = await get_college_leaderboard(db, mess.college, days=days)
+    entries = await get_college_leaderboard(db, mess.college, uid, days=days)
 
     # Find the current user's rank.
-    user_rank = next(
-        (e for e in entries if e["user_id"] == user_id), None
-    )
+    user_rank = next((e for e in entries if e["is_you"]), None)
 
     return {"entries": entries, "user_rank": user_rank}
 
