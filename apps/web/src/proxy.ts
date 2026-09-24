@@ -31,7 +31,14 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Routes anyone can access without authentication.
-const PUBLIC_ROUTES = new Set(["/", "/auth/login", "/auth/signup", "/auth/callback"]);
+const PUBLIC_ROUTES = new Set([
+  "/",
+  "/auth/login",
+  "/auth/signup",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+  "/auth/callback",
+]);
 
 // The /learn articles are public and deep-linkable (chatbot citations link here).
 function isLearn(pathname: string): boolean {
@@ -146,8 +153,9 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Logged in users on auth pages → bounce them out
-  if (isAuthRoute(pathname)) {
+  // Logged in users on auth pages → bounce them out. Exception: the recovery
+  // link signs the user in, and they must still be able to set the new password.
+  if (isAuthRoute(pathname) && pathname !== "/auth/reset-password") {
     const url = request.nextUrl.clone();
     url.pathname = onboarded ? "/dashboard" : "/onboarding/profile";
     return NextResponse.redirect(url);
@@ -174,6 +182,7 @@ export async function proxy(request: NextRequest) {
   if (
     !onboarded &&
     !isOnboardingRoute(pathname) &&
+    pathname !== "/auth/reset-password" &&
     pathname !== "/" &&
     !isLearn(pathname) &&
     !isLegal(pathname)

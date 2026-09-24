@@ -1,13 +1,16 @@
 "use client";
 
+import { friendlyAuthError } from "@/lib/auth-errors";
 import { supabase } from "@/lib/supabase";
 
-export function OAuthButtons() {
+export function OAuthButtons({ onError }: { onError?: (message: string) => void }) {
   async function handleOAuth(provider: "google" | "github") {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
+    // On success the browser navigates away; only a failure to start comes back here.
+    if (error) onError?.(friendlyAuthError(error));
   }
 
   return (
