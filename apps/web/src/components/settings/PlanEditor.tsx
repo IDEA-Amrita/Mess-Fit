@@ -114,7 +114,7 @@ export function PlanEditor() {
               profileQ.refetch();
               hostelQ.refetch();
             }}
-            className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-white/15"
+            className="min-h-11 rounded-lg bg-white/10 px-4 text-xs font-semibold text-foreground hover:bg-white/15"
           >
             Retry
           </button>
