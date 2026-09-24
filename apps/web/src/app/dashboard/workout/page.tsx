@@ -14,6 +14,7 @@ import {
   Timer02Icon,
 } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorState } from "@/components/ui/error-state";
 import { DashboardShell } from "@/components/DashboardShell";
 import { AnimatedNumber } from "@/components/motion/animated-number";
 import { ProgressRing } from "@/components/motion/progress-ring";
@@ -369,7 +370,7 @@ export default function WorkoutPage() {
             </motion.div>
           ) : query.isError ? (
             <motion.div key="error" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="mt-10">
-              <ErrorState error={query.error} onRetry={() => query.refetch()} />
+              <WorkoutError error={query.error} onRetry={() => query.refetch()} />
             </motion.div>
           ) : workout ? (
             <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 space-y-6">
@@ -491,34 +492,29 @@ export default function WorkoutPage() {
   );
 }
 
-function ErrorState({ error, onRetry }: { error: ApiError | null; onRetry: () => void }) {
+function WorkoutError({ error, onRetry }: { error: unknown; onRetry: () => void }) {
   // 409 = profile/hostel not set up (or the template isn't seeded); the server
   // message says which. Everything else is a plain load failure.
-  const setupNeeded = error?.status === 409;
-  const needsOnboarding = setupNeeded && /onboarding/i.test(error?.detail ?? "");
+  const status = error instanceof ApiError ? error.status : null;
+  const detail = error instanceof ApiError ? error.detail : undefined;
+  const setupNeeded = status === 409;
+  const needsOnboarding = setupNeeded && /onboarding/i.test(detail ?? "");
   return (
-    <div className="surface-card mx-auto flex max-w-md flex-col items-center justify-center py-16 text-center">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#FF3B30]/10 text-[#FF3B30]">
-        <HugeiconsIcon icon={Alert01Icon} size={32} />
-      </div>
-      <h2 className="mb-2 text-xl font-bold text-white">{setupNeeded ? "Finish setup first" : "Couldn't load your workout"}</h2>
-      <p className="mb-6 max-w-sm text-sm text-muted-foreground">{error?.detail ?? "Please try again."}</p>
-      {needsOnboarding ? (
-        <Link
-          href="/onboarding/hostel"
-          className="rounded-full bg-accent px-6 py-3 text-[12px] font-black uppercase tracking-widest text-black"
-        >
-          Set up profile
-        </Link>
-      ) : (
-        <motion.button
-          whileTap={{ scale: 0.96 }}
-          onClick={onRetry}
-          className="rounded-full bg-accent px-6 py-3 text-[12px] font-black uppercase tracking-widest text-black"
-        >
-          Try again
-        </motion.button>
-      )}
-    </div>
+    <ErrorState
+      title={setupNeeded ? "Finish setup first" : "Couldn't load your workout"}
+      error={error}
+      description={setupNeeded ? detail : undefined}
+      onRetry={needsOnboarding ? undefined : onRetry}
+      action={
+        needsOnboarding ? (
+          <Link
+            href="/onboarding/hostel"
+            className="rounded-full bg-accent px-6 py-3 text-[12px] font-black uppercase tracking-widest text-black"
+          >
+            Set up profile
+          </Link>
+        ) : undefined
+      }
+    />
   );
 }

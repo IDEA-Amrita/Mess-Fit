@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowDown01Icon, PlateIcon, SparklesIcon, Tick01Icon } from "@hugeicons/core-free-icons";
+import { ErrorState } from "@/components/ui/error-state";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
 import { clearOnboardingData } from "@/lib/onboarding-store";
 import { BMI_COLORS } from "@/lib/profile-form";
@@ -63,19 +64,21 @@ export default function TargetsPage() {
 
   if (targetsQuery.isError || !targets) {
     return (
-      <div className="flex flex-col items-center gap-4 py-16 text-center">
-        <p role="alert" className="text-sm text-destructive">
-          {apiErrorMessage(targetsQuery.error, "Failed to load targets")}
-        </p>
-        <div className="flex gap-4 text-sm font-medium">
-          <button onClick={() => targetsQuery.refetch()} className="text-accent">
-            Try again
-          </button>
-          <button onClick={() => router.push("/onboarding/hostel")} className="text-muted-foreground hover:text-foreground">
-            ← Go back
-          </button>
-        </div>
-      </div>
+      <ErrorState
+        title="Couldn't calculate your targets"
+        error={targetsQuery.error}
+        onRetry={() => targetsQuery.refetch()}
+        action={
+          <div className="flex gap-4 text-sm font-medium">
+            <button onClick={() => targetsQuery.refetch()} className="text-accent">
+              Try again
+            </button>
+            <button onClick={() => router.push("/onboarding/hostel")} className="text-muted-foreground hover:text-foreground">
+              &larr; Go back
+            </button>
+          </div>
+        }
+      />
     );
   }
 
