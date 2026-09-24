@@ -21,7 +21,7 @@ export default function LearnIndexPage() {
         <span className="ml-3 text-sm text-muted-foreground">/ Learn</span>
       </header>
 
-      <main className="mf-rise mx-auto max-w-4xl px-6 py-10">
+      <main className="mx-auto max-w-4xl px-6 py-10">
         <div className="mb-8 flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-muted text-accent">
             <HugeiconsIcon icon={BookOpen01Icon} className="h-5 w-5" />
