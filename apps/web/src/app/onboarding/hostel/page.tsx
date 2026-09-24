@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
+import { track } from "@/lib/analytics";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/lib/onboarding-store";
 import {
@@ -122,6 +123,7 @@ export default function HostelStep() {
       await queryClient.invalidateQueries({ queryKey: ["targets"] });
       queryClient.invalidateQueries({ queryKey: ["plate"] });
 
+      if (!onboarded) track("onboarding_completed");
       router.push("/onboarding/targets");
     } catch (err: unknown) {
       setError(apiErrorMessage(err));

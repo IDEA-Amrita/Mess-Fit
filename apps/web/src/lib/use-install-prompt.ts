@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { track } from "./analytics";
 
 /** Not in lib.dom.d.ts yet — this is the standard shape Chromium ships. */
 interface BeforeInstallPromptEvent extends Event {
@@ -47,6 +48,7 @@ export function useInstallPrompt() {
       setDeferred(e as BeforeInstallPromptEvent);
     }
     function onInstalled() {
+      track("pwa_installed");
       setInstalled(true);
       setDeferred(null);
     }

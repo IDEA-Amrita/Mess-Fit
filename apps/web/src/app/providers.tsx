@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PwaStatus } from "@/components/PwaStatus";
 import { Toaster } from "@/components/Toaster";
 import { MotionProvider } from "@/components/motion/motion-provider";
+import { initAnalytics } from "@/lib/analytics";
 import { clearOnboardingData } from "@/lib/onboarding-store";
 import { supabase } from "@/lib/supabase";
 import { clearSession } from "@/lib/workout-session";
@@ -22,6 +23,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
       }),
   );
+
+  useEffect(() => initAnalytics(), []);
 
   // Nothing tied to one account may outlive it. Sign-out is a client-side
   // navigation, so without this the in-memory query cache (5 min stale time),
