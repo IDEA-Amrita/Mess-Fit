@@ -8,3 +8,7 @@ class PushSubscriptionIn(BaseModel):
 
 class TestNotificationOut(BaseModel):
     delivered: int
+
+
+class NotificationPreferences(BaseModel):
+    weekly_checkin: bool
