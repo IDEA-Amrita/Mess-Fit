@@ -1,6 +1,9 @@
 "use client";
 
-export default function AdminMessMenuPage({ params }: { params: { id: string } }) {
+// `params` isn't read yet (menu upload is a stub), but Next 15+ types every
+// dynamic route's params as a Promise, even for a "use client" page — this
+// only surfaced under a --webpack build; Turbopack's typegen didn't catch it.
+export default function AdminMessMenuPage({ params: _params }: { params: Promise<{ id: string }> }) {
   return (
     <div className="container max-w-6xl py-8 space-y-6">
       <div>

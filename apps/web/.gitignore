@@ -41,3 +41,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# next-pwa build output. `public/sw.js` itself stays tracked — it's also the
+# hand-written fallback `next dev` serves (workbox only generates a real
+# service worker during `next build --webpack`; see next.config.ts) — but
+# these content-hashed files are pure build artifacts, different on every
+# build, and public/sw.js.map/sw.js get regenerated too (sw.js's tracked
+# content is restored by `git checkout` after a local production build).
+/public/workbox-*.js
+/public/workbox-*.js.map
+/public/worker-*.js
+/public/worker-*.js.map
+/public/sw.js.map

@@ -4,23 +4,25 @@ Computes a weekly adherence leaderboard for users in the same college/mess.
 The ranking uses the same adherence metric as the progress page, ensuring
 consistency across the product.
 
-Privacy: only display names and scores are exposed. No weight, calorie, or
-health data is shared with other users.
+Privacy: only display names and scores are exposed — never a raw user_id, a
+real primary key that would let one student look up another's account. The
+viewer's own row is flagged with ``is_you`` instead, computed server-side.
 """
 
 from __future__ import annotations
 
 import datetime as dt
+import uuid
 from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-
 async def get_college_leaderboard(
     db: AsyncSession,
     college: str,
+    viewer_id: uuid.UUID,
     days: int = 7,
     limit: int = 20,
 ) -> list[dict[str, Any]]:
@@ -32,6 +34,7 @@ async def get_college_leaderboard(
     3. Counts workout logs with status='done' per user.
     4. Computes a simplified adherence score: (meals_followed / (days*4) + workouts_done / (days*3/7)) / 2.
     5. Ranks by score descending.
+    6. Joins public.users for a display name, and flags the viewer's own row.
 
     This is a simplified version that avoids reading each user's workout_days_per_week
     setting (which would require a complex subquery). Using 3/week as default is
@@ -74,10 +77,16 @@ async def get_college_leaderboard(
                 )
             )
         )
-        SELECT user_id, meals_followed, workouts_done, score
-        FROM scores
-        WHERE score > 0
-        ORDER BY score DESC
+        SELECT
+            s.user_id = :viewer_id AS is_you,
+            COALESCE(u.display_name, 'A student') AS display_name,
+            s.meals_followed,
+            s.workouts_done,
+            s.score
+        FROM scores s
+        LEFT JOIN users u ON u.id = s.user_id
+        WHERE s.score > 0
+        ORDER BY s.score DESC
         LIMIT :lim
     """)
 
@@ -92,6 +101,7 @@ async def get_college_leaderboard(
             "meal_slots": meal_slots,
             "workout_slots": workout_slots,
             "college": college,
+            "viewer_id": viewer_id,
             "lim": limit,
         },
     )
@@ -100,7 +110,8 @@ async def get_college_leaderboard(
     return [
         {
             "rank": i + 1,
-            "user_id": str(r["user_id"]),
+            "is_you": bool(r["is_you"]),
+            "display_name": r["display_name"],
             "meals_followed": r["meals_followed"],
             "workouts_done": r["workouts_done"],
             "score": round(float(r["score"]) * 100, 1),

@@ -5,6 +5,16 @@ import withPWAInit from "@ducanh2912/next-pwa";
 const withPWA = withPWAInit({
   dest: "public",
   disable: false,
+  // Without this, a custom `workboxOptions.runtimeCaching` array *replaces*
+  // next-pwa's defaults instead of adding to them — the only rule left
+  // standing was the POST/background-sync one below, so nothing (no pages,
+  // JS, images, or GET /api/v1/* responses) was cached for offline use.
+  // `true` keeps that rule and adds it ahead of the library's own defaults
+  // (NetworkFirst for pages, CacheFirst for static assets, and — the one
+  // that matters most here — NetworkFirst for cross-origin GETs, which is
+  // what makes the FastAPI backend's responses available for an hour after
+  // being seen).
+  extendDefaultRuntimeCaching: true,
   workboxOptions: {
     runtimeCaching: [
       {
