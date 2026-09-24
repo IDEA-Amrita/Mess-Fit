@@ -1,9 +1,17 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { apiFetch } from "@/lib/api";
+import { apiErrorMessage, apiFetch } from "@/lib/api";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+
+function syncSubscription(sub: PushSubscription) {
+  const { endpoint, keys } = sub.toJSON();
+  return apiFetch("/api/v1/notifications/subscribe", {
+    method: "POST",
+    body: JSON.stringify({ endpoint, keys }),
+  });
+}
 
 type Status = "loading" | "unsupported" | "denied" | "subscribed" | "unsubscribed" | "error";
 
@@ -43,6 +51,12 @@ export function PushNotificationManager() {
         if (existingSub) {
           setSubscription(existingSub);
           setStatus("subscribed");
+          // The browser keeps its push subscription across sign-outs, but the
+          // server ties an endpoint to whichever account registered it last.
+          // Re-registering (an idempotent upsert) makes sure notifications go
+          // to whoever is signed in now, and heals a subscription the server
+          // lost. Best-effort: a failure here must not break the panel.
+          syncSubscription(existingSub).catch(() => {});
         } else {
           setStatus("unsubscribed");
         }
@@ -86,23 +100,22 @@ export function PushNotificationManager() {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
 
+      // Register with the server *before* claiming success: a browser-only
+      // subscription looks enabled but never receives anything. If the server
+      // refuses, undo the browser side so the UI matches reality.
+      try {
+        await syncSubscription(sub);
+      } catch (err) {
+        await sub.unsubscribe().catch(() => {});
+        throw err;
+      }
       setSubscription(sub);
       setStatus("subscribed");
-
-      // Send the subscription to the backend
-      const subJson = sub.toJSON();
-      await apiFetch("/api/v1/notifications/subscribe", {
-        method: "POST",
-        body: JSON.stringify({
-          endpoint: subJson.endpoint,
-          keys: subJson.keys,
-        }),
-      });
 
       setMessage({ text: "Push notifications enabled!", error: false });
     } catch (error) {
       console.error("Push subscription failed:", error);
-      setMessage({ text: "Failed to enable: " + (error instanceof Error && error.message ? error.message : "Unknown error"), error: true });
+      setMessage({ text: "Couldn't enable notifications: " + apiErrorMessage(error, "Unknown error"), error: true });
     } finally {
       setBusy(false);
     }
@@ -115,28 +128,42 @@ export function PushNotificationManager() {
     setMessage(null);
 
     try {
-      const subJson = subscription.toJSON();
+      // Server first: if it fails we stay subscribed and say so, instead of
+      // leaving a live server-side subscription the UI claims is gone.
+      const { endpoint, keys } = subscription.toJSON();
+      await apiFetch("/api/v1/notifications/unsubscribe", {
+        method: "DELETE",
+        body: JSON.stringify({ endpoint, keys }),
+      });
       await subscription.unsubscribe();
       setSubscription(null);
       setStatus("unsubscribed");
 
-      // Tell backend to remove
-      await apiFetch("/api/v1/notifications/unsubscribe", {
-        method: "DELETE",
-        body: JSON.stringify({
-          endpoint: subJson.endpoint,
-          keys: subJson.keys,
-        }),
-      });
-
       setMessage({ text: "Push notifications disabled.", error: false });
     } catch (error) {
       console.error("Unsubscribe failed:", error);
-      setMessage({ text: "Failed to disable: " + (error instanceof Error && error.message ? error.message : "Unknown error"), error: true });
+      setMessage({ text: "Couldn't disable notifications: " + apiErrorMessage(error, "Unknown error"), error: true });
     } finally {
       setBusy(false);
     }
   }, [subscription]);
+
+  const sendTest = useCallback(async () => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const { delivered } = await apiFetch<{ delivered: number }>("/api/v1/notifications/test", { method: "POST" });
+      setMessage(
+        delivered > 0
+          ? { text: "Test sent — it should appear on your device in a moment.", error: false }
+          : { text: "The server has no working subscription for this device. Disable and re-enable notifications, then try again.", error: true },
+      );
+    } catch (error) {
+      setMessage({ text: apiErrorMessage(error, "Couldn't send the test notification."), error: true });
+    } finally {
+      setBusy(false);
+    }
+  }, []);
 
   // --- Render ---
 
@@ -150,7 +177,12 @@ export function PushNotificationManager() {
   }
 
   if (status === "unsupported") {
-    return <p className="text-sm text-muted-foreground">Push notifications are not supported in this browser.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">
+        Push notifications aren&apos;t available in this browser. On iPhone or iPad, add MessFit to your Home Screen
+        first (Share → Add to Home Screen), then open it from there.
+      </p>
+    );
   }
 
   if (status === "denied") {
@@ -189,6 +221,7 @@ export function PushNotificationManager() {
         <button
           onClick={isSubscribed ? unsubscribeFromPush : subscribeToPush}
           disabled={busy}
+          aria-busy={busy}
           className={
             "shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition-all disabled:opacity-50 " +
             (isSubscribed ? "bg-white/10 text-foreground hover:bg-white/15" : "bg-accent text-accent-foreground hover:brightness-110")
@@ -206,6 +239,15 @@ export function PushNotificationManager() {
           )}
         </button>
       </div>
+      {isSubscribed && (
+        <button
+          onClick={sendTest}
+          disabled={busy}
+          className="w-fit rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-white/10 disabled:opacity-50"
+        >
+          Send a test notification
+        </button>
+      )}
       {message && (
         <p role={message.error ? "alert" : "status"} className={"text-xs " + (message.error ? "text-destructive" : "text-accent")}>
           {message.text}

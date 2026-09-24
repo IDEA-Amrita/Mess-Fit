@@ -44,6 +44,10 @@ export default defineConfig({
       env: {
         NEXT_PUBLIC_SUPABASE_URL: 'http://localhost:54321',
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'e2e-mock-anon-key',
+        // Any well-formed VAPID public key (65 bytes, base64url); the push
+        // e2e stubs the browser's PushManager, so it never leaves the page.
+        NEXT_PUBLIC_VAPID_PUBLIC_KEY:
+          'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U',
       },
     },
   ],
