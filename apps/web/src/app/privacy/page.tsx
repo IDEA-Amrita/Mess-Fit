@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="June 2026">
+    <LegalPage title="Privacy Policy" updated="September 2026">
       <p>
         MessFit (&ldquo;we&rdquo;, &ldquo;us&rdquo;) helps Indian hostel students hit
         their nutrition and fitness goals within what their mess serves. This policy
@@ -61,6 +61,19 @@ export default function PrivacyPage() {
           at any time from Settings; we then mark it for deletion and permanently erase
           your personal data within 30 days. Anonymized, non-identifying aggregates may
           be retained for analytics.
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="Usage analytics">
+        <p>
+          When you are signed in, MessFit records which features you use and when
+          (for example &ldquo;logged a meal&rdquo; or &ldquo;opened an article&rdquo;), linked to your
+          account. We do not record what you eat, weigh, log or type, and we do not
+          use third-party analytics or advertising trackers: these records are stored in
+          our own database, are visible only to MessFit administrators, and are erased
+          when your account is deleted. You can switch this off at any time in
+          Settings, and we honour your browser&apos;s Do Not Track and Global Privacy
+          Control signals.
         </p>
       </LegalSection>
 
