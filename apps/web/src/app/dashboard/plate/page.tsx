@@ -1,12 +1,13 @@
 "use client";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useState, useRef } from "react";
 import Link from "next/link";
-import { Sun01Icon, Coffee01Icon, Moon01Icon, RefreshIcon, Alert01Icon, ShoppingBag01Icon, Tick01Icon, Camera02Icon } from "@hugeicons/core-free-icons";
+import { Sun01Icon, Coffee01Icon, Moon01Icon, RefreshIcon, ShoppingBag01Icon, Tick01Icon, Camera02Icon } from "@hugeicons/core-free-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
 import { DashboardShell } from "@/components/DashboardShell";
 import { PortionIcon } from "@/components/PortionIcon";
 import { AnimatedNumber } from "@/components/motion/animated-number";
@@ -23,7 +24,7 @@ import {
 import { getTodayLogs, logMeal, todayIso, type MealType } from "@/lib/tracking-api";
 import { submitDishFeedback } from "@/lib/mess-api";
 import { toast } from "@/lib/toast-store";
-import { ApiError } from "@/lib/api";
+import { ApiError, apiErrorMessage } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const MEAL_ORDER = ["breakfast", "lunch", "snack", "dinner"] as const;
@@ -285,25 +286,28 @@ function LoadingSkeleton({ message = "", isScanning = false }: { message?: strin
   );
 }
 
-function ErrorState({ error }: { error: { message: string; status?: number } }) {
-  const isOnboarding = error.status === 409;
+function PlateError({ error, onRetry }: { error: unknown; onRetry: () => void }) {
+  const needsOnboarding = error instanceof ApiError && error.status === 409;
   return (
-    <div className="surface-card flex flex-col items-center justify-center py-24 text-center mt-6">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#FF3B30]/10 text-[#FF3B30]">
-        <HugeiconsIcon icon={Alert01Icon} size={32} />
-      </div>
-      <h2 className="text-xl font-bold text-white mb-2">{isOnboarding ? "Onboarding required" : "Optimizer Error"}</h2>
-      <p className="text-sm text-muted-foreground max-w-sm mb-6">{error.message}</p>
-      {isOnboarding && (
-        <Link href="/onboarding/hostel" className="rounded-full bg-accent px-6 py-3 text-[13px] font-black uppercase tracking-widest text-black">
-          Setup Profile
-        </Link>
-      )}
+    <div className="mt-6">
+      <ErrorState
+        title={needsOnboarding ? "Finish setup first" : "Couldn't build your plate"}
+        error={error}
+        description={needsOnboarding && error instanceof ApiError ? error.detail : undefined}
+        onRetry={needsOnboarding ? undefined : onRetry}
+        action={
+          needsOnboarding ? (
+            <Link href="/onboarding/hostel" className="rounded-full bg-accent px-6 py-3 text-[12px] font-black uppercase tracking-widest text-black">
+              Set up profile
+            </Link>
+          ) : undefined
+        }
+      />
     </div>
   );
 }
 
-function PlateView({ result }: { result: OptimizationResult }) {
+function PlateView({ result, onReroll }: { result: OptimizationResult; onReroll: () => void }) {
   const { plan, daily_totals: totals, daily_targets: targets, gap_fills } = result;
   const mealsInPlan = MEAL_ORDER.filter((m) => (plan[m]?.length ?? 0) > 0);
 
@@ -316,7 +320,15 @@ function PlateView({ result }: { result: OptimizationResult }) {
       <DaySummary totals={totals} targets={targets} />
 
       {mealsInPlan.length === 0 ? (
-        <EmptyState title="No dishes in plan" description="The solver returned an empty plate." />
+        <EmptyState
+          title="No plate for today"
+          description="We couldn't fit any dishes from today's menu to your targets. Try Re-roll, or check that your mess has published a menu."
+          action={
+            <button onClick={onReroll} className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-foreground hover:bg-white/15">
+              Re-roll
+            </button>
+          }
+        />
       ) : (
         <div className="space-y-8">
           {mealsInPlan.map((meal) => <MealSection key={meal} meal={meal} items={plan[meal]} logged={loggedMeals.has(meal as MealType)} />)}
@@ -341,28 +353,49 @@ function PlateView({ result }: { result: OptimizationResult }) {
 }
 
 export default function PlatePage() {
-  const [result, setResult] = useState<OptimizationResult | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Same key the dashboard and Quick Mode use: arriving from either shows the
+  // cached plate immediately instead of a skeleton, and a re-roll here is seen
+  // by both.
+  const plate = useQuery<OptimizationResult, ApiError>({
+    queryKey: ["plate", "today"],
+    queryFn: optimizeToday,
+    retry: 0,
+    staleTime: 0,
+  });
+  // A photo-scan plan is shown in place of today's plan until the next re-roll.
+  const [scanned, setScanned] = useState<OptimizationResult | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [error, setError] = useState<{ message: string; status?: number } | null>(null);
+  const [rerolling, setRerolling] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchPlate = useCallback(async () => {
-    setLoading(true); setError(null);
-    try { setResult(await optimizeToday()); }
-    catch (err) { setError({ message: err instanceof ApiError ? err.detail : "Error", status: err instanceof ApiError ? err.status : undefined }); }
-    finally { setLoading(false); }
-  }, []);
+  const result = scanned ?? plate.data ?? null;
+  const loading = plate.isLoading || rerolling;
+  const showError = plate.isError && !scanned;
 
-  useEffect(() => { fetchPlate(); }, [fetchPlate]);
+  const reroll = useCallback(async () => {
+    setScanned(null);
+    setRerolling(true);
+    try {
+      await plate.refetch();
+    } finally {
+      setRerolling(false);
+    }
+  }, [plate]);
 
   const handleScanPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setIsScanning(true); setError(null);
-    try { setResult(await optimizeFromPhoto(file)); toast.success("Photo scanned!"); }
-    catch (err) { setError({ message: err instanceof ApiError ? err.detail : "Failed to scan." }); }
-    finally { setIsScanning(false); if (fileInputRef.current) fileInputRef.current.value = ""; }
+    setIsScanning(true);
+    try {
+      setScanned(await optimizeFromPhoto(file));
+      toast.success("Photo scanned!");
+    } catch (err) {
+      // A failed scan shouldn't throw away the plan already on screen.
+      toast.error(apiErrorMessage(err, "Couldn't scan that photo. Try a clearer one."));
+    } finally {
+      setIsScanning(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   return (
@@ -386,11 +419,11 @@ export default function PlatePage() {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={fetchPlate}
+                onClick={reroll}
                 disabled={loading || isScanning}
                 className="flex items-center gap-2 rounded-full bg-surface-2 px-5 py-2.5 text-[12px] font-bold text-white transition-colors hover:bg-border disabled:opacity-50"
               >
-                <HugeiconsIcon icon={RefreshIcon} className={cn("h-4 w-4", loading && "animate-spin")} />
+                <HugeiconsIcon icon={RefreshIcon} className={cn("h-4 w-4", (loading || plate.isFetching) && "animate-spin")} />
                 Re-roll
               </motion.button>
           </motion.div>
@@ -398,8 +431,8 @@ export default function PlatePage() {
 
         <AnimatePresence mode="wait">
           {loading || isScanning ? <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><LoadingSkeleton isScanning={isScanning} message="Analyzing meal..." /></motion.div>
-          : error ? <motion.div key="error" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}><ErrorState error={error} /></motion.div>
-          : result ? <motion.div key="result" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><PlateView result={result} /></motion.div>
+          : showError ? <motion.div key="error" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}><PlateError error={plate.error} onRetry={reroll} /></motion.div>
+          : result ? <motion.div key="result" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><PlateView result={result} onReroll={reroll} /></motion.div>
           : null}
         </AnimatePresence>
       </div>

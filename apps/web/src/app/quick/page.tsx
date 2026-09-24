@@ -8,6 +8,7 @@ import { ArrowLeft02Icon, InformationCircleIcon, Restaurant01Icon } from "@hugei
 import { Skeleton } from "@/components/ui/skeleton";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
 import { optimizeToday, type OptimizationResult } from "@/lib/optimizer-api";
 import { cn } from "@/lib/utils";
 
@@ -78,12 +79,14 @@ export default function QuickModePage() {
                 <Skeleton className="h-4 w-4/6 bg-white/5" />
               </div>
             </div>
-          ) : plate.isError || !plate.data?.plan[slot] || plate.data.plan[slot].length === 0 ? (
+          ) : plate.isError ? (
+            <ErrorState title="Couldn't build your plate" error={plate.error} onRetry={() => plate.refetch()} />
+          ) : !plate.data?.plan[slot] || plate.data.plan[slot].length === 0 ? (
             <div className={CARD}>
               <EmptyState
                 icon={<HugeiconsIcon icon={InformationCircleIcon} className="h-6 w-6" />}
                 title="No plan available"
-                description={`We couldn't generate an optimized plate for ${slot} today. Check the main dashboard for details.`}
+                description={`Nothing on today's menu fits your targets for ${slot}. You can still log what you eat.`}
                 action={
                   <Link href="/dashboard/log" className={buttonVariants({ variant: "outline", className: "mt-2" })}>
                     Log manually
