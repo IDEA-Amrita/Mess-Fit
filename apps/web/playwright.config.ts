@@ -2,6 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
+  // `next dev` compiles each route on first visit; on a cold CI runner a
+  // multi-page journey can spend well over 30s just compiling.
+  timeout: 60_000,
+  expect: { timeout: 10_000 },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -38,12 +42,18 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
+      command: 'node tests/mocks/api-server.mjs',
+      url: 'http://localhost:8000/api/v1/me',
+      reuseExistingServer: !process.env.CI,
+    },
+    {
       command: 'npm run dev',
       url: 'http://localhost:3000',
       reuseExistingServer: !process.env.CI,
       env: {
         NEXT_PUBLIC_SUPABASE_URL: 'http://localhost:54321',
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'e2e-mock-anon-key',
+        NEXT_PUBLIC_API_BASE_URL: 'http://localhost:8000',
         // Any well-formed VAPID public key (65 bytes, base64url); the push
         // e2e stubs the browser's PushManager, so it never leaves the page.
         NEXT_PUBLIC_VAPID_PUBLIC_KEY:

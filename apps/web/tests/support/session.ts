@@ -13,13 +13,15 @@ import type { BrowserContext } from "@playwright/test";
  * The access token carries `{ sub, onboarded }`, which the mock reads back.
  * Pass `onboarded: false` for a brand-new user; give each test its own `sub`
  * (the default is unique) so parallel tests never share mock state.
+ * `admin: true` makes the sub start with "admin", which tests/mocks/api-server.mjs
+ * reports as role=admin to the proxy's /admin/* gate.
  */
 export async function signIn(
   context: BrowserContext,
   baseURL: string,
-  opts: { onboarded?: boolean; sub?: string } = {},
+  opts: { onboarded?: boolean; sub?: string; admin?: boolean } = {},
 ) {
-  const sub = opts.sub ?? `e2e-${randomUUID()}`;
+  const sub = opts.sub ?? `${opts.admin ? "admin" : "e2e"}-${randomUUID()}`;
   const onboarded = opts.onboarded ?? true;
   const exp = Math.floor(Date.now() / 1000) + 3600;
   const claims = Buffer.from(JSON.stringify({ sub, onboarded, exp })).toString("base64url");

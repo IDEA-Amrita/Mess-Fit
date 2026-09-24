@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   ApprovePayload,
   OcrJobDetail,
@@ -11,7 +12,10 @@ import {
   getOcrJob,
   rejectOcrJob,
 } from "@/lib/ocr-api";
+import { apiErrorMessage } from "@/lib/api";
+import { isoDate } from "@/lib/profile-form";
 import { Button } from "@/components/ui/button";
+import { ErrorState } from "@/components/ui/error-state";
 import { Badge } from "@/components/ui/badge";
 
 /** Local editable state: a parsed dish plus whether the admin keeps the match. */
@@ -55,43 +59,38 @@ function defaultMonday(): string {
   const d = new Date();
   const diff = (d.getDay() + 6) % 7; // days since Monday
   d.setDate(d.getDate() - diff);
-  return d.toISOString().slice(0, 10);
+  // Local date, not toISOString(): in IST (+05:30) any time before 05:30 is
+  // still the previous day in UTC, which would default to the wrong Monday.
+  return isoDate(d);
 }
 
 export default function OcrReviewPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const [job, setJob] = useState<OcrJobDetail | null>(null);
   const [days, setDays] = useState<EditDay[]>([]);
   const [effectiveFrom, setEffectiveFrom] = useState(defaultMonday());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmReject, setConfirmReject] = useState(false);
 
-  const load = useCallback(async () => {
-    const data = await getOcrJob(id);
-    setJob(data);
-    if (data.parsed_result) setDays(toEditModel(data.parsed_result));
-    return data;
-  }, [id]);
+  // Poll while the worker is still parsing; react-query stops the interval on
+  // unmount and pauses it while the tab is hidden.
+  const jobQuery = useQuery({
+    queryKey: ["admin", "ocr-job", id],
+    queryFn: () => getOcrJob(id),
+    retry: 1,
+    refetchInterval: (q) => {
+      const st = q.state.data?.status;
+      return st === "pending" || st === "processing" ? 3000 : false;
+    },
+  });
+  const job = jobQuery.data ?? null;
 
+  // Seed the editable copy once the parse result arrives; never overwrite the
+  // admin's edits with a later refetch.
   useEffect(() => {
-    let stop = false;
-    load().then((d) => {
-      // Poll while the worker is still parsing.
-      if (!stop && (d.status === "pending" || d.status === "processing")) {
-        const t = setInterval(async () => {
-          const fresh = await load();
-          if (fresh.status !== "pending" && fresh.status !== "processing") {
-            clearInterval(t);
-          }
-        }, 3000);
-        return () => clearInterval(t);
-      }
-    });
-    return () => {
-      stop = true;
-    };
-  }, [load]);
+    if (job?.parsed_result) setDays((cur) => (cur.length ? cur : toEditModel(job.parsed_result!)));
+  }, [job]);
 
   function setDishName(di: number, mi: number, dishi: number, name: string) {
     setDays((prev) => {
@@ -138,7 +137,7 @@ export default function OcrReviewPage() {
       const res = await approveOcrJob(id, payload);
       router.push(`/admin/ocr?approved=${res.menu_rows_added}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Approve failed");
+      setError(apiErrorMessage(e, "Approve failed"));
       setBusy(false);
     }
   }
@@ -149,13 +148,25 @@ export default function OcrReviewPage() {
       await rejectOcrJob(id);
       router.push("/admin/ocr");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Reject failed");
+      setError(apiErrorMessage(e, "Reject failed"));
       setBusy(false);
     }
   }
 
+  if (jobQuery.isError) {
+    return (
+      <div className="container max-w-5xl py-8">
+        <ErrorState title="Couldn't load this job" error={jobQuery.error} onRetry={() => jobQuery.refetch()} />
+      </div>
+    );
+  }
+
   if (!job) {
-    return <div className="container max-w-5xl py-8 text-muted-foreground">Loading…</div>;
+    return (
+      <div role="status" className="container max-w-5xl py-8 text-muted-foreground">
+        Loading…
+      </div>
+    );
   }
 
   if (job.status === "pending" || job.status === "processing") {
@@ -193,8 +204,11 @@ export default function OcrReviewPage() {
         <div className="space-y-4 order-2 lg:order-1">
           <div className="flex items-end gap-3">
             <div className="space-y-1">
-              <label className="text-sm font-medium">Effective from</label>
+              <label htmlFor="effective-from" className="text-sm font-medium">
+                Effective from
+              </label>
               <input
+                id="effective-from"
                 type="date"
                 value={effectiveFrom}
                 onChange={(e) => setEffectiveFrom(e.target.value)}
@@ -228,6 +242,7 @@ export default function OcrReviewPage() {
                     >
                       <input
                         value={dish.name}
+                        aria-label={`${day.day} ${meal.type} dish name`}
                         onChange={(e) => setDishName(di, mi, dishi, e.target.value)}
                         className="flex-1 min-w-32 rounded border bg-background px-2 py-1 text-sm"
                       />
@@ -276,15 +291,30 @@ export default function OcrReviewPage() {
         </div>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
 
       <div className="flex gap-3">
         <Button onClick={handleApprove} disabled={busy}>
           {busy ? "Saving…" : "Approve into menu"}
         </Button>
-        <Button variant="outline" onClick={handleReject} disabled={busy}>
-          Reject
-        </Button>
+        {confirmReject ? (
+          <>
+            <Button variant="destructive" onClick={handleReject} disabled={busy}>
+              Yes, reject this menu
+            </Button>
+            <Button variant="ghost" onClick={() => setConfirmReject(false)} disabled={busy}>
+              Cancel
+            </Button>
+          </>
+        ) : (
+          <Button variant="outline" onClick={() => setConfirmReject(true)} disabled={busy}>
+            Reject
+          </Button>
+        )}
       </div>
     </div>
   );
