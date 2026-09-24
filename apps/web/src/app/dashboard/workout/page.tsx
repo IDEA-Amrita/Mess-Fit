@@ -21,7 +21,6 @@ import { ProgressRing } from "@/components/motion/progress-ring";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
 import { RestTimer } from "@/components/workout/RestTimer";
 import { VideoModal } from "@/components/workout/VideoModal";
-import { track } from "@/lib/analytics";
 import { getTodayWorkout, logWorkout, type TodayWorkout, type WorkoutExercise, type WorkoutStatus } from "@/lib/workout-api";
 import { getTodayLogs, todayIso } from "@/lib/tracking-api";
 import {
@@ -322,7 +321,6 @@ export default function WorkoutPage() {
     onSuccess: (_data, status) => {
       clearSession();
       setSaved(status);
-      track("workout_saved", { status, via: "workout" });
       // The Log page and dashboard read this; without it they stay stale for minutes.
       qc.invalidateQueries({ queryKey: LOGS_KEY });
     },

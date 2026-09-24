@@ -8,7 +8,6 @@ import { motion } from "framer-motion";
 import { DashboardShell } from "@/components/DashboardShell";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { AccountCard } from "@/components/settings/AccountCard";
-import { AnalyticsToggle } from "@/components/settings/AnalyticsToggle";
 import { PlanEditor } from "@/components/settings/PlanEditor";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
 import { PageHeader } from "@/components/ui/page-header";
@@ -101,9 +100,6 @@ export default function SettingsPage() {
           </Section>
 
           <Section title="Privacy & legal">
-            <div className="mb-5">
-              <AnalyticsToggle />
-            </div>
             <div className="flex flex-wrap gap-x-6 text-sm">
               <Link href="/privacy" className="inline-flex min-h-11 items-center font-medium text-foreground underline underline-offset-4 hover:text-accent">
                 Privacy policy

@@ -10,7 +10,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .account.router import router as account_router
-from .analytics.router import router as analytics_router
 from .auth.deps import get_active_user_id
 from .auth.models import UserORM
 from .chatbot.router import router as chatbot_router
@@ -90,4 +89,3 @@ app.include_router(tracking_router)
 app.include_router(chatbot_router)
 app.include_router(account_router)
 app.include_router(notifications_router)
-app.include_router(analytics_router)
