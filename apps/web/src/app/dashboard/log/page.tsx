@@ -19,7 +19,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardShell } from "@/components/DashboardShell";
 import { ProgressRing } from "@/components/motion/progress-ring";
 import { AnimatedNumber } from "@/components/motion/animated-number";
-import { track } from "@/lib/analytics";
 import { toast } from "@/lib/toast-store";
 import { cn } from "@/lib/utils";
 import { spring } from "@/lib/motion";
@@ -356,7 +355,6 @@ function MealTab({ today }: { today?: TodayLogs }) {
     onSuccess: (_data, vars) => {
       const label = vars.meal_type.charAt(0).toUpperCase() + vars.meal_type.slice(1);
       toast.success(`${label} logged ✓`);
-      track("meal_logged", { meal: vars.meal_type, via: "log" });
     },
     onError: (_e, _v, ctx) => {
       if (ctx?.prev) qc.setQueryData(TODAY_KEY, ctx.prev);
@@ -557,7 +555,6 @@ function WeightTab({ today, loading }: { today?: TodayLogs; loading: boolean }) 
     mutationFn: logWeight,
     onSuccess: () => {
       toast.success("Weight logged");
-      track("weight_logged");
       qc.invalidateQueries({ queryKey: TODAY_KEY });
       qc.invalidateQueries({ queryKey: ["progress"] });
     },
@@ -639,7 +636,6 @@ function WorkoutTab({ today }: { today?: TodayLogs }) {
     mutationFn: logWorkout,
     onSuccess: () => {
       toast.success("Workout logged");
-      track("workout_saved", { via: "log" });
       qc.invalidateQueries({ queryKey: TODAY_KEY });
     },
     onError: () => toast.error("Couldn't save — try again"),

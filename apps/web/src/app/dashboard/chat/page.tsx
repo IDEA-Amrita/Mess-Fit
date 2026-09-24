@@ -13,7 +13,6 @@ import { Composer } from "@/components/chat/Composer";
 import { ConversationList } from "@/components/chat/ConversationList";
 import { newMsgId, type Msg } from "@/components/chat/types";
 import { toast } from "@/lib/toast-store";
-import { track } from "@/lib/analytics";
 import { spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
@@ -157,7 +156,6 @@ export default function ChatPage() {
               setStreaming(acc);
             },
             onDone: (citations) => {
-              track("chat_message_sent");
               if (stale()) return;
               setMessages((m) => [...m, { id: newMsgId(), role: "assistant", content: acc, citations }]);
               setStreaming("");

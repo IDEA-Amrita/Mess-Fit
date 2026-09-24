@@ -8,7 +8,6 @@ const LINKS = [
   { href: "/admin/ocr", label: "Menu OCR" },
   { href: "/admin/messes", label: "Messes" },
   { href: "/admin/dishes", label: "Dishes" },
-  { href: "/admin/analytics", label: "Usage" },
 ];
 
 /** Shared chrome for /admin/* (access itself is enforced in src/proxy.ts). */
