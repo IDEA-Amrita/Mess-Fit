@@ -70,7 +70,8 @@ export default function PrivacyPage() {
           (for example &ldquo;logged a meal&rdquo; or &ldquo;opened an article&rdquo;), linked to your
           account. We do not record what you eat, weigh, log or type, and we do not
           use third-party analytics or advertising trackers: these records are stored in
-          our own database, are visible only to MessFit administrators, and are erased
+          our own database, are visible only to MessFit administrators, are deleted
+          automatically after 180 days, and are erased sooner
           when your account is deleted. You can switch this off at any time in
           Settings, and we honour your browser&apos;s Do Not Track and Global Privacy
           Control signals.
