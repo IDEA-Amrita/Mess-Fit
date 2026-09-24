@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { BrowserContext } from "@playwright/test";
 
 /**
@@ -8,20 +9,33 @@ import type { BrowserContext } from "@playwright/test";
  * the e2e mock (http://localhost:54321, see tests/mocks/auth-server.mjs)
  * that ref is "localhost". Neither client verifies the JWT signature
  * client-side, so a well-formed but unsigned token is enough here.
+ *
+ * The access token carries `{ sub, onboarded }`, which the mock reads back.
+ * Pass `onboarded: false` for a brand-new user; give each test its own `sub`
+ * (the default is unique) so parallel tests never share mock state.
  */
-export async function signIn(context: BrowserContext, baseURL: string) {
+export async function signIn(
+  context: BrowserContext,
+  baseURL: string,
+  opts: { onboarded?: boolean; sub?: string } = {},
+) {
+  const sub = opts.sub ?? `e2e-${randomUUID()}`;
+  const onboarded = opts.onboarded ?? true;
+  const exp = Math.floor(Date.now() / 1000) + 3600;
+  const claims = Buffer.from(JSON.stringify({ sub, onboarded, exp })).toString("base64url");
   const session = {
-    access_token: "mock.tok.sig",
-    refresh_token: "refresh-e2e",
+    access_token: `mock.${claims}.sig`,
+    refresh_token: `refresh-${sub}`,
     expires_in: 3600,
-    expires_at: Math.floor(Date.now() / 1000) + 3600,
+    expires_at: exp,
     token_type: "bearer",
     user: {
-      id: "e2e-user-1",
+      id: sub,
       email: "e2e@messfit.local",
-      user_metadata: { display_name: "E2E Tester", onboarded: true },
+      user_metadata: { display_name: "E2E Tester", onboarded },
     },
   };
   const value = "base64-" + Buffer.from(JSON.stringify(session)).toString("base64url");
   await context.addCookies([{ name: "sb-localhost-auth-token", value, url: baseURL }]);
+  return { sub };
 }
