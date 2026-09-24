@@ -9,6 +9,7 @@ import { Tick01Icon } from "@hugeicons/core-free-icons";
 import { clearOnboardingData } from "@/lib/onboarding-store";
 import { spring } from "@/lib/motion";
 import { supabase } from "@/lib/supabase";
+import { signOut } from "@/lib/sign-out";
 import { cn } from "@/lib/utils";
 
 /**
@@ -133,9 +134,9 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
   }, []);
 
-  async function signOut() {
+  async function handleSignOut() {
     clearOnboardingData();
-    await supabase.auth.signOut();
+    await signOut();
     router.replace("/auth/login");
   }
 
@@ -171,7 +172,7 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
 
       <p className="relative mt-10 text-center text-xs text-muted-foreground/70">
         {email ? <>Signed in as {email}. </> : null}
-        <button type="button" onClick={signOut} className="font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground">
+        <button type="button" onClick={handleSignOut} className="font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground">
           Sign out
         </button>
       </p>

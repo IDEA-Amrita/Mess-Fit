@@ -18,6 +18,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { MoreHorizontalIcon, Cancel01Icon, Logout01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { supabase } from "@/lib/supabase";
+import { signOut } from "@/lib/sign-out";
 import { cn } from "@/lib/utils";
 import { spring } from "@/lib/motion";
 import { CommandPalette, type PaletteCommand } from "@/components/CommandPalette";
@@ -104,7 +105,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }, [moreOpen]);
 
   async function handleLogout() {
-    await supabase.auth.signOut();
+    await signOut();
     router.replace("/auth/login");
   }
 
@@ -123,7 +124,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         keywords: "logout log out",
         icon: Logout01Icon,
         run: () => {
-          void supabase.auth.signOut().then(() => router.replace("/auth/login"));
+          void signOut().then(() => router.replace("/auth/login"));
         },
       },
     ],

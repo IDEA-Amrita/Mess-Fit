@@ -8,13 +8,14 @@ import { motion } from "framer-motion";
 import { DashboardShell } from "@/components/DashboardShell";
 import { PushNotificationManager } from "@/components/PushNotificationManager";
 import { AccountCard } from "@/components/settings/AccountCard";
+import { WeeklyCheckinToggle } from "@/components/settings/WeeklyCheckinToggle";
 import { AnalyticsToggle } from "@/components/settings/AnalyticsToggle";
 import { PlanEditor } from "@/components/settings/PlanEditor";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
 import { PageHeader } from "@/components/ui/page-header";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
 import { spring } from "@/lib/motion";
-import { supabase } from "@/lib/supabase";
+import { signOut } from "@/lib/sign-out";
 import { cn } from "@/lib/utils";
 
 function Section({
@@ -74,7 +75,7 @@ export default function SettingsPage() {
         body: JSON.stringify({ confirm: "DELETE" }),
       });
       // Providers clears every per-account cache on SIGNED_OUT.
-      await supabase.auth.signOut();
+      await signOut();
       router.replace("/auth/login");
     } catch (e) {
       setError(apiErrorMessage(e));
@@ -98,6 +99,7 @@ export default function SettingsPage() {
 
           <Section title="Notifications">
             <PushNotificationManager />
+            <WeeklyCheckinToggle />
           </Section>
 
           <Section title="Privacy & legal">

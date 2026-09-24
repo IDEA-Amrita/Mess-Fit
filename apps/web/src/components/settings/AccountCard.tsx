@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { signOut } from "@/lib/sign-out";
 import { toast } from "@/lib/toast-store";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,8 +52,8 @@ export function AccountCard() {
     toast.success("Name updated");
   }
 
-  async function signOut() {
-    await supabase.auth.signOut();
+  async function handleSignOut() {
+    await signOut();
     router.replace("/auth/login");
   }
 
@@ -95,7 +96,7 @@ export function AccountCard() {
         </div>
         <button
           type="button"
-          onClick={signOut}
+          onClick={handleSignOut}
           className="rounded-full border border-border px-5 py-2.5 text-[13px] font-semibold text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
         >
           Sign out
