@@ -5,6 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { track } from "@/lib/analytics";
 import { ArrowLeft01Icon, Clock01Icon } from "@hugeicons/core-free-icons";
 
 interface Meta {
@@ -57,6 +58,11 @@ function extractHeadings(md: string): Heading[] {
 export function ArticleReader({ article, related }: ArticleReaderProps) {
   const [progress, setProgress] = useState(0);
   const headings = extractHeadings(article.content);
+
+  // Only counts for signed-in readers (track() is a no-op otherwise).
+  useEffect(() => {
+    track("article_opened", { slug: article.slug });
+  }, [article.slug]);
 
   useEffect(() => {
     function onScroll() {

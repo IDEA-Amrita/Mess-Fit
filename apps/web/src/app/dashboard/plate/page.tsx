@@ -1,7 +1,7 @@
 "use client";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Sun01Icon, Coffee01Icon, Moon01Icon, RefreshIcon, ShoppingBag01Icon, Tick01Icon, Camera02Icon } from "@hugeicons/core-free-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -23,6 +23,7 @@ import {
 } from "@/lib/optimizer-api";
 import { getTodayLogs, logMeal, todayIso, type MealType } from "@/lib/tracking-api";
 import { submitDishFeedback } from "@/lib/mess-api";
+import { track } from "@/lib/analytics";
 import { toast } from "@/lib/toast-store";
 import { ApiError, apiErrorMessage } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -172,6 +173,7 @@ function MealSection({ meal, items, logged }: { meal: string; items: PlateItem[]
     onSuccess: () => {
       const label = meal.charAt(0).toUpperCase() + meal.slice(1);
       toast.success(`${label} logged ✓`);
+      track("meal_logged", { meal, via: "plate" });
       qc.invalidateQueries({ queryKey: ["logs", "today"] });
     },
     onError: () => toast.error("Couldn't log"),
@@ -371,6 +373,16 @@ export default function PlatePage() {
   const result = scanned ?? plate.data ?? null;
   const loading = plate.isLoading || rerolling;
   const showError = plate.isError && !scanned;
+
+  // Once per source per visit, not on every re-roll or background refetch.
+  const viewedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!result) return;
+    const source = scanned ? "photo" : "today";
+    if (viewedRef.current === source) return;
+    viewedRef.current = source;
+    track("plate_viewed", { source });
+  }, [result, scanned]);
 
   const reroll = useCallback(async () => {
     setScanned(null);
