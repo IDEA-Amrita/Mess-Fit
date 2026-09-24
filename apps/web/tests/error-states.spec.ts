@@ -68,7 +68,8 @@ test("workout: a 409 about onboarding offers setup instead of retry", async ({ p
   await page.goto("/dashboard/workout");
 
   await expect(page.getByRole("heading", { name: "Finish setup first" })).toBeVisible();
-  await expect(page.getByText("Complete onboarding before viewing workouts.")).toBeVisible();
+  // Scoped: the dev overlay also echoes apiFetch's console.error text into the DOM.
+  await expect(page.getByRole("alert").getByText("Complete onboarding before viewing workouts.")).toBeVisible();
   await expect(page.getByRole("link", { name: "Set up profile" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Try again" })).toHaveCount(0);
 });
