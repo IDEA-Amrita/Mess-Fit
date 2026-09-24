@@ -16,6 +16,16 @@ export default function AuthCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // The provider redirects back with ?error_description=… when the user
+    // cancels or the sign-in fails; say so instead of just showing the login page.
+    const search = new URLSearchParams(window.location.search);
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const failure = search.get("error_description") ?? hash.get("error_description");
+    if (failure) {
+      router.replace(`/auth/login?error=${encodeURIComponent(failure)}`);
+      return;
+    }
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
@@ -31,7 +41,7 @@ export default function AuthCallbackPage() {
 
     // Fallback: if nothing happens in 8s, go to login
     const timeout = setTimeout(() => {
-      router.replace("/auth/login");
+      router.replace(`/auth/login?error=${encodeURIComponent("Sign-in didn't complete. Please try again.")}`);
     }, 8000);
 
     return () => {
@@ -51,7 +61,7 @@ export default function AuthCallbackPage() {
           borderTopColor: "#ccff00",
         }}
       />
-      <p className="text-sm" style={{ color: "#555" }}>
+      <p role="status" className="text-sm text-muted-foreground">
         Signing you in…
       </p>
     </div>

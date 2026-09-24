@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
+import { AUTH_INPUT, AUTH_LABEL, AUTH_SUBMIT, AuthError, AuthShell } from "@/components/auth/AuthShell";
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
+import { PasswordField } from "@/components/auth/PasswordField";
+import { friendlyAuthError } from "@/lib/auth-errors";
 import { supabase } from "@/lib/supabase";
 
 export default function SignupPage() {
@@ -16,6 +19,7 @@ export default function SignupPage() {
   const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmEmail, setConfirmEmail] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,141 +30,148 @@ export default function SignupPage() {
     setError(null);
     setSubmitting(true);
 
-    const { error: err } = await supabase.auth.signUp({
-      email,
+    const { data, error: err } = await supabase.auth.signUp({
+      email: email.trim(),
       password,
-      options: { data: { display_name: displayName } },
+      options: { data: { display_name: displayName.trim() } },
     });
 
-    setSubmitting(false);
-
     if (err) {
-      setError(err.message);
+      setSubmitting(false);
+      setError(friendlyAuthError(err));
+      return;
+    }
+
+    // With email confirmation on, Supabase returns no session (and, to avoid
+    // revealing which emails exist, an empty `identities` list for an address
+    // that is already registered). Pushing to /onboarding here would just bounce
+    // a signed-out user to the login page with no explanation.
+    if (!data.session) {
+      setSubmitting(false);
+      if (data.user && data.user.identities?.length === 0) {
+        setError("An account with this email already exists. Try signing in instead.");
+        return;
+      }
+      setConfirmEmail(email.trim());
       return;
     }
 
     router.push("/onboarding/profile");
   }
 
-  return (
-    <div className="relative flex min-h-screen items-center justify-center px-4 py-12 bg-background">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="relative z-10 w-full max-w-sm">
-        {/* Logo */}
-        <div className="mb-8 text-center">
-          <Link href="/" className="text-3xl font-black tracking-tighter">
-            <span className="text-white">MESS</span>
-            <span className="text-accent">FIT</span>
-          </Link>
-          <p className="mt-2 text-sm font-bold text-muted-foreground uppercase tracking-widest">
-            Create an account
+  if (confirmEmail) {
+    return (
+      <AuthShell
+        subtitle="Check your email"
+        footer={
+          <>
+            Wrong address?{" "}
+            <button onClick={() => setConfirmEmail(null)} className="text-accent transition-colors hover:text-white">
+              Go back
+            </button>
+          </>
+        }
+      >
+        <div role="status" className="space-y-3 text-center">
+          <p className="text-sm font-medium text-foreground">
+            We sent a confirmation link to <span className="font-bold text-accent">{confirmEmail}</span>.
+          </p>
+          <p className="text-[13px] text-muted-foreground">
+            Open it on this device to finish creating your account. Nothing in your inbox? Check spam, then try again.
           </p>
         </div>
+      </AuthShell>
+    );
+  }
 
-        {/* Card */}
-        <div className="surface-card">
-          <OAuthButtons />
-
-          {/* Divider */}
-          <div className="relative my-6 flex items-center">
-            <div className="flex-1 border-t border-border" />
-            <span className="mx-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-              or email
-            </span>
-            <div className="flex-1 border-t border-border" />
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="displayName" className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">
-                Name
-              </label>
-              <input
-                id="displayName"
-                type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                required
-                placeholder="Athlete name"
-                className="rounded-xl border-2 border-border bg-surface-2 px-4 py-3 text-sm font-medium text-white outline-none transition-colors focus:border-accent focus:ring-0"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="email" className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="you@example.com"
-                className="rounded-xl border-2 border-border bg-surface-2 px-4 py-3 text-sm font-medium text-white outline-none transition-colors focus:border-accent focus:ring-0"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="password" className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-                placeholder="Min. 8 characters"
-                className="rounded-xl border-2 border-border bg-surface-2 px-4 py-3 text-sm font-medium text-white outline-none transition-colors focus:border-accent focus:ring-0"
-              />
-            </div>
-
-            <label className="mt-2 flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={accepted}
-                onChange={(e) => setAccepted(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-border bg-surface-2 text-accent focus:ring-accent focus:ring-offset-background"
-                style={{ accentColor: "var(--accent)" }}
-              />
-              <span className="text-[12px] font-medium leading-relaxed text-muted-foreground">
-                I agree to the{" "}
-                <Link href="/terms" target="_blank" className="font-bold text-accent hover:text-white transition-colors">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link href="/privacy" target="_blank" className="font-bold text-accent hover:text-white transition-colors">
-                  Privacy Policy
-                </Link>.
-              </span>
-            </label>
-
-            {error && (
-              <p className="mt-2 rounded-xl border border-[#FF3B30]/30 bg-[#FF3B30]/10 px-4 py-3 text-[13px] font-bold text-[#FF3B30]">
-                {error}
-              </p>
-            )}
-
-            <motion.button
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={submitting || !accepted}
-              className="mt-4 rounded-xl bg-accent py-3.5 text-[13px] font-black uppercase tracking-widest text-black transition-colors hover:bg-white disabled:opacity-50"
-            >
-              {submitting ? "Creating account…" : "Create account"}
-            </motion.button>
-          </form>
-        </div>
-
-        <p className="mt-6 text-center text-[13px] font-bold text-muted-foreground">
+  return (
+    <AuthShell
+      subtitle="Create an account"
+      footer={
+        <>
           Already have an account?{" "}
-          <Link href="/auth/login" className="text-accent hover:text-white transition-colors">
+          <Link href="/auth/login" className="text-accent transition-colors hover:text-white">
             Sign in
           </Link>
-        </p>
-      </motion.div>
-    </div>
+        </>
+      }
+    >
+      <OAuthButtons onError={setError} />
+
+      <div className="relative my-6 flex items-center">
+        <div className="flex-1 border-t border-border" />
+        <span className="mx-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">or email</span>
+        <div className="flex-1 border-t border-border" />
+      </div>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="displayName" className={AUTH_LABEL}>
+            Name
+          </label>
+          <input
+            id="displayName"
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            required
+            autoComplete="name"
+            placeholder="Athlete name"
+            className={AUTH_INPUT}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="email" className={AUTH_LABEL}>
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            placeholder="you@example.com"
+            className={AUTH_INPUT}
+          />
+        </div>
+
+        <PasswordField
+          value={password}
+          onChange={setPassword}
+          autoComplete="new-password"
+          minLength={8}
+          placeholder="Min. 8 characters"
+        />
+
+        <label className="mt-2 flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            checked={accepted}
+            onChange={(e) => setAccepted(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 rounded border-border bg-surface-2 text-accent focus:ring-accent focus:ring-offset-background"
+            style={{ accentColor: "var(--accent)" }}
+          />
+          <span className="text-[12px] font-medium leading-relaxed text-muted-foreground">
+            I agree to the{" "}
+            <Link href="/terms" target="_blank" className="font-bold text-accent transition-colors hover:text-white">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" target="_blank" className="font-bold text-accent transition-colors hover:text-white">
+              Privacy Policy
+            </Link>
+            .
+          </span>
+        </label>
+
+        {error && <AuthError>{error}</AuthError>}
+
+        <motion.button whileTap={{ scale: 0.98 }} type="submit" disabled={submitting || !accepted} className={AUTH_SUBMIT}>
+          {submitting ? "Creating account…" : "Create account"}
+        </motion.button>
+      </form>
+    </AuthShell>
   );
 }
