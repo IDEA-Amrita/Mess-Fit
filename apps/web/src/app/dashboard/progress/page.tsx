@@ -17,6 +17,7 @@ import {
   TrendingUpDownIcon,
 } from "@hugeicons/core-free-icons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorState } from "@/components/ui/error-state";
 import { DashboardShell } from "@/components/DashboardShell";
 import { StreakCard } from "@/components/StreakCard";
 import { AnimatedNumber } from "@/components/motion/animated-number";
@@ -97,7 +98,7 @@ export default function ProgressPage() {
         <AnimatePresence mode="wait">
           {query.isError ? (
             <motion.div key="error" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="mt-10">
-              <ErrorState error={query.error} onRetry={() => query.refetch()} />
+              <ErrorState title="Couldn't load progress" error={query.error} onRetry={() => query.refetch()} />
             </motion.div>
           ) : query.data ? (
             <motion.div
@@ -577,25 +578,6 @@ function LoadingSkeleton() {
         <Skeleton className="h-60 rounded-3xl" />
       </div>
       <Skeleton className="h-44 rounded-3xl" />
-    </div>
-  );
-}
-
-function ErrorState({ error, onRetry }: { error: ApiError | null; onRetry: () => void }) {
-  return (
-    <div className="surface-card mx-auto flex max-w-md flex-col items-center justify-center py-16 text-center">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#FF3B30]/10 text-[#FF3B30]">
-        <HugeiconsIcon icon={Alert01Icon} className="h-8 w-8" />
-      </div>
-      <p className="mb-2 text-xl font-bold text-white">Couldn&apos;t load progress</p>
-      <p className="mb-6 text-[14px] font-medium text-muted-foreground">{error?.detail ?? "Please try again."}</p>
-      <motion.button
-        whileTap={{ scale: 0.96 }}
-        onClick={onRetry}
-        className="rounded-full bg-accent px-6 py-3 text-[12px] font-black uppercase tracking-widest text-black"
-      >
-        Try again
-      </motion.button>
     </div>
   );
 }

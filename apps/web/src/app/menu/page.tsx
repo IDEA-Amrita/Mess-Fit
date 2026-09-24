@@ -16,6 +16,7 @@ import {
   ViewOffIcon,
 } from "@hugeicons/core-free-icons";
 
+import { ErrorState } from "@/components/ui/error-state";
 import { DashboardShell } from "@/components/DashboardShell";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
@@ -273,18 +274,12 @@ function DayMenu({
 
   if (error) {
     const notSeeded = error instanceof ApiError && error.status === 404;
+    if (!notSeeded) return <ErrorState title="Couldn't load the menu" error={error} onRetry={onRetry} />;
     return (
       <EmptyState
         icon={<HugeiconsIcon icon={Restaurant01Icon} className="h-6 w-6" />}
-        title={notSeeded ? "This mess hasn't published a menu yet" : "Couldn't load the menu"}
-        description={notSeeded ? "Check back later, or pick a different mess above." : apiErrorMessage(error)}
-        action={
-          !notSeeded && (
-            <button onClick={onRetry} className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-foreground hover:bg-white/15">
-              Try again
-            </button>
-          )
-        }
+        title="This mess hasn't published a menu yet"
+        description="Check back later, or pick a different mess above."
       />
     );
   }
