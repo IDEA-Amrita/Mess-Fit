@@ -48,14 +48,14 @@ export function ArticleGrid({ articles }: { articles: ArticleCard[] }) {
             className="h-11 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
         </div>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by topic">
+        <div className="flex flex-wrap gap-2.5" role="group" aria-label="Filter by topic">
           {tags.map((t) => (
             <button
               key={t}
               onClick={() => setTag(tag === t ? null : t)}
               aria-pressed={tag === t}
               className={cn(
-                "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                "rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
                 tag === t ? "bg-accent text-accent-foreground" : "bg-accent-muted text-accent hover:brightness-125",
               )}
             >

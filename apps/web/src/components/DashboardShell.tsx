@@ -48,7 +48,7 @@ const SECONDARY = NAV_ITEMS.filter((i) => !i.primary);
 
 function Logo() {
   return (
-    <Link href="/" className="text-xl font-black tracking-tighter">
+    <Link href="/" className="inline-flex min-h-11 items-center text-xl font-black tracking-tighter">
       <span className="text-white">MESS</span>
       <span className="text-accent">FIT</span>
     </Link>

@@ -505,7 +505,7 @@ function MealSlot({
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={isPhotoLoading}
-          className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[#64D2FF] transition-transform hover:scale-105 disabled:opacity-60"
+          className="inline-flex min-h-11 items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[#64D2FF] transition-transform hover:scale-105 disabled:opacity-60"
         >
           <HugeiconsIcon icon={Camera01Icon} className={cn("h-4 w-4", isPhotoLoading && "animate-spin")} />
           {isPhotoLoading ? "Analyzing photo..." : "Snap Photo"}

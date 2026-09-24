@@ -100,11 +100,11 @@ export default function SettingsPage() {
           </Section>
 
           <Section title="Privacy & legal">
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-              <Link href="/privacy" className="font-medium text-foreground underline underline-offset-4 hover:text-accent">
+            <div className="flex flex-wrap gap-x-6 text-sm">
+              <Link href="/privacy" className="inline-flex min-h-11 items-center font-medium text-foreground underline underline-offset-4 hover:text-accent">
                 Privacy policy
               </Link>
-              <Link href="/terms" className="font-medium text-foreground underline underline-offset-4 hover:text-accent">
+              <Link href="/terms" className="inline-flex min-h-11 items-center font-medium text-foreground underline underline-offset-4 hover:text-accent">
                 Terms of service
               </Link>
             </div>
