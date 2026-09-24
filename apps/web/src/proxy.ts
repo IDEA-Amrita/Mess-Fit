@@ -1,5 +1,5 @@
 /**
- * Next.js Middleware — the SINGLE source of truth for route protection.
+ * Next.js Proxy (formerly Middleware) — the SINGLE source of truth for route protection.
  *
  * Runs server-side before every matched request. Makes ALL routing
  * decisions based on:
@@ -82,7 +82,7 @@ async function isAdmin(accessToken: string): Promise<boolean> {
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip middleware for the OAuth callback page — it needs to run
