@@ -70,7 +70,14 @@ export async function apiFetch<T>(
     throw error;
   }
 
-  return res.json() as Promise<T>;
+  // 204/205 (and any other genuinely empty body) have nothing to parse — the
+  // two DELETE endpoints that return 204 (unexclude-dish, notifications
+  // unsubscribe) made every caller's success path throw a SyntaxError from
+  // `res.json()` on an empty string, which callers then treated as a failure
+  // and rolled back, even though the request had already succeeded server-side.
+  if (res.status === 204 || res.status === 205) return undefined as T;
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
 
 /**
