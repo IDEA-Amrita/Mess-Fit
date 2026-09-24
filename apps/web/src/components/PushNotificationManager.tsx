@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { apiErrorMessage, apiFetch } from "@/lib/api";
+import { track } from "@/lib/analytics";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
@@ -112,6 +113,7 @@ export function PushNotificationManager() {
       setSubscription(sub);
       setStatus("subscribed");
 
+      track("notifications_enabled");
       setMessage({ text: "Push notifications enabled!", error: false });
     } catch (error) {
       console.error("Push subscription failed:", error);
