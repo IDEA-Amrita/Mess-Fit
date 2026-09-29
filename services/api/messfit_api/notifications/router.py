@@ -9,7 +9,7 @@ from ..auth.deps import get_active_user_id
 from ..db import get_session
 from ..observability.ratelimit import limiter
 from . import repository
-from .schemas import NotificationPreferences, PushSubscriptionIn, TestNotificationOut
+from .schemas import NotificationPreferences, PushSubscriptionIn, PushSubscriptionRef, TestNotificationOut
 from .service import send_push_notification
 
 router = APIRouter(prefix="/api/v1/notifications", tags=["notifications"])
@@ -20,12 +20,17 @@ async def subscribe(
     user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session)
 ) -> Any:
-    """Save a Web Push subscription for the current user."""
-    return await repository.save_subscription(db, uuid.UUID(user_id), sub)
+    """Save a Web Push subscription for the current user.
+
+    `user_id` isn't passed on: resolving it authenticates the request and sets
+    the database identity that claim_push_subscription() assigns the row to.
+    """
+    await repository.save_subscription(db, sub)
+    return {"endpoint": sub.endpoint}
 
 @router.delete("/unsubscribe", status_code=status.HTTP_204_NO_CONTENT)
 async def unsubscribe(
-    sub: PushSubscriptionIn,
+    sub: PushSubscriptionRef,
     user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session)
 ) -> None:

@@ -7,6 +7,7 @@ import uuid
 
 from ..config import settings
 from . import repository
+from .schemas import is_push_service_url
 
 logger = structlog.get_logger(__name__)
 
@@ -25,6 +26,11 @@ async def send_push_notification(db: AsyncSession, user_id: uuid.UUID, payload: 
     delivered = 0
         
     for sub in subs:
+        # Stored before endpoints were validated? Never POST to it (SSRF).
+        if not is_push_service_url(sub.endpoint):
+            logger.warning("Dropping push subscription with a non-push-service endpoint", user_id=str(user_id))
+            await repository.remove_subscription(db, user_id, sub.endpoint)
+            continue
         try:
             # pywebpush is synchronous (blocking HTTP); keep it off the event loop.
             await asyncio.to_thread(
