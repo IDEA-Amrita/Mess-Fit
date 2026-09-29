@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { gotoReady } from "./support/page";
 import { signIn } from "./support/session";
 
 // The four onboarding steps end to end, against a mocked API. What matters
@@ -56,7 +57,7 @@ async function mockApi(page: Page, opts: { failProfileOnce?: boolean } = {}) {
 const next = (page: Page) => page.getByRole("button", { name: /^Next/ });
 
 async function completeProfileStep(page: Page) {
-  await page.goto("/onboarding/profile");
+  await gotoReady(page, "/onboarding/profile");
   await page.getByLabel("Date of birth").fill("2004-05-10");
   await next(page).click();
   await expect(page).toHaveURL(/\/onboarding\/goal$/);
@@ -71,7 +72,7 @@ test.describe("route guard", () => {
 
   test("a finished user is sent away from onboarding", async ({ page, context, baseURL }) => {
     await signIn(context, baseURL!, { onboarded: true });
-    await page.goto("/onboarding/profile");
+    await gotoReady(page, "/onboarding/profile");
     await expect(page).toHaveURL(/\/dashboard$/);
   });
 });
@@ -83,7 +84,7 @@ test.describe("steps", () => {
 
   test("profile: needs a valid date of birth before continuing", async ({ page }) => {
     await mockApi(page);
-    await page.goto("/onboarding/profile");
+    await gotoReady(page, "/onboarding/profile");
     await expect(next(page)).toBeDisabled();
 
     await page.getByLabel("Date of birth").fill("2999-01-01");
@@ -98,7 +99,7 @@ test.describe("steps", () => {
 
   test("the draft survives a reload", async ({ page }) => {
     await mockApi(page);
-    await page.goto("/onboarding/profile");
+    await gotoReady(page, "/onboarding/profile");
     await page.getByLabel("Date of birth").fill("2004-05-10");
     await page.reload();
     await expect(page.getByLabel("Date of birth")).toHaveValue("2004-05-10");
