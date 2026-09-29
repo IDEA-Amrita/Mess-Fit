@@ -84,7 +84,7 @@ class CanteenItem:
     protein_g: float
     carbs_g: float
     fats_g: float
-    diet_type: str = "veg"
+    diet_type: str  # explicit, like Dish.diet_type — never assumed vegetarian
     portion_icon: str = "piece"
 
 

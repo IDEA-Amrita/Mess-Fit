@@ -29,9 +29,9 @@ async def seeded_dishes(db_session: AsyncSession):
         await db_session.execute(
             text(
                 """
-                INSERT INTO dishes (name, category, default_serving_unit,
+                INSERT INTO dishes (name, category, diet_type, default_serving_unit,
                     default_serving_grams, kcal, protein_g, carbs_g, fats_g)
-                VALUES (:name, :cat, 'katori', 100, 100, 5, 15, 2)
+                VALUES (:name, :cat, 'veg', 'katori', 100, 100, 5, 15, 2)
                 ON CONFLICT (name, default_serving_unit) DO NOTHING
                 """
             ),

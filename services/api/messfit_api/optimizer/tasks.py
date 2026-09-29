@@ -89,7 +89,7 @@ def _canteen_from_dict(c: dict[str, Any]) -> CanteenItem:
         protein_g=float(c["protein_g"]),
         carbs_g=float(c["carbs_g"]),
         fats_g=float(c["fats_g"]),
-        diet_type=c.get("diet_type", "veg"),
+        diet_type=c["diet_type"],
         portion_icon=c.get("portion_icon", "piece"),
     )
 

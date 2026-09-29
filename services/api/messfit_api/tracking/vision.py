@@ -138,7 +138,12 @@ from typing import Literal
 class ExtractedDish(BaseModel):
     name: str = Field(..., description="Name of the food item")
     category: str = Field(..., description="One of: protein, rice, roti, curry, sweet, snack, beverage, other")
-    diet_type: Literal["vegan", "veg", "egg", "non_veg"] = Field("veg")
+    # Defaults to the strictest class so a dish the model couldn't classify is
+    # never offered to a vegetarian.
+    diet_type: Literal["vegan", "veg", "egg", "non_veg"] = Field(
+        "non_veg",
+        description="vegan, veg, egg (contains egg) or non_veg (meat/fish); non_veg when unsure",
+    )
     portion_icon: Literal["piece", "katori", "small_katori", "glass", "spoon", "thumb"] = Field("piece")
     serving_grams: float = Field(..., ge=1, le=1000, description="Estimated grams per serving")
     kcal: float = Field(..., ge=0, le=2000, description="Calories per serving")
@@ -175,6 +180,10 @@ containing egg batter -> ["eggs"], a wheat-based flatbread -> ["gluten"]).
 This is the ONLY signal used to keep an allergic user's plate safe, so include an
 allergen whenever it is plausible from the visual, not only when certain. Leave the
 array empty only when none of these apply.
+
+For each item, set "diet_type" to exactly one of vegan, veg, egg, non_veg: "egg" if it
+contains egg, "non_veg" if it contains meat or fish. A vegetarian user relies on this
+label, so if you are not sure an item is vegetarian, use "non_veg".
 """
 
 async def extract_menu_from_photo(

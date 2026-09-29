@@ -151,9 +151,9 @@ async def test_approve_writes_menu_and_creates_draft(
     draft_name = f"OCR Draft {uuid.uuid4().hex[:8]}"
     await db_session.execute(
         text(
-            "INSERT INTO dishes (id, name, category, default_serving_unit, "
+            "INSERT INTO dishes (id, name, category, diet_type, default_serving_unit, "
             "default_serving_grams, kcal, protein_g, carbs_g, fats_g) "
-            "VALUES (:id, :name, 'dal', 'katori', 100, 100, 5, 15, 2)"
+            "VALUES (:id, :name, 'dal', 'veg', 'katori', 100, 100, 5, 15, 2)"
         ),
         {"id": str(matched_id), "name": f"TestDish-{matched_id.hex[:8]}"},
     )
