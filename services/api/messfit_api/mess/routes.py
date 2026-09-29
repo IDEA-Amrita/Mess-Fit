@@ -1,7 +1,7 @@
 import datetime
 import uuid
 from collections import defaultdict
-from typing import Sequence
+from typing import Literal, Sequence
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import delete, select
@@ -202,11 +202,16 @@ async def submit_dish_feedback(
 @router.get("/dishes/feedback")
 async def get_dish_feedback(
     date: datetime.date,
-    meal_type: str,
+    meal_type: Literal["breakfast", "lunch", "snack", "dinner"],
     dish_id: uuid.UUID,
+    user_id: str = Depends(get_active_user_id),
     db: AsyncSession = Depends(get_session),
 ) -> dict:
-    """Get community consensus on whether a dish is available."""
+    """Get community consensus on whether a dish is available.
+
+    Signed-in only, like every other endpoint; resolving the user also gives
+    the query the identity RLS needs to read the votes (migration 019).
+    """
     return await _aggregate_feedback(db, date, meal_type, dish_id)
 
 

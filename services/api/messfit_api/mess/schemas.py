@@ -87,7 +87,7 @@ class DishExclusionOut(DishExclusionIn):
 class DishFeedbackIn(BaseModel):
     """User confirms or denies a dish is being served today."""
     date: date
-    meal_type: str
+    meal_type: Literal["breakfast", "lunch", "snack", "dinner"]
     dish_id: uuid.UUID
     vote: Literal["confirm", "deny"]
 
