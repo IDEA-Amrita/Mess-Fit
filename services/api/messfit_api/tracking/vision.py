@@ -15,7 +15,9 @@ from __future__ import annotations
 import json
 import structlog
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
+
+from pydantic import BaseModel, Field, model_validator
 
 from ..config import settings
 
@@ -131,9 +133,6 @@ async def estimate_meal_from_photo(
             confidence="low",
         )
 
-from pydantic import BaseModel, Field, model_validator
-from typing import Literal
-
 # --- Production Validation Models ---
 class ExtractedDish(BaseModel):
     name: str = Field(..., description="Name of the food item")
@@ -155,7 +154,7 @@ class ExtractedDish(BaseModel):
     allergens: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_macros(self):
+    def validate_macros(self) -> "ExtractedDish":
         # A single macro cannot weigh more than the serving itself
         if self.protein_g > self.serving_grams:
             self.protein_g = self.serving_grams

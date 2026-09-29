@@ -9,11 +9,11 @@ template can never reference a non-existent exercise.
 
 from __future__ import annotations
 
+from typing import Any
+
 BW = ["bodyweight"]
 GYM = ["college_gym"]
 
-
-from typing import Any
 
 def _ex(id: str, name: str, primary: str, secondary: list[str], equipment: list[str], sets: int, reps: str, rest: int, instr: str, mistakes: list[str]) -> dict[str, Any]:
     return {

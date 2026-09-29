@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from messfit_api.tracking.vision import ExtractedDish, MenuExtractionResult
+from messfit_api.tracking.vision import ExtractedDish
 
 def test_extracted_dish_valid():
     dish = ExtractedDish(

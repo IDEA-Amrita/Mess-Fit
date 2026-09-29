@@ -5,6 +5,18 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 from messfit_api.config import settings
+from messfit_api.db import Base
+
+# Import every model module so its tables register on Base.metadata; a module
+# missing here is invisible to `alembic revision --autogenerate`.
+from messfit_api.analytics import models as analytics_models
+from messfit_api.auth import models as auth_models
+from messfit_api.chatbot import models as chatbot_models
+from messfit_api.mess import models as mess_models
+from messfit_api.notifications import models as notif_models
+from messfit_api.profile import models as profile_models
+from messfit_api.tracking import models as tracking_models
+from messfit_api.workouts import models as workouts_models
 
 config = context.config
 
@@ -17,15 +29,6 @@ sync_url = settings.database_url.replace("+asyncpg", "")
 # must have it doubled or alembic refuses to start.
 config.set_main_option("sqlalchemy.url", sync_url.replace("%", "%%"))
 
-from messfit_api.db import Base
-# Import all model modules so they register with Base
-from messfit_api.auth import models as auth_models
-from messfit_api.profile import models as profile_models
-from messfit_api.mess import models as mess_models
-from messfit_api.chatbot import models as chatbot_models
-from messfit_api.notifications import models as notif_models
-from messfit_api.tracking import models as tracking_models
-from messfit_api.workouts import models as workouts_models
 
 target_metadata = Base.metadata
 

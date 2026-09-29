@@ -20,6 +20,7 @@ from __future__ import annotations
 import asyncio
 import structlog
 import uuid
+from typing import Any
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -65,8 +66,6 @@ async def _enrich_with_matches(db: AsyncSession, menu: ParsedMenu) -> dict:
         weekly.append({"day": day.day, "meals": meals})
     return {"weekly": weekly}
 
-
-from typing import Any
 
 async def _set(db: AsyncSession, job_id: uuid.UUID, **values: Any) -> None:
     await db.execute(update(OCRJobORM).where(OCRJobORM.id == job_id).values(**values))

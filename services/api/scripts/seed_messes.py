@@ -104,7 +104,6 @@ async def seed_messes(*, data_file: Path = DATA_FILE, dry_run: bool = False) -> 
 
     # Upsert into DB
     inserted = 0
-    updated = 0
 
     async with SessionLocal() as db:
         try:

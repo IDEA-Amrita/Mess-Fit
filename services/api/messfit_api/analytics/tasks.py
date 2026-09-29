@@ -33,7 +33,7 @@ async def prune_old_events(db: AsyncSession, now: datetime | None = None) -> int
         ids = select(AnalyticsEvent.id).where(AnalyticsEvent.occurred_at < cutoff).limit(BATCH_SIZE)
         result = await db.execute(delete(AnalyticsEvent).where(AnalyticsEvent.id.in_(ids)))
         await db.commit()
-        removed = result.rowcount or 0
+        removed = getattr(result, "rowcount", 0) or 0  # DELETE returns a CursorResult
         total += removed
         if removed < BATCH_SIZE:
             return total
