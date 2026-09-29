@@ -8,7 +8,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Alert01Icon,
   Award01Icon,
   FireIcon,
   LockIcon,

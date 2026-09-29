@@ -30,7 +30,9 @@ export function RestTimer({
   onDone: () => void;
 }) {
   // Deadline lives in a ref so "+15s" can extend it without resetting the timer.
-  const deadlineRef = useRef<number>(Date.now() + seconds * 1000);
+  // Set when the countdown starts (below), not during render: reading the clock
+  // while rendering makes the component impure.
+  const deadlineRef = useRef<number | null>(null);
   const [totalMs, setTotalMs] = useState(seconds * 1000);
   const [remainingMs, setRemainingMs] = useState(seconds * 1000);
   const finishedRef = useRef(false);
@@ -59,8 +61,10 @@ export function RestTimer({
   }, []);
 
   useEffect(() => {
+    deadlineRef.current ??= Date.now() + seconds * 1000;
+    const deadline = deadlineRef;
     function recompute() {
-      const left = deadlineRef.current - Date.now();
+      const left = (deadline.current ?? 0) - Date.now();
       setRemainingMs(left);
       if (left <= 0) finish(true);
     }
@@ -72,7 +76,7 @@ export function RestTimer({
       window.clearInterval(id);
       document.removeEventListener("visibilitychange", recompute);
     };
-  }, [finish]);
+  }, [finish, seconds]);
 
   useEffect(() => {
     skipRef.current?.focus();
@@ -91,11 +95,12 @@ export function RestTimer({
   const closing = secs > 0 && secs <= 3;
 
   function extend() {
-    deadlineRef.current += EXTEND_MS;
+    const deadline = (deadlineRef.current ?? Date.now()) + EXTEND_MS;
+    deadlineRef.current = deadline;
     // Grow the ring's denominator too, otherwise it sits at 100% for the
     // first 15s after tapping +15s instead of draining smoothly.
     setTotalMs((t) => t + EXTEND_MS);
-    setRemainingMs(deadlineRef.current - Date.now());
+    setRemainingMs(deadline - Date.now());
   }
 
   return (

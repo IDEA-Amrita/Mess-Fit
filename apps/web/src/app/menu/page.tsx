@@ -68,6 +68,9 @@ function exclusionKey(date: string, mealType: string, dishId: string): string {
   return `${date}|${mealType}|${dishId}`;
 }
 
+
+// Shared so a missing result is the same Set every render (memo deps stay stable).
+const NO_EXCLUSIONS = new Set<string>();
 export default function MenuPage() {
   const queryClient = useQueryClient();
   const [selectedMessId, setSelectedMessId] = useState<string | null>(null);
@@ -114,7 +117,7 @@ export default function MenuPage() {
     // stale Set. Sets need this off; plain arrays/objects don't.
     structuralSharing: false,
   });
-  const excludedKeys = exclusionsQuery.data ?? new Set<string>();
+  const excludedKeys = exclusionsQuery.data ?? NO_EXCLUSIONS;
 
   const toggleMutation = useMutation({
     mutationFn: async ({ dateStr, mealType, dishId, currentlyExcluded }: { dateStr: string; mealType: string; dishId: string; currentlyExcluded: boolean }) => {
