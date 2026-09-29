@@ -24,11 +24,10 @@ from messfit_api.mess.schemas import OcrApproveIn, OcrJobOut, OcrJobSummary
 from messfit_api.mess.storage import signed_url, upload_menu_photo
 from messfit_api.mess.tasks import run_ocr_job
 from messfit_api.observability.ratelimit import limiter
+from messfit_api.uploads import read_image_upload
 
 router = APIRouter(prefix="/admin/ocr", tags=["mess-ocr"])
 
-_ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/jpg", "image/png", "image/webp", "image/heic"}
-_MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 @router.post(
@@ -49,24 +48,13 @@ async def create_ocr_job(
     The photo goes to the private Storage bucket; the parsed result lands on
     the job row when the worker finishes. Poll GET /admin/ocr/jobs/{id}.
     """
-    if file.content_type not in _ALLOWED_IMAGE_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail=f"Unsupported image type {file.content_type!r}",
-        )
+    image_bytes, content_type = await read_image_upload(file)
 
     mess = await db.get(MessORM, mess_id)
     if mess is None:
         raise HTTPException(status_code=404, detail="Mess not found")
 
-    image_bytes = await file.read()
-    if len(image_bytes) > _MAX_UPLOAD_BYTES:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="Image exceeds 10 MB",
-        )
-
-    path = await upload_menu_photo(image_bytes, file.content_type, mess_id)
+    path = await upload_menu_photo(image_bytes, content_type, mess_id)
 
     job = OCRJobORM(
         mess_id=mess_id,

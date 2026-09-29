@@ -68,6 +68,9 @@ _FAKE_RESULT: dict = {
     "solve_time_ms": 55,
 }
 
+# Minimal bytes with a real JPEG signature (uploads are signature-checked).
+JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 16
+
 class TestUnauthed:
     async def test_no_auth_header_rejected(self, unauthed_client: AsyncClient):
         r = await unauthed_client.post(URL)
@@ -75,7 +78,7 @@ class TestUnauthed:
 
 class TestOnboardingErrors:
     async def test_no_profile_returns_409(self, client: AsyncClient):
-        file_content = b"fake image content"
+        file_content = JPEG
         files = {"file": ("test.jpg", file_content, "image/jpeg")}
         r = await client.post(URL, files=files)
         assert r.status_code == 409
@@ -99,7 +102,7 @@ class TestHappyPath:
             lambda _payload: dict(_FAKE_RESULT),
         )
 
-        file_content = b"fake image content"
+        file_content = JPEG
         files = {"file": ("test.jpg", file_content, "image/jpeg")}
         r = await client.post(URL, files=files)
         
@@ -139,7 +142,7 @@ class TestAllergenWiring:
             "messfit_api.optimizer.routes.run_optimizer", mock_run_optimizer
         )
 
-        file_content = b"fake image content"
+        file_content = JPEG
         files = {"file": ("test.jpg", file_content, "image/jpeg")}
         r = await client.post(URL, files=files)
 
@@ -163,7 +166,7 @@ class TestAllergenWiring:
             "messfit_api.optimizer.routes.run_optimizer", lambda _payload: dict(_FAKE_RESULT)
         )
 
-        file_content = b"fake image content"
+        file_content = JPEG
         files = {"file": ("test.jpg", file_content, "image/jpeg")}
         r = await client.post(URL, files=files)
 
@@ -185,7 +188,7 @@ class TestAllergenWiring:
             "messfit_api.optimizer.routes.run_optimizer", lambda _payload: dict(_FAKE_RESULT)
         )
 
-        file_content = b"fake image content"
+        file_content = JPEG
         files = {"file": ("test.jpg", file_content, "image/jpeg")}
         r = await client.post(URL, files=files)
 
