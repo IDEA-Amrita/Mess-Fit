@@ -5,6 +5,9 @@ import { apiErrorMessage, apiFetch } from "@/lib/api";
 import { track } from "@/lib/analytics";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+// Production uses the worker next-pwa generates at build time; `next dev` has
+// no build step, so it uses the hand-written public/sw-dev.js.
+const SERVICE_WORKER_URL = process.env.NODE_ENV === "production" ? "/sw.js" : "/sw-dev.js";
 
 function syncSubscription(sub: PushSubscription) {
   const { endpoint, keys } = sub.toJSON();
@@ -44,7 +47,7 @@ export function PushNotificationManager() {
 
       try {
         // Explicitly register the service worker (don't rely on auto-registration)
-        const registration = await navigator.serviceWorker.register("/sw.js", {
+        const registration = await navigator.serviceWorker.register(SERVICE_WORKER_URL, {
           scope: "/",
         });
 

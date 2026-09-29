@@ -2,8 +2,8 @@
 declare let self: ServiceWorkerGlobalScope;
 
 // Production push handlers (next-pwa bundles this file into the generated
-// service worker). Keep behaviour in sync with public/sw.js, which is what
-// `next dev` serves.
+// service worker). Keep behaviour in sync with public/sw-dev.js, which is
+// what `next dev` registers.
 self.addEventListener("push", (event) => {
   const data = event.data?.json() ?? {};
   const title = data.title || "MessFit";
