@@ -103,7 +103,7 @@ Mess-Fit/
 │   ├── infra/migrations/     Alembic migrations (raw-SQL, RLS)
 │   ├── scripts/              seed + ingest scripts
 │   ├── eval/                 chatbot + optimizer eval harness
-│   └── tests/                pytest suite (279+ tests)
+│   └── tests/                pytest suite (400+ tests, run as the RLS-restricted app role)
 ├── infra/
 │   ├── grafana/dashboards/   importable Grafana dashboards (RED, business, AI/optimizer)
 │   └── load-tests/           k6 scripts (optimizer, chat, smoke)
@@ -116,17 +116,27 @@ Mess-Fit/
 
 ## Testing & quality
 
-```bash
-# Backend
+The backend suite writes and deletes rows, so it runs on its own throwaway
+Postgres and **refuses to run against Supabase**. `scripts/test-db.ps1` starts
+one in Docker (same image as CI), applies a small Supabase shim and migrates it.
+
+```powershell
+# Backend (needs Docker Desktop running)
 cd services/api
-uv run ruff check messfit_api      # lint
+./scripts/test-db.ps1              # add -Reset for a fresh database
+$env:TEST_DATABASE_URL = "postgresql+asyncpg://messfit_app:messfit_app@127.0.0.1:55432/messfit_test"
+$env:TEST_CELERY_DATABASE_URL = "postgresql+asyncpg://messfit_worker:messfit_worker@127.0.0.1:55432/messfit_test"
+uv run ruff check .                # lint
 uv run mypy messfit_api            # types
-uv run pytest -q                   # full suite
+uv run pytest -q                   # full suite (RLS enforced, as in production)
+uv run pytest eval/ -q             # optimizer evaluation
 
 # Frontend
 cd apps/web
-npx tsc --noEmit                   # types
+pnpm exec tsc --noEmit             # types
+pnpm exec eslint .                 # lint
 pnpm build                         # production build
+pnpm exec playwright test          # end-to-end (mocked backends)
 
 # Load tests (against staging — see infra/load-tests/README.md)
 k6 run --env API_URL=... --env AUTH_TOKEN=... infra/load-tests/optimizer.js
@@ -154,7 +164,7 @@ Supabase Auth (JWT verified via JWKS). See [docs/02-tdd/](./docs/02-tdd/).
 - Branch: `feat/<desc>`, `fix/<desc>`, `docs/<desc>`, `chore/<desc>`
 - PRs target `main`; linear history (no force-push to published commits)
 - One commit per logical task; commits fast-forward to `main`
-- CI must pass before merge (ruff + mypy + pytest; tsc + build)
+- CI must pass before merge (`.github/workflows/ci.yml`): ruff, mypy, migrations up/down, pytest, optimizer eval and dependency audit; tsc, eslint, build and Playwright
 
 ## Tech
 
