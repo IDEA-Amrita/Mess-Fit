@@ -26,6 +26,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => initAnalytics(), []);
 
+  // Marks the moment the page became interactive (this effect runs after every
+  // child has hydrated). Anything typed into server-rendered inputs before then
+  // is reset by hydration, so the e2e suite waits for this (tests/support/page.ts).
+  useEffect(() => {
+    document.documentElement.dataset.hydrated = "true";
+  }, []);
+
   // Nothing tied to one account may outlive it. Sign-out is a client-side
   // navigation, so without this the in-memory query cache (5 min stale time),
   // the onboarding draft and an in-progress workout would all still be there for

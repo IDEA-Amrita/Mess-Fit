@@ -25,6 +25,10 @@ export function PushNotificationManager() {
 
   // On mount: check support, register SW, check existing subscription
   useEffect(() => {
+    // Set on cleanup, so a run that was superseded (an unmount, or React's
+    // development double-invoke) neither updates state nor re-registers.
+    let cancelled = false;
+
     async function init() {
       // Check browser support
       if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
@@ -49,6 +53,7 @@ export function PushNotificationManager() {
 
         // Check for existing subscription
         const existingSub = await registration.pushManager.getSubscription();
+        if (cancelled) return;
         if (existingSub) {
           setSubscription(existingSub);
           setStatus("subscribed");
@@ -62,6 +67,7 @@ export function PushNotificationManager() {
           setStatus("unsubscribed");
         }
       } catch (err) {
+        if (cancelled) return;
         console.error("Service Worker registration failed:", err);
         setStatus("error");
         setMessage({ text: "Could not initialize push notifications.", error: true });
@@ -69,6 +75,9 @@ export function PushNotificationManager() {
     }
 
     init();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const subscribeToPush = useCallback(async () => {
