@@ -52,13 +52,31 @@ function storage(kind: "local" | "session"): Storage | null {
   }
 }
 
+/** The browser is sending Do Not Track or Global Privacy Control. */
+export function hasBrowserPrivacySignal(): boolean {
+  const nav = navigator as Navigator & { globalPrivacyControl?: boolean };
+  return nav.doNotTrack === "1" || nav.globalPrivacyControl === true;
+}
+
 /** True unless the user (or their browser) has said no. */
 export function analyticsEnabled(): boolean {
   if (typeof window === "undefined") return false;
-  if (storage("local")?.getItem(OPT_OUT_KEY) === "1") return false;
-  const nav = navigator as Navigator & { globalPrivacyControl?: boolean };
-  if (nav.doNotTrack === "1" || nav.globalPrivacyControl === true) return false;
-  return true;
+  return !isOptedOut() && !hasBrowserPrivacySignal();
+}
+
+const optOutListeners = new Set<() => void>();
+
+/** For useSyncExternalStore: fires when the opt-out changes here or in another tab. */
+export function subscribeOptOut(onChange: () => void): () => void {
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === OPT_OUT_KEY) onChange();
+  };
+  optOutListeners.add(onChange);
+  window.addEventListener("storage", onStorage);
+  return () => {
+    optOutListeners.delete(onChange);
+    window.removeEventListener("storage", onStorage);
+  };
 }
 
 /** Whether the opt-out was chosen in-app (as opposed to a browser signal). */
@@ -74,6 +92,7 @@ export function setOptOut(optedOut: boolean): void {
   } else {
     s?.removeItem(OPT_OUT_KEY);
   }
+  optOutListeners.forEach((notify) => notify());
 }
 
 /** Mirror of the server's slug rule: lowercase, [a-z0-9_.:-], 1-64 chars. */

@@ -10,6 +10,7 @@ recent caloric intake to find the energy input.
 from __future__ import annotations
 
 import datetime
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from pydantic import BaseModel
@@ -36,7 +37,7 @@ class AdaptiveTDEEResult:
     reason: str | None = None
 
 
-def _linear_regression_slope(x: list[float], y: list[float]) -> float:
+def _linear_regression_slope(x: Sequence[float], y: Sequence[float]) -> float:
     """Calculate the slope of the best-fit line (change in y per unit x)."""
     n = len(x)
     if n < 2:

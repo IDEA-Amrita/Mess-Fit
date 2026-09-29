@@ -8,7 +8,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowDown01Icon, PlateIcon, SparklesIcon, Tick01Icon } from "@hugeicons/core-free-icons";
 import { ErrorState } from "@/components/ui/error-state";
-import { apiErrorMessage, apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import { clearOnboardingData } from "@/lib/onboarding-store";
 import { BMI_COLORS } from "@/lib/profile-form";
 import { optimizeToday } from "@/lib/optimizer-api";

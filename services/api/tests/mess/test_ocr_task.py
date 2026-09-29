@@ -3,7 +3,9 @@
 A real ocr_jobs row is created (committed, TestMess-prefixed so the suite's
 catalog purge cleans it even if teardown is skipped) and the external calls
 (download + vision) are monkeypatched. Fuzzy matching runs for real against
-the catalog — that's part of what produces the enriched parsed_result.
+the catalog — that's part of what produces the enriched parsed_result — so the
+fixture makes sure the catalog dishes the menu names exist (a fresh test
+database has none) and removes only the ones it added.
 """
 
 from __future__ import annotations
@@ -57,8 +59,28 @@ async def ocr_job(db_session: AsyncSession):
     )
     await db_session.commit()
 
+    # The fuzzy matcher needs these in the catalog. Only rows this fixture
+    # actually inserts are removed afterwards; a pre-existing catalog is kept.
+    added: list[str] = []
+    for name in ("Idli", "Sambar"):
+        row = await db_session.execute(
+            text(
+                "INSERT INTO dishes (name, category, diet_type, default_serving_unit, "
+                "default_serving_grams, kcal, protein_g, carbs_g, fats_g) "
+                "VALUES (:name, 'other', 'veg', 'katori', 100, 100, 4, 18, 2) "
+                "ON CONFLICT (name, default_serving_unit) DO NOTHING RETURNING id"
+            ),
+            {"name": name},
+        )
+        new_id = row.scalar_one_or_none()
+        if new_id is not None:
+            added.append(str(new_id))
+    await db_session.commit()
+
     yield job_id
 
+    for dish_id in added:
+        await db_session.execute(text("DELETE FROM dishes WHERE id = :id"), {"id": dish_id})
     # Cascade: deleting the mess removes its ocr_jobs.
     await db_session.execute(
         text("DELETE FROM messes WHERE id = :id"), {"id": str(mess_id)}

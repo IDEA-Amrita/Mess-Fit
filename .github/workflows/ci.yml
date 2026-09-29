@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: API (lint, types, migrations, tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        # Same image as scripts/test-db.ps1 and docker-compose.yml.
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: messfit_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d messfit_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # Settings the API refuses to start without. Dummy values: nothing in
+      # CI talks to Supabase, Gemini or Redis (external calls are mocked).
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/messfit_test
+      REDIS_URL: redis://localhost:6379/0
+      SUPABASE_URL: http://localhost:54321
+      SUPABASE_PROJECT_REF: ci
+      SUPABASE_JWT_SECRET: ci-test-secret-ci-test-secret-ci-test
+      GEMINI_API_KEY: ci-dummy
+      # The suite runs as the RLS-restricted app role, as production does.
+      TEST_DATABASE_URL: postgresql+asyncpg://messfit_app:messfit_app@localhost:5432/messfit_test
+      TEST_CELERY_DATABASE_URL: postgresql+asyncpg://messfit_worker:messfit_worker@localhost:5432/messfit_test
+    defaults:
+      run:
+        working-directory: services/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        working-directory: .
+        run: uv sync --frozen --all-packages
+      - name: Lint (ruff)
+        run: uv run ruff check .
+      - name: Type check (mypy)
+        run: uv run mypy messfit_api
+      - name: Supabase shim for a plain Postgres
+        run: psql "postgresql://postgres:postgres@localhost:5432/messfit_test" -v ON_ERROR_STOP=1 -q -f infra/local-db/supabase_shim.sql
+      - name: Migrations build a database from scratch
+        run: uv run alembic upgrade head
+      - name: Migrations reverse cleanly
+        run: uv run alembic downgrade base && uv run alembic upgrade head
+      - name: Tests
+        run: uv run pytest -q
+      - name: Optimizer evaluation (50 scenarios)
+        run: uv run pytest eval/ -q
+      - name: Dependency audit
+        working-directory: .
+        run: |
+          uv export --frozen --no-dev --no-hashes --no-emit-workspace > "$RUNNER_TEMP/requirements.txt"
+          uvx pip-audit -r "$RUNNER_TEMP/requirements.txt" --no-deps --disable-pip --progress-spinner off
+
+  web:
+    name: Web (types, lint, build, e2e)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Type check
+        working-directory: apps/web
+        run: pnpm exec tsc --noEmit
+      - name: Lint
+        working-directory: apps/web
+        run: pnpm exec eslint .
+      - name: Production build
+        working-directory: apps/web
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-anon-key
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+        run: pnpm build
+      - name: Dependency audit (fail on critical)
+        working-directory: apps/web
+        run: pnpm audit --prod --audit-level critical
+      - name: Install Playwright's Chromium
+        working-directory: apps/web
+        run: pnpm exec playwright install --with-deps chromium
+      - name: End-to-end tests
+        working-directory: apps/web
+        run: pnpm exec playwright test
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7

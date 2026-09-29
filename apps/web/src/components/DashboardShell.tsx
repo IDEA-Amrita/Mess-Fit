@@ -62,7 +62,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [email, setEmail] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [moreOpen, setMoreOpen] = useState(false);
+  // The "More" sheet remembers the page it was opened on, so navigating away
+  // closes it without an effect.
+  const [moreOpenOn, setMoreOpenOn] = useState<string | null>(null);
+  const moreOpen = moreOpenOn === pathname;
+  const setMoreOpen = (open: boolean) => setMoreOpenOn(open ? pathname : null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const moreCloseRef = useRef<HTMLButtonElement>(null);
   const moreTriggerRef = useRef<HTMLElement | null>(null);
@@ -83,10 +87,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     return () => data.subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    setMoreOpen(false);
-  }, [pathname]);
-
   // The "More" sheet is a real modal (role="dialog") but was keyboard-dead:
   // Escape didn't close it, opening never moved focus in, and closing never
   // gave it back to whatever button opened it.
@@ -95,7 +95,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     moreTriggerRef.current = document.activeElement as HTMLElement | null;
     moreCloseRef.current?.focus();
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setMoreOpen(false);
+      if (e.key === "Escape") setMoreOpenOn(null);
     }
     window.addEventListener("keydown", onKey);
     return () => {
@@ -288,6 +288,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 function Avatar({ initial, imageUrl }: { initial: string; imageUrl?: string | null }) {
   if (imageUrl) {
     return (
+      // A small user avatar from Supabase Storage; see AvatarUpload for why not next/image.
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={imageUrl}
         alt="Avatar"

@@ -6,7 +6,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Alert01Icon,
   ArrowDown01Icon,
   CheckmarkCircle01Icon,
   PlayCircle02Icon,
@@ -263,6 +262,9 @@ export default function WorkoutPage() {
     const restored = loadSession(todayIso(), workout);
     if (restored) {
       sessionRef.current = restored;
+      // Syncing from an external store (localStorage) once per (day, template)
+      // is what effects are for; there is nothing to derive this from in render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSession(restored);
     }
   }, [workout]);
@@ -286,6 +288,8 @@ export default function WorkoutPage() {
     const done = cur.setsDone[ex.exercise_id] ?? 0;
     if (done >= ex.sets) return;
     const after = done + 1;
+    // Runs from a click handler, never during render; the compiler can't tell.
+    // eslint-disable-next-line react-hooks/purity
     commit({ setsDone: { ...cur.setsDone, [ex.exercise_id]: after }, startedAt: cur.startedAt ?? Date.now() });
 
     const finishedExercise = after >= ex.sets;

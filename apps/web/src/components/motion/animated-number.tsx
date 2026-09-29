@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { animate, useInView, useMotionValue, useReducedMotion } from "framer-motion";
 
 /**
@@ -30,7 +30,9 @@ export function AnimatedNumber({
   // Keep the latest formatter without making it an effect dependency (callers
   // usually pass an inline arrow, which would restart the animation each render).
   const formatRef = useRef(format);
-  formatRef.current = format;
+  useLayoutEffect(() => {
+    formatRef.current = format;
+  });
 
   useEffect(() => {
     const node = ref.current;

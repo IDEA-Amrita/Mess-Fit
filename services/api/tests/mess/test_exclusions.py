@@ -50,6 +50,7 @@ class TestExclusionCRUD:
         payload = {
             "name": f"TestDish-{uuid.uuid4().hex[:8]}",
             "category": "other",
+            "diet_type": "veg",
             "default_serving_unit": "katori",
             "default_serving_grams": 100.0,
             "kcal": 200.0,
@@ -133,6 +134,7 @@ class TestUserScoping:
         payload = {
             "name": f"ScopeDish-{uuid.uuid4().hex[:8]}",
             "category": "other",
+            "diet_type": "veg",
             "default_serving_unit": "katori",
             "default_serving_grams": 80.0,
             "kcal": 150.0,

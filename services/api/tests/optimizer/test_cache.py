@@ -14,7 +14,6 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-import pytest
 
 from messfit_api.optimizer.cache import (
     _KEY_PREFIX,

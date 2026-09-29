@@ -36,6 +36,17 @@ export function CommandPalette({
 }) {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
+  // Each opening starts from an empty search. Adjusted during render when
+  // `open` flips (React's pattern for resetting state on a prop change), so the
+  // first frame of the reopened palette never shows the previous search.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) {
+      setQuery("");
+      setActive(0);
+    }
+  }
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -58,13 +69,11 @@ export function CommandPalette({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onOpenChange]);
 
-  // Reset on open; lock background scroll while open; on close, return focus
+  // Lock background scroll while open; on close, return focus
   // to whatever triggered the palette (button, Ctrl/Cmd+K) — a modal that
   // steals focus and never gives it back strands keyboard/screen-reader users.
   useEffect(() => {
     if (!open) return;
-    setQuery("");
-    setActive(0);
     triggerRef.current = document.activeElement as HTMLElement | null;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -74,8 +83,6 @@ export function CommandPalette({
       triggerRef.current?.focus();
     };
   }, [open]);
-
-  useEffect(() => setActive(0), [query]);
 
   // Keep the highlighted row visible when arrowing through a long list.
   useEffect(() => {
@@ -136,7 +143,10 @@ export function CommandPalette({
               <input
                 ref={inputRef}
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setActive(0);
+                }}
                 onKeyDown={onInputKey}
                 placeholder="Jump to a page or run an action…"
                 role="combobox"

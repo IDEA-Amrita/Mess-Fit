@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import io
-import pytest
 from httpx import AsyncClient
 
 from messfit_api.tracking.vision import MenuExtractionResult, ExtractedDish

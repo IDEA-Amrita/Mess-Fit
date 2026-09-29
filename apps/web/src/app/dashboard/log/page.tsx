@@ -293,14 +293,19 @@ function SaveButton({
 
 /** True for ~2s after `flag` flips on — drives the "Saved" confirmation. */
 function useFlash(flag: boolean, ms = 2000) {
-  const [on, setOn] = useState(false);
+  const [expired, setExpired] = useState(false);
+  // A fresh flip on starts a fresh flash (state adjusted during render).
+  const [prevFlag, setPrevFlag] = useState(flag);
+  if (flag !== prevFlag) {
+    setPrevFlag(flag);
+    setExpired(false);
+  }
   useEffect(() => {
     if (!flag) return;
-    setOn(true);
-    const t = setTimeout(() => setOn(false), ms);
+    const t = setTimeout(() => setExpired(true), ms);
     return () => clearTimeout(t);
   }, [flag, ms]);
-  return on;
+  return flag && !expired;
 }
 
 // ── meal tab ───────────────────────────────────────────────────────────────────
@@ -442,7 +447,11 @@ function MealSlot({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Pick up notes that arrive after first render (the day's logs load async).
-  useEffect(() => setNotes(savedNotes), [savedNotes]);
+  const [prevSavedNotes, setPrevSavedNotes] = useState(savedNotes);
+  if (savedNotes !== prevSavedNotes) {
+    setPrevSavedNotes(savedNotes);
+    setNotes(savedNotes);
+  }
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -554,12 +563,15 @@ const MAX_KG = 200;
 
 function WeightTab({ today, loading }: { today?: TodayLogs; loading: boolean }) {
   const qc = useQueryClient();
-  const [value, setValue] = useState<string>("");
 
+  // Prefill with today's saved weight (now, or when it loads), unless they've started typing.
   const todaysWeight = today?.weight?.weight_kg;
-  useEffect(() => {
-    if (todaysWeight != null) setValue((v) => (v === "" ? String(todaysWeight) : v));
-  }, [todaysWeight]);
+  const [value, setValue] = useState<string>(todaysWeight != null ? String(todaysWeight) : "");
+  const [prevWeight, setPrevWeight] = useState(todaysWeight);
+  if (todaysWeight !== prevWeight) {
+    setPrevWeight(todaysWeight);
+    if (todaysWeight != null && value === "") setValue(String(todaysWeight));
+  }
 
   const mutation = useMutation({
     mutationFn: logWeight,

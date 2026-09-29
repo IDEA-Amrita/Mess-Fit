@@ -88,6 +88,9 @@ export function AvatarUpload() {
     <div className="flex items-center gap-6">
       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full bg-accent-muted flex items-center justify-center border-4 border-background">
         {avatarUrl ? (
+          // Supabase Storage URL or a local preview blob: next/image would need every
+          // storage host allow-listed and adds nothing at 96px.
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={avatarUrl}
             alt="Avatar"

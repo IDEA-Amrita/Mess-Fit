@@ -1,7 +1,7 @@
 import asyncio
 
 import structlog
-from pywebpush import webpush, WebPushException
+from pywebpush import webpush, WebPushException  # type: ignore[import-untyped]
 from sqlalchemy.ext.asyncio import AsyncSession
 import uuid
 

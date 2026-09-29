@@ -1,7 +1,7 @@
 "use client";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft02Icon, InformationCircleIcon, Restaurant01Icon } from "@hugeicons/core-free-icons";
@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 // ── helper: infer current meal ───────────────────────────────────────────────
 
 type MealType = "breakfast" | "lunch" | "snack" | "dinner";
+
+const noSubscription = () => () => {};
 
 function getCurrentMealSlot(): MealType {
   const hour = new Date().getHours();
@@ -32,11 +34,10 @@ const MEAL_LABELS: Record<MealType, string> = {
 };
 
 export default function QuickModePage() {
-  const [slot, setSlot] = useState<MealType | null>(null);
-
-  useEffect(() => {
-    setSlot(getCurrentMealSlot());
-  }, []);
+  // The slot depends on the device clock, which the server doesn't have: render
+  // nothing on the server, then the current slot once hydrated. It's re-read on
+  // each render, so a page left open rolls over to the next meal.
+  const slot = useSyncExternalStore<MealType | null>(noSubscription, getCurrentMealSlot, () => null);
 
   const plate = useQuery<OptimizationResult>({
     queryKey: ["plate", "today"],

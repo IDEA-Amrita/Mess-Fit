@@ -1,22 +1,19 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
-import { isOptedOut, setOptOut } from "@/lib/analytics";
+import { hasBrowserPrivacySignal, isOptedOut, setOptOut, subscribeOptOut } from "@/lib/analytics";
+
+const noSubscription = () => () => {};
 
 /** Opt-out switch for first-party usage analytics (see lib/analytics.ts). */
 export function AnalyticsToggle() {
   const id = useId();
-  // Read after mount: localStorage doesn't exist during server rendering.
-  const [share, setShare] = useState(true);
-  const [browserSignal, setBrowserSignal] = useState(false);
-
-  useEffect(() => {
-    setShare(!isOptedOut());
-    const nav = navigator as Navigator & { globalPrivacyControl?: boolean };
-    setBrowserSignal(nav.doNotTrack === "1" || nav.globalPrivacyControl === true);
-  }, []);
+  // localStorage and navigator don't exist on the server: render the defaults
+  // there, then the real values right after hydration.
+  const share = !useSyncExternalStore(subscribeOptOut, isOptedOut, () => false);
+  const browserSignal = useSyncExternalStore(noSubscription, hasBrowserPrivacySignal, () => false);
 
   return (
     <div className="space-y-2">
@@ -37,10 +34,7 @@ export function AnalyticsToggle() {
           id={id}
           checked={share && !browserSignal}
           disabled={browserSignal}
-          onCheckedChange={(on) => {
-            setShare(on);
-            setOptOut(!on);
-          }}
+          onCheckedChange={(on) => setOptOut(!on)}
         />
       </div>
       {browserSignal && (

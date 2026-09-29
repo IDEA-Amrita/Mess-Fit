@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   ApprovePayload,
-  OcrJobDetail,
   ParsedResult,
   approveOcrJob,
   dayNameToIndex,
@@ -67,7 +66,8 @@ function defaultMonday(): string {
 export default function OcrReviewPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const [days, setDays] = useState<EditDay[]>([]);
+  // The admin's edited copy; null until they change something.
+  const [edits, setEdits] = useState<EditDay[] | null>(null);
   const [effectiveFrom, setEffectiveFrom] = useState(defaultMonday());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,11 +86,12 @@ export default function OcrReviewPage() {
   });
   const job = jobQuery.data ?? null;
 
-  // Seed the editable copy once the parse result arrives; never overwrite the
-  // admin's edits with a later refetch.
-  useEffect(() => {
-    if (job?.parsed_result) setDays((cur) => (cur.length ? cur : toEditModel(job.parsed_result!)));
-  }, [job]);
+  // Show the parse result until the admin edits it; from then on their copy
+  // wins, so a later refetch never overwrites work in progress.
+  const parsedResult = job?.parsed_result;
+  const parsed = useMemo(() => (parsedResult ? toEditModel(parsedResult) : []), [parsedResult]);
+  const days = edits ?? parsed;
+  const setDays = (update: (prev: EditDay[]) => EditDay[]) => setEdits((prev) => update(prev ?? parsed));
 
   function setDishName(di: number, mi: number, dishi: number, name: string) {
     setDays((prev) => {

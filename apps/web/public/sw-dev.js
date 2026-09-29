@@ -1,8 +1,10 @@
-// MessFit Service Worker
-// This file is served from /public so it works with both Turbopack (dev) and webpack (prod).
-// In production builds, @ducanh2912/next-pwa may overwrite this with a workbox-enhanced version.
+// MessFit development service worker.
+// `next dev` (Turbopack) doesn't run next-pwa, so development registers this
+// hand-written worker instead. Production registers /sw.js, which next-pwa
+// generates at build time from worker/index.ts and is not committed.
+// Keep the push behaviour here in sync with worker/index.ts.
 
-self.addEventListener("install", (event) => {
+self.addEventListener("install", () => {
   // Activate immediately, don't wait for old SW to finish
   self.skipWaiting();
 });
@@ -60,6 +62,6 @@ self.addEventListener("notificationclick", (event) => {
 });
 
 // Handle notification close (for analytics, if needed later)
-self.addEventListener("notificationclose", (event) => {
+self.addEventListener("notificationclose", () => {
   // Could send analytics event here in the future
 });

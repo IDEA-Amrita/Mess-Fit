@@ -1,4 +1,3 @@
-import json
 from py_vapid import Vapid
 
 def generate_keys():
