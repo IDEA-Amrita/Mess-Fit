@@ -13,9 +13,9 @@ from __future__ import annotations
 
 import datetime as dt
 import uuid
-from typing import Literal
+from typing import Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,6 +25,7 @@ from ..db import get_session
 from ..observability.ratelimit import limiter
 from ..profile.goal_engine import compute_targets
 from ..profile.repository import get_hostel_context, get_profile
+from ..uploads import read_image_upload
 from ..workouts.models import WorkoutLogORM
 from . import repository
 from .metrics import (
@@ -58,28 +59,17 @@ router = APIRouter(prefix="/api/v1", tags=["logging"])
 @limiter.limit("10/minute")
 async def log_meal_photo(
     request: Request,
+    photo: UploadFile = File(...),
+    meal_type: Literal["breakfast", "lunch", "snack", "dinner"] = Form("lunch"),
     user_id: str = Depends(get_active_user_id),
-    db: AsyncSession = Depends(get_session),
 ) -> Any:
-    """Accept a photo of a meal plate, estimate macros via Gemini Vision, and log it.
+    """Estimate a meal's macros from a photo of the plate (Gemini Vision).
 
-    The client sends the photo as a multipart form upload. The endpoint
-    returns the AI-estimated macros so the user can review/correct before
-    confirming. Does NOT auto-save a meal log — the client should call
-    POST /logs/meals after the user confirms.
+    Only *estimates*: nothing is saved. The client shows the result and then
+    calls POST /logs/meals once the user confirms. The upload is size-, type-
+    and signature-checked before it goes anywhere near the model.
     """
-    # For proper multipart handling, we read from the request body
-    form = await request.form()
-    photo = form.get("photo")
-    meal_type = form.get("meal_type", "lunch")
-
-    if photo is None or not hasattr(photo, "read"):
-        from fastapi import HTTPException
-        raise HTTPException(status_code=400, detail="No photo uploaded")
-
-    image_bytes = await photo.read()  # type: ignore[union-attr]
-    content_type = getattr(photo, "content_type", "image/jpeg") or "image/jpeg"
-
+    image_bytes, content_type = await read_image_upload(photo)
     estimate = await estimate_meal_from_photo(image_bytes, content_type)
 
     return {

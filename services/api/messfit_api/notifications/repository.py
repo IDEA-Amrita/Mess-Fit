@@ -1,31 +1,26 @@
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, text
 from sqlalchemy.dialects.postgresql import insert
 
 from .models import NotificationPreferences, PushSubscription
 from ..auth.models import UserORM
 from .schemas import PushSubscriptionIn
 
-async def save_subscription(db: AsyncSession, user_id: uuid.UUID, sub: PushSubscriptionIn) -> PushSubscription:
-    stmt = insert(PushSubscription).values(
-        user_id=user_id,
-        endpoint=sub.endpoint,
-        p256dh=sub.keys.get("p256dh", ""),
-        auth=sub.keys.get("auth", "")
+async def save_subscription(db: AsyncSession, sub: PushSubscriptionIn) -> None:
+    """Register this browser's subscription for the signed-in user.
+
+    Goes through claim_push_subscription() (migration 018) rather than a plain
+    upsert: the endpoint may still belong to whoever used this browser before,
+    and own-row RLS rightly forbids touching their row directly. The function
+    always assigns the row to auth.uid(), so the caller can't be spoofed.
+    """
+    await db.execute(
+        text("SELECT claim_push_subscription(:endpoint, :p256dh, :auth)"),
+        {"endpoint": sub.endpoint, "p256dh": sub.keys.p256dh, "auth": sub.keys.auth},
     )
-    stmt = stmt.on_conflict_do_update(
-        index_elements=["endpoint"],
-        set_={
-            "user_id": stmt.excluded.user_id,
-            "p256dh": stmt.excluded.p256dh,
-            "auth": stmt.excluded.auth,
-        }
-    ).returning(PushSubscription)
-    
-    result = await db.execute(stmt)
     await db.commit()
-    return result.scalar_one()
+
 
 async def remove_subscription(db: AsyncSession, user_id: uuid.UUID, endpoint: str) -> None:
     stmt = delete(PushSubscription).where(

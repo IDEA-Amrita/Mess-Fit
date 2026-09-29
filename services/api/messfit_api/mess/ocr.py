@@ -160,7 +160,8 @@ Estimate per-serving nutrition for the Indian dish "{name}". Return ONLY JSON:
   "default_serving_unit": e.g. "katori"|"piece"|"glass",
   "default_serving_grams": number,
   "kcal": number, "protein_g": number, "carbs_g": number, "fats_g": number,
-  "diet_type": one of [vegan,veg,egg,non_veg],
+  "diet_type": one of [vegan,veg,egg,non_veg] — "egg" if it contains egg,
+    "non_veg" if it contains meat or fish, and "non_veg" whenever unsure,
   "portion_icon": one of [katori,small_katori,fist,palm,thumb,cupped_hand,plate_quarter,piece,glass],
   "allergens": array, zero or more of [eggs,gluten,lactose,mustard,nuts,soy] —
     common allergens this dish plausibly contains as typically prepared,

@@ -26,6 +26,7 @@ import { submitDishFeedback } from "@/lib/mess-api";
 import { track } from "@/lib/analytics";
 import { toast } from "@/lib/toast-store";
 import { ApiError, apiErrorMessage } from "@/lib/api";
+import { PHOTO_ACCEPT, photoProblem } from "@/lib/photo-upload";
 import { cn } from "@/lib/utils";
 
 const MEAL_ORDER = ["breakfast", "lunch", "snack", "dinner"] as const;
@@ -397,6 +398,12 @@ export default function PlatePage() {
   const handleScanPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const problem = photoProblem(file);
+    if (problem) {
+      toast.error(problem);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
     setIsScanning(true);
     try {
       setScanned(await optimizeFromPhoto(file));
@@ -419,7 +426,7 @@ export default function PlatePage() {
             <h1 className="heading-heavy">Optimizer</h1>
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="flex items-center gap-2">
-             <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleScanPhoto} />
+             <input type="file" accept={PHOTO_ACCEPT} className="hidden" ref={fileInputRef} onChange={handleScanPhoto} />
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => fileInputRef.current?.click()}

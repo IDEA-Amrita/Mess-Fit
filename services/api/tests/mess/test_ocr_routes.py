@@ -49,6 +49,10 @@ async def _insert_job(db, mess_id, status="ready_for_review", parsed=None):
     return jid
 
 
+# Minimal bytes with a real JPEG signature (uploads are signature-checked).
+JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 16
+
+
 # ─── auth ─────────────────────────────────────────────────────────────
 
 
@@ -57,7 +61,7 @@ async def test_upload_requires_admin(client, mess_id):
     resp = await client.post(
         "/mess/admin/ocr/jobs",
         data={"mess_id": str(mess_id)},
-        files={"file": ("menu.jpg", b"bytes", "image/jpeg")},
+        files={"file": ("menu.jpg", JPEG, "image/jpeg")},
     )
     assert resp.status_code == 403
 
@@ -79,7 +83,7 @@ async def test_upload_creates_pending_job_and_enqueues(
     resp = await admin_client.post(
         "/mess/admin/ocr/jobs",
         data={"mess_id": str(mess_id)},
-        files={"file": ("menu.jpg", b"fake-image", "image/jpeg")},
+        files={"file": ("menu.jpg", JPEG, "image/jpeg")},
     )
     assert resp.status_code == 202
     body = resp.json()
@@ -104,7 +108,7 @@ async def test_upload_unknown_mess_404(admin_client, monkeypatch):
     resp = await admin_client.post(
         "/mess/admin/ocr/jobs",
         data={"mess_id": str(uuid.uuid4())},
-        files={"file": ("menu.jpg", b"bytes", "image/jpeg")},
+        files={"file": ("menu.jpg", JPEG, "image/jpeg")},
     )
     assert resp.status_code == 404
 
@@ -147,9 +151,9 @@ async def test_approve_writes_menu_and_creates_draft(
     draft_name = f"OCR Draft {uuid.uuid4().hex[:8]}"
     await db_session.execute(
         text(
-            "INSERT INTO dishes (id, name, category, default_serving_unit, "
+            "INSERT INTO dishes (id, name, category, diet_type, default_serving_unit, "
             "default_serving_grams, kcal, protein_g, carbs_g, fats_g) "
-            "VALUES (:id, :name, 'dal', 'katori', 100, 100, 5, 15, 2)"
+            "VALUES (:id, :name, 'dal', 'veg', 'katori', 100, 100, 5, 15, 2)"
         ),
         {"id": str(matched_id), "name": f"TestDish-{matched_id.hex[:8]}"},
     )

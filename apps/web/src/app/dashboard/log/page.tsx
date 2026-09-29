@@ -20,6 +20,8 @@ import { DashboardShell } from "@/components/DashboardShell";
 import { ProgressRing } from "@/components/motion/progress-ring";
 import { AnimatedNumber } from "@/components/motion/animated-number";
 import { track } from "@/lib/analytics";
+import { apiErrorMessage } from "@/lib/api";
+import { PHOTO_ACCEPT, photoProblem } from "@/lib/photo-upload";
 import { toast } from "@/lib/toast-store";
 import { cn } from "@/lib/utils";
 import { spring } from "@/lib/motion";
@@ -445,6 +447,12 @@ function MealSlot({
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    const problem = photoProblem(file);
+    if (problem) {
+      toast.error(problem);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
 
     try {
       setIsPhotoLoading(true);
@@ -459,8 +467,8 @@ function MealSlot({
         fats_g: estimate.total_fats_g,
       });
       toast.success("Photo logged successfully");
-    } catch {
-      toast.error("Failed to analyze photo");
+    } catch (err) {
+      toast.error(apiErrorMessage(err, "Couldn't analyze that photo. Try again."));
     } finally {
       setIsPhotoLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -498,7 +506,7 @@ function MealSlot({
       <div className="mt-4 border-t border-border pt-4 text-center">
         <input
           type="file"
-          accept="image/*"
+          accept={PHOTO_ACCEPT}
           capture="environment"
           ref={fileInputRef}
           onChange={handlePhotoUpload}

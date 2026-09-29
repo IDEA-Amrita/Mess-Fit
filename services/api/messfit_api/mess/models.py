@@ -44,7 +44,8 @@ class DishORM(Base):
     name: Mapped[str] = mapped_column(Text)
     name_local: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default='{}')
     category: Mapped[str] = mapped_column(Text)
-    diet_type: Mapped[str] = mapped_column(Text, server_default="veg")
+    # No default: every dish must be explicitly labelled (migration 017).
+    diet_type: Mapped[str] = mapped_column(Text, nullable=False)
     default_serving_unit: Mapped[str] = mapped_column(Text)
     default_serving_grams: Mapped[float] = mapped_column(Numeric(6, 2))
     kcal: Mapped[float] = mapped_column(Numeric(6, 2))

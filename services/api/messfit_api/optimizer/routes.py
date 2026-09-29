@@ -29,6 +29,7 @@ from messfit_api.profile.repository import get_hostel_context, get_profile
 
 from .contracts import Dish, OptimizationInput
 from .tasks import inp_to_dict, run_optimizer
+from messfit_api.uploads import read_image_upload
 
 router = APIRouter(prefix="/api/v1/optimize", tags=["optimizer"])
 
@@ -187,6 +188,7 @@ async def optimize_photo(
     db: AsyncSession = Depends(get_session),
 ) -> dict:
     """Extract foods from a menu/buffet photo and optimize a plate."""
+    image_bytes, content_type = await read_image_upload(file)
     uid = uuid.UUID(user_id)
     today = datetime.date.today()
 
@@ -198,11 +200,10 @@ async def optimize_photo(
         )
 
     from messfit_api.tracking.vision import extract_menu_from_photo
-    image_bytes = await file.read()
-    
+
     try:
         # 1. Vision Extraction
-        extraction = await extract_menu_from_photo(image_bytes, file.content_type or "image/jpeg")
+        extraction = await extract_menu_from_photo(image_bytes, content_type)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

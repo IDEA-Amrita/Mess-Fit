@@ -21,7 +21,8 @@ class DishBase(BaseModel):
     name: str
     name_local: dict[str, Any] = Field(default_factory=dict)
     category: str
-    diet_type: Literal["vegan", "veg", "egg", "non_veg"] = "veg"
+    # Required: an unlabelled dish must never be treated as vegetarian.
+    diet_type: Literal["vegan", "veg", "egg", "non_veg"]
     default_serving_unit: str
     default_serving_grams: float
     kcal: float
@@ -163,7 +164,9 @@ class NutritionEstimate(BaseModel):
     protein_g: float = Field(default=4, ge=0)
     carbs_g: float = Field(default=25, ge=0)
     fats_g: float = Field(default=4, ge=0)
-    diet_type: DietTypeLiteral = "veg"
+    # When the model omits it, assume the strictest class: the dish is then only
+    # offered to users who eat everything until an admin corrects it.
+    diet_type: DietTypeLiteral = "non_veg"
     portion_icon: PortionIcon = "katori"
     # Best-effort LLM guess, not verified — confidence stays 'estimated' until
     # an admin reviews it via PATCH /mess/admin/dishes/{id}.

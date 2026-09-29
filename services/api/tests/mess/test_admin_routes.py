@@ -39,6 +39,7 @@ def _dish_payload(**overrides) -> dict:
     base = {
         "name": f"Test Dish {uuid.uuid4().hex[:8]}",
         "category": "other",
+        "diet_type": "veg",
         "default_serving_unit": "katori",
         "default_serving_grams": 150.0,
         "kcal": 200.0,

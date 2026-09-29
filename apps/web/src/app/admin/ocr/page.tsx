@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMesses } from "@/lib/mess-api";
 import { OcrJobSummary, OcrStatus, listOcrJobs, uploadMenuPhoto } from "@/lib/ocr-api";
 import { apiErrorMessage } from "@/lib/api";
+import { PHOTO_ACCEPT } from "@/lib/photo-upload";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/error-state";
@@ -121,7 +122,7 @@ function OcrJobs() {
               id="ocr-photo"
               ref={fileRef}
               type="file"
-              accept="image/png,image/jpeg,image/webp,image/heic"
+              accept={PHOTO_ACCEPT}
               className="w-full text-sm file:mr-3 file:rounded-md file:border file:bg-muted file:px-3 file:py-1.5"
             />
           </div>
