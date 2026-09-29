@@ -6,6 +6,7 @@ Lives at the test-suite root so every test file picks it up.
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 import uuid
 from collections.abc import AsyncIterator
@@ -14,7 +15,7 @@ from typing import Any
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import NullPool, text
+from sqlalchemy import NullPool, make_url, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 import json
@@ -34,11 +35,46 @@ if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
+# ─── which database the suite may use ─────────────────────────────────
+#
+# The suite writes (and deletes) rows, so it must never run against a real
+# project. It uses TEST_DATABASE_URL — a throwaway Postgres built by
+# scripts/test-db.ps1 or CI — and refuses a Supabase host outright, even if
+# that is what DATABASE_URL in .env points at.
+
+_REAL_DB_HOST_MARKERS = ("supabase.co", "supabase.com")
+
+
+def _test_database_url() -> str:
+    url = os.environ.get("TEST_DATABASE_URL", "").strip()
+    if not url:
+        pytest.exit(
+            "TEST_DATABASE_URL is not set. The test suite needs its own throwaway "
+            "database — run `scripts/test-db.ps1` (or see services/api/README.md), "
+            "then set TEST_DATABASE_URL to the URL it prints.",
+            returncode=2,
+        )
+    host = (make_url(url).host or "").lower()
+    if any(marker in host for marker in _REAL_DB_HOST_MARKERS):
+        pytest.exit(
+            f"Refusing to run the test suite against {host}: it creates and deletes "
+            "rows. Point TEST_DATABASE_URL at a local/CI test database instead.",
+            returncode=2,
+        )
+    return url
+
+
+_TEST_DB_URL = _test_database_url()
+# Anything in the app that reads settings directly (rather than the session
+# factories replaced below) must see the test database too.
+settings.database_url = _TEST_DB_URL
+settings.celery_database_url = os.environ.get("TEST_CELERY_DATABASE_URL", "") or _TEST_DB_URL
+
 # Test engine: NullPool so connections are torn down between tests
 # (avoids "Event loop is closed" when a pooled connection outlives the
 # loop that created it). Don't share with the production engine.
 _test_engine = create_async_engine(
-    settings.database_url,
+    _TEST_DB_URL,
     poolclass=NullPool,
     pool_pre_ping=True,
 )
@@ -54,7 +90,7 @@ _TestSessionLocal = async_sessionmaker(
 # maintenance, not a simulated user request, and needs the same
 # cross-user access production's Celery tasks get from messfit_worker.
 _test_worker_engine = create_async_engine(
-    settings.celery_database_url or settings.database_url,
+    settings.celery_database_url,
     poolclass=NullPool,
     pool_pre_ping=True,
 )
@@ -85,7 +121,7 @@ _limiter.enabled = False
 # these patterns — add new prefixes here if a test introduces one.
 
 _TEST_MESS_PATTERNS = ("TestMess-%", "Test Mess %", "EmptyMess-%")
-_TEST_DISH_PATTERNS = ("TestDish-%", "Test Dish %", "ScopeDish-%")
+_TEST_DISH_PATTERNS = ("TestDish-%", "Test Dish %", "ScopeDish-%", "LimitDish-%")
 
 
 def _like_any(column: str, patterns: tuple[str, ...]) -> tuple[str, dict[str, str]]:
