@@ -39,10 +39,8 @@ if ($Reset -and $exists) {
 if (-not $exists) {
     docker run -d --name $name -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=messfit_test `
         -p "${port}:5432" pgvector/pgvector:pg16 | Out-Null
-    $fresh = $true
 } else {
     docker start $name | Out-Null
-    $fresh = $false
 }
 
 $ready = $false
@@ -53,11 +51,10 @@ foreach ($i in 1..60) {
 }
 if (-not $ready) { throw "Postgres in $name didn't become ready." }
 
-if ($fresh) {
-    Get-Content (Join-Path $apiDir "infra/local-db/supabase_shim.sql") -Raw |
-        docker exec -i $name psql -q -U postgres -d messfit_test -v ON_ERROR_STOP=1
-    if ($LASTEXITCODE -ne 0) { throw "Applying the Supabase shim failed." }
-}
+# Idempotent; re-applied every time so the test roles always have their passwords.
+Get-Content (Join-Path $apiDir "infra/local-db/supabase_shim.sql") -Raw |
+    docker exec -i $name psql -q -U postgres -d messfit_test -v ON_ERROR_STOP=1
+if ($LASTEXITCODE -ne 0) { throw "Applying the Supabase shim failed." }
 
 Push-Location $apiDir
 try {

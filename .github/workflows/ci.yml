@@ -62,6 +62,10 @@ jobs:
         run: uv run alembic upgrade head
       - name: Migrations reverse cleanly
         run: uv run alembic downgrade base && uv run alembic upgrade head
+      - name: Restore test role passwords
+        # 013's downgrade dropped messfit_app/messfit_worker; the upgrade
+        # recreated them without passwords.
+        run: psql "postgresql://postgres:postgres@localhost:5432/messfit_test" -v ON_ERROR_STOP=1 -q -f infra/local-db/supabase_shim.sql
       - name: Tests
         run: uv run pytest -q
       - name: Optimizer evaluation (50 scenarios)
