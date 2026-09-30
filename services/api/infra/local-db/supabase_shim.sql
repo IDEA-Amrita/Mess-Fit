@@ -41,12 +41,18 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authen
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'messfit_app') THEN
-    CREATE ROLE messfit_app WITH LOGIN PASSWORD 'messfit_app'
+    CREATE ROLE messfit_app WITH LOGIN
       NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS NOREPLICATION;
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'messfit_worker') THEN
-    CREATE ROLE messfit_worker WITH LOGIN PASSWORD 'messfit_worker'
+    CREATE ROLE messfit_worker WITH LOGIN
       NOSUPERUSER NOCREATEDB NOCREATEROLE BYPASSRLS NOREPLICATION;
   END IF;
 END
 $$;
+
+-- Set unconditionally: migration 013's downgrade drops these roles and its
+-- upgrade recreates them without a password, so after a downgrade/upgrade
+-- round trip this file is applied again to restore the test logins.
+ALTER ROLE messfit_app WITH PASSWORD 'messfit_app';
+ALTER ROLE messfit_worker WITH PASSWORD 'messfit_worker';

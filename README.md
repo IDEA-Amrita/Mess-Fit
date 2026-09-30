@@ -27,7 +27,7 @@ Build status: **Phases 0–9 complete.** Next is the Amrita pilot (Phase 10).
 
 ### Prerequisites
 
-- Node 20 + pnpm 11 (`corepack enable && corepack prepare pnpm@11 --activate`)
+- Node 24 LTS (pnpm 11 needs at least 22.13) + pnpm 11 (`corepack enable && corepack prepare pnpm@11 --activate`)
 - Python 3.12 + [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - Docker + Docker Compose
 
