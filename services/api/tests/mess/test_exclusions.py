@@ -37,11 +37,11 @@ def fake_dish_id() -> str:
 class TestUnauthed:
     async def test_get_exclusions_requires_auth(self, unauthed_client: AsyncClient):
         r = await unauthed_client.get(f"/mess/menu/exclusions?date={TODAY}")
-        assert r.status_code in (401, 422)
+        assert r.status_code == 401
 
     async def test_post_exclusion_requires_auth(self, unauthed_client: AsyncClient, fake_dish_id: str):
         r = await unauthed_client.post("/mess/menu/exclusions", json=_exclusion_payload(fake_dish_id))
-        assert r.status_code in (401, 422)
+        assert r.status_code == 401
 
 
 class TestExclusionCRUD:

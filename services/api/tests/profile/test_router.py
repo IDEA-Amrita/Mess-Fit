@@ -31,7 +31,7 @@ class TestUnauthed:
         # FastAPI's default for missing header is 422; our auth dep
         # explicitly raises 401 only after seeing the header. Either is
         # fine — 401 is the spec-correct one for missing auth.
-        assert r.status_code in (401, 422)
+        assert r.status_code == 401
 
 
 # ─── /me ──────────────────────────────────────────────────────────────

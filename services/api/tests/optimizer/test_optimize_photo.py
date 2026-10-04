@@ -72,7 +72,7 @@ JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 16
 class TestUnauthed:
     async def test_no_auth_header_rejected(self, unauthed_client: AsyncClient):
         r = await unauthed_client.post(URL)
-        assert r.status_code in (401, 422)
+        assert r.status_code == 401
 
 class TestOnboardingErrors:
     async def test_no_profile_returns_409(self, client: AsyncClient):

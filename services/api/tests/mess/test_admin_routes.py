@@ -56,7 +56,7 @@ def _dish_payload(**overrides) -> dict:
 class TestCreateMess:
     async def test_no_auth_rejected(self, unauthed_client: AsyncClient):
         r = await unauthed_client.post("/mess/admin/messes", json=_mess_payload())
-        assert r.status_code in (401, 422)
+        assert r.status_code == 401
 
     async def test_regular_user_gets_403(self, client: AsyncClient):
         # client fixture injects a user with role='user' (the default)
@@ -90,7 +90,7 @@ class TestCreateMess:
 class TestCreateDish:
     async def test_no_auth_rejected(self, unauthed_client: AsyncClient):
         r = await unauthed_client.post("/mess/admin/dishes", json=_dish_payload())
-        assert r.status_code in (401, 422)
+        assert r.status_code == 401
 
     async def test_regular_user_gets_403(self, client: AsyncClient):
         r = await client.post("/mess/admin/dishes", json=_dish_payload())
@@ -131,7 +131,7 @@ class TestUpdateDish:
     # test leaks the admin override onto the "unauthed" request too.
     async def test_no_auth_rejected(self, unauthed_client: AsyncClient):
         r = await unauthed_client.patch(f"/mess/admin/dishes/{uuid.uuid4()}", json={"allergens": ["nuts"]})
-        assert r.status_code in (401, 422)
+        assert r.status_code == 401
 
     async def test_regular_user_gets_403(self, client: AsyncClient):
         r = await client.patch(f"/mess/admin/dishes/{uuid.uuid4()}", json={"allergens": ["nuts"]})

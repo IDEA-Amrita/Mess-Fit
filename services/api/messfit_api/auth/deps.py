@@ -21,7 +21,8 @@ from typing import Any
 
 import httpx
 import jwt
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, HTTPException, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import PyJWKClient
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -110,9 +111,23 @@ def _verify_token(token: str) -> dict[str, Any]:
 
 # ─── FastAPI dependency ───────────────────────────────────────────────
 
+# auto_error=False: a missing or non-Bearer header reaches our own check and
+# becomes a 401 with a WWW-Authenticate challenge (RFC 6750), instead of
+# FastAPI's 422 for a missing required header. Also registers bearer auth in
+# the OpenAPI schema, so /docs offers an Authorize button.
+_bearer = HTTPBearer(auto_error=False, description="Supabase access token")
+
+
+def _unauthorized(detail: str) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=detail,
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
 
 async def get_current_user_id(
-    authorization: str = Header(...),
+    credentials: HTTPAuthorizationCredentials | None = Security(_bearer),
     db: AsyncSession = Depends(get_session),
 ) -> str:
     """Extract and validate the user ID from the Authorization header.
@@ -139,15 +154,17 @@ async def get_current_user_id(
     ('request.jwt.claims') matches Supabase's actual auth.uid() convention
     (see migration 013), not the older flat-key one.
     """
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Invalid auth header")
+    if credentials is None or not credentials.credentials:
+        raise _unauthorized("Not authenticated")
 
-    token = authorization.removeprefix("Bearer ")
-    payload = _verify_token(token)
+    try:
+        payload = _verify_token(credentials.credentials)
+    except HTTPException as e:
+        raise _unauthorized(str(e.detail)) from e
 
     user_id = payload.get("sub")
     if not user_id:
-        raise HTTPException(status_code=401, detail="Token missing 'sub' claim")
+        raise _unauthorized("Token missing 'sub' claim")
 
     await db.execute(
         text("SELECT set_config('request.jwt.claims', :claims, false)"),
