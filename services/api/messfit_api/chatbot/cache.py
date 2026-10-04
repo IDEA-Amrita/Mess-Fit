@@ -47,9 +47,10 @@ async def check_cache(
 ) -> CachedAnswer | None:
     """Return the nearest cached answer above ``threshold``, else None."""
     row = (
-        await db.execute(
-            text(
-                """
+        (
+            await db.execute(
+                text(
+                    """
                 SELECT response, citations,
                        1 - (query_embedding <=> CAST(:emb AS vector)) AS similarity
                 FROM chat_cache
@@ -57,10 +58,13 @@ async def check_cache(
                 ORDER BY query_embedding <=> CAST(:emb AS vector)
                 LIMIT 1
                 """
-            ),
-            {"emb": to_pgvector(emb), "threshold": threshold},
+                ),
+                {"emb": to_pgvector(emb), "threshold": threshold},
+            )
         )
-    ).mappings().first()
+        .mappings()
+        .first()
+    )
     if row is None:
         return None
     return CachedAnswer(

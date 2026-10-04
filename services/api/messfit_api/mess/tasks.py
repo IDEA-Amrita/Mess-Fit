@@ -75,9 +75,7 @@ async def _set(db: AsyncSession, job_id: uuid.UUID, **values: Any) -> None:
 async def _process_job(db: AsyncSession, job_id: uuid.UUID) -> None:
     """Download → OCR → match → persist. Marks the job failed on any error."""
     photo_url = (
-        await db.execute(
-            select(OCRJobORM.photo_url).where(OCRJobORM.id == job_id)
-        )
+        await db.execute(select(OCRJobORM.photo_url).where(OCRJobORM.id == job_id))
     ).scalar_one_or_none()
     if photo_url is None:
         logger.warning("OCR job %s not found — nothing to process", job_id)

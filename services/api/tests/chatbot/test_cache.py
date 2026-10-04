@@ -23,9 +23,7 @@ def _basis(i: int) -> list[float]:
 @pytest.fixture
 async def clean_cache(db_session: AsyncSession):
     yield
-    await db_session.execute(
-        text("DELETE FROM chat_cache WHERE response LIKE 'TestCache-%'")
-    )
+    await db_session.execute(text("DELETE FROM chat_cache WHERE response LIKE 'TestCache-%'"))
     await db_session.commit()
 
 

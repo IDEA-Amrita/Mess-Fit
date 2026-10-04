@@ -82,9 +82,7 @@ async def ocr_job(db_session: AsyncSession):
     for dish_id in added:
         await db_session.execute(text("DELETE FROM dishes WHERE id = :id"), {"id": dish_id})
     # Cascade: deleting the mess removes its ocr_jobs.
-    await db_session.execute(
-        text("DELETE FROM messes WHERE id = :id"), {"id": str(mess_id)}
-    )
+    await db_session.execute(text("DELETE FROM messes WHERE id = :id"), {"id": str(mess_id)})
     await db_session.commit()
 
 
@@ -100,9 +98,7 @@ async def test_success_transitions_to_ready_for_review(ocr_job, db_session, monk
 
     await tasks._process_job(db_session, ocr_job)
 
-    job = (
-        await db_session.execute(select(OCRJobORM).where(OCRJobORM.id == ocr_job))
-    ).scalar_one()
+    job = (await db_session.execute(select(OCRJobORM).where(OCRJobORM.id == ocr_job))).scalar_one()
     assert job.status == "ready_for_review"
     assert job.error_message is None
 
@@ -124,9 +120,7 @@ async def test_download_failure_marks_job_failed(ocr_job, db_session, monkeypatc
 
     await tasks._process_job(db_session, ocr_job)
 
-    job = (
-        await db_session.execute(select(OCRJobORM).where(OCRJobORM.id == ocr_job))
-    ).scalar_one()
+    job = (await db_session.execute(select(OCRJobORM).where(OCRJobORM.id == ocr_job))).scalar_one()
     assert job.status == "failed"
     assert "storage 404" in job.error_message
 
@@ -145,9 +139,7 @@ async def test_ocr_failure_marks_job_failed(ocr_job, db_session, monkeypatch):
 
     await tasks._process_job(db_session, ocr_job)
 
-    job = (
-        await db_session.execute(select(OCRJobORM).where(OCRJobORM.id == ocr_job))
-    ).scalar_one()
+    job = (await db_session.execute(select(OCRJobORM).where(OCRJobORM.id == ocr_job))).scalar_one()
     assert job.status == "failed"
     assert "vision backends" in job.error_message
 

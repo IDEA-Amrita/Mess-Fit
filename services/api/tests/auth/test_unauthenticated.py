@@ -45,7 +45,12 @@ async def anon():
 @pytest.mark.parametrize(("method", "path"), PROTECTED)
 @pytest.mark.parametrize(
     "headers",
-    [{}, {"Authorization": "Basic dXNlcjpwYXNz"}, {"Authorization": "Bearer "}, {"Authorization": "Bearer not-a-jwt"}],
+    [
+        {},
+        {"Authorization": "Basic dXNlcjpwYXNz"},
+        {"Authorization": "Bearer "},
+        {"Authorization": "Bearer not-a-jwt"},
+    ],
     ids=["no-header", "basic-scheme", "empty-bearer", "malformed-jwt"],
 )
 async def test_unauthenticated_requests_get_401(anon, method, path, headers):

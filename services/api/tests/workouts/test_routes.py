@@ -25,20 +25,24 @@ async def seeded_workouts(db_session: AsyncSession):
         cols = {k: v for k, v in ex.items() if k != "id"}
         cols.pop("youtube_video_id", None)
         await db_session.execute(
-            pg_insert(ExerciseORM).values(**ex)
+            pg_insert(ExerciseORM)
+            .values(**ex)
             .on_conflict_do_update(index_elements=["id"], set_=cols)
         )
     for tpl in all_templates():
         cols = {k: v for k, v in tpl.items() if k != "id"}
         await db_session.execute(
-            pg_insert(WorkoutTemplateORM).values(**tpl)
+            pg_insert(WorkoutTemplateORM)
+            .values(**tpl)
             .on_conflict_do_update(index_elements=["id"], set_=cols)
         )
     await db_session.commit()
 
 
 async def _setup_profile(client, make_profile_payload, make_hostel_payload, **hostel):
-    await client.put("/api/v1/profile/me", json=make_profile_payload(goal=hostel.pop("goal", "gain")))
+    await client.put(
+        "/api/v1/profile/me", json=make_profile_payload(goal=hostel.pop("goal", "gain"))
+    )
     payload = make_hostel_payload(**hostel)
     await client.put("/api/v1/profile/hostel-context", json=payload)
 
@@ -50,8 +54,13 @@ async def test_today_returns_session(
     client, seeded_workouts, make_profile_payload, make_hostel_payload
 ):
     await _setup_profile(
-        client, make_profile_payload, make_hostel_payload,
-        goal="gain", equipment=["bodyweight"], workout_minutes_per_day=30, gym_access_days=[],
+        client,
+        make_profile_payload,
+        make_hostel_payload,
+        goal="gain",
+        equipment=["bodyweight"],
+        workout_minutes_per_day=30,
+        gym_access_days=[],
     )
     resp = await client.get("/api/v1/workouts/today")
     assert resp.status_code == 200
@@ -75,14 +84,24 @@ async def test_today_advances_after_logging(
     client, seeded_workouts, make_profile_payload, make_hostel_payload
 ):
     await _setup_profile(
-        client, make_profile_payload, make_hostel_payload,
-        goal="gain", equipment=["bodyweight"], workout_minutes_per_day=30, gym_access_days=[],
+        client,
+        make_profile_payload,
+        make_hostel_payload,
+        goal="gain",
+        equipment=["bodyweight"],
+        workout_minutes_per_day=30,
+        gym_access_days=[],
     )
     # Log day 1 done → next 'today' should be day 2.
-    await client.post("/api/v1/logs/workout", json={
-        "date": "2026-06-15", "template_id": "bw_hostel_gain_30min",
-        "exercises_done": [], "status": "done",
-    })
+    await client.post(
+        "/api/v1/logs/workout",
+        json={
+            "date": "2026-06-15",
+            "template_id": "bw_hostel_gain_30min",
+            "exercises_done": [],
+            "status": "done",
+        },
+    )
     body = (await client.get("/api/v1/workouts/today")).json()
     assert body["day"] == 2
 
@@ -113,7 +132,8 @@ async def test_log_workout_idempotent(
     client, db_session, seeded_workouts, make_profile_payload, make_hostel_payload
 ):
     payload = {
-        "date": "2026-06-15", "template_id": "bw_hostel_gain_30min",
+        "date": "2026-06-15",
+        "template_id": "bw_hostel_gain_30min",
         "exercises_done": [{"exercise_id": "pushup", "sets_done": 3, "reps_done": [10, 9, 8]}],
         "status": "done",
     }
@@ -125,11 +145,13 @@ async def test_log_workout_idempotent(
     assert r2.status_code == 201
     assert r2.json()["status"] == "partial"
 
-    count = (await db_session.execute(
-        text(
-            "SELECT count(*) FROM workout_logs "
-            "WHERE template_id = 'bw_hostel_gain_30min' AND user_id = :uid"
-        ),
-        {"uid": "00000000-0000-0000-0000-000000000001"},
-    )).scalar()
+    count = (
+        await db_session.execute(
+            text(
+                "SELECT count(*) FROM workout_logs "
+                "WHERE template_id = 'bw_hostel_gain_30min' AND user_id = :uid"
+            ),
+            {"uid": "00000000-0000-0000-0000-000000000001"},
+        )
+    ).scalar()
     assert count == 1

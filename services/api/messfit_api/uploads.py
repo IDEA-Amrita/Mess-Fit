@@ -43,7 +43,9 @@ def _sniff(data: bytes) -> str | None:
     return None
 
 
-async def read_image_upload(file: UploadFile, max_bytes: int = MAX_IMAGE_BYTES) -> tuple[bytes, str]:
+async def read_image_upload(
+    file: UploadFile, max_bytes: int = MAX_IMAGE_BYTES
+) -> tuple[bytes, str]:
     declared = _CANONICAL.get((file.content_type or "").split(";")[0].strip().lower())
     if declared is None:
         raise HTTPException(

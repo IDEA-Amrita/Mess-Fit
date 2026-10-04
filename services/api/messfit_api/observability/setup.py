@@ -73,9 +73,7 @@ def setup_otel(app: object) -> bool:
     provider = TracerProvider(resource=resource)
     headers = _parse_headers(settings.otel_exporter_otlp_headers)
     provider.add_span_processor(
-        BatchSpanProcessor(
-            OTLPSpanExporter(endpoint=endpoint, headers=headers or None)
-        )
+        BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint, headers=headers or None))
     )
     trace.set_tracer_provider(provider)
 

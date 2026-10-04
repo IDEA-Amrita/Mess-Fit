@@ -41,16 +41,30 @@ def test_admin_cannot_create_a_dish_without_a_diet_label():
 def test_unclassified_ai_estimates_are_treated_as_non_veg():
     assert NutritionEstimate().diet_type == "non_veg"
     scanned = ExtractedDish(
-        name="Mystery Curry", category="curry", serving_grams=150, kcal=200, protein_g=8, carbs_g=20, fats_g=9
+        name="Mystery Curry",
+        category="curry",
+        serving_grams=150,
+        kcal=200,
+        protein_g=8,
+        carbs_g=20,
+        fats_g=9,
     )
     assert scanned.diet_type == "non_veg"
 
 
 def _dish(diet_type: str) -> Dish:
     return Dish(
-        id="d1", name="Mystery Curry", category="curry", diet_type=diet_type,
-        serving_unit="katori", serving_grams=150, portion_icon="katori",
-        kcal=200, protein_g=8, carbs_g=20, fats_g=9,
+        id="d1",
+        name="Mystery Curry",
+        category="curry",
+        diet_type=diet_type,
+        serving_unit="katori",
+        serving_grams=150,
+        portion_icon="katori",
+        kcal=200,
+        protein_g=8,
+        carbs_g=20,
+        fats_g=9,
     )
 
 
@@ -71,7 +85,9 @@ def test_the_dishes_column_has_no_default_label():
 
 def test_canteen_items_must_be_labelled_too():
     with pytest.raises(TypeError):
-        CanteenItem(id="c1", name="Boiled Egg", cost_inr=8, kcal=70, protein_g=6, carbs_g=0.5, fats_g=5)  # type: ignore[call-arg]
+        CanteenItem(
+            id="c1", name="Boiled Egg", cost_inr=8, kcal=70, protein_g=6, carbs_g=0.5, fats_g=5
+        )  # type: ignore[call-arg]
 
 
 def test_both_ai_prompts_ask_for_the_label_and_the_safe_fallback():

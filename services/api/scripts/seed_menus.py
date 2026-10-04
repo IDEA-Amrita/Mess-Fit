@@ -110,9 +110,7 @@ def validate_menu_file(data: dict[str, Any], filepath: Path) -> list[str]:
                     f"Valid: {sorted(VALID_MEAL_TYPES)}"
                 )
             if not isinstance(dishes, list) or len(dishes) == 0:
-                errors.append(
-                    f"[{ctx}/{day_name}/{meal_type}] dishes must be a non-empty array"
-                )
+                errors.append(f"[{ctx}/{day_name}/{meal_type}] dishes must be a non-empty array")
             elif not all(isinstance(d, str) and d.strip() for d in dishes):
                 errors.append(
                     f"[{ctx}/{day_name}/{meal_type}] all dish names must be non-empty strings"
@@ -194,9 +192,7 @@ async def seed_menus(
         for fp, data in menu_data:
             target_messes = messes or [data["mess_name"]]
             total_items = sum(
-                len(dishes)
-                for day in data["schedule"]
-                for dishes in day["meals"].values()
+                len(dishes) for day in data["schedule"] for dishes in day["meals"].values()
             )
             logger.info(
                 "[DRY RUN] %s → %d menu items for mess(es): %s",
@@ -216,8 +212,7 @@ async def seed_menus(
             missing_dishes = all_dish_names - set(dish_lookup.keys())
             if missing_dishes:
                 logger.error(
-                    "Cannot resolve %d dish name(s) to IDs. "
-                    "Run seed_dishes.py first. Missing: %s",
+                    "Cannot resolve %d dish name(s) to IDs. Run seed_dishes.py first. Missing: %s",
                     len(missing_dishes),
                     sorted(missing_dishes),
                 )
@@ -266,7 +261,13 @@ async def seed_menus(
 
                                 stmt = pg_insert(MessMenuORM).values(**values)
                                 stmt = stmt.on_conflict_do_update(
-                                    index_elements=["mess_id", "effective_from", "day_of_week", "meal_type", "dish_id"],
+                                    index_elements=[
+                                        "mess_id",
+                                        "effective_from",
+                                        "day_of_week",
+                                        "meal_type",
+                                        "dish_id",
+                                    ],
                                     set_={"availability": stmt.excluded.availability},
                                 )
 

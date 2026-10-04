@@ -33,7 +33,6 @@ router = APIRouter(prefix="/admin/ocr", tags=["mess-ocr"])
 _REVIEWABLE = ("ready_for_review", "failed")
 
 
-
 @router.post(
     "/jobs",
     response_model=OcrJobSummary,
@@ -168,8 +167,11 @@ async def approve_ocr_job(
                     )
                     .on_conflict_do_nothing(
                         index_elements=[
-                            "mess_id", "effective_from", "day_of_week",
-                            "meal_type", "dish_id",
+                            "mess_id",
+                            "effective_from",
+                            "day_of_week",
+                            "meal_type",
+                            "dish_id",
                         ]
                     )
                     .returning(MessMenuORM.id)
@@ -212,9 +214,7 @@ async def reject_ocr_job(
     return job
 
 
-async def _get_or_create_draft_dish(
-    db: AsyncSession, name: str
-) -> tuple[uuid.UUID, bool]:
+async def _get_or_create_draft_dish(db: AsyncSession, name: str) -> tuple[uuid.UUID, bool]:
     """Return (dish_id, created). Reuses an existing dish of the same
     (name, serving_unit); otherwise creates a draft with estimated nutrition."""
     est = await estimate_dish_nutrition(name)

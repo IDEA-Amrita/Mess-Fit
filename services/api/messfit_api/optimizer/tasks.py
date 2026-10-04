@@ -106,8 +106,7 @@ def inp_to_dict(inp: OptimizationInput) -> dict[str, Any]:
         "conditions": list(inp.conditions),
         "goal": inp.goal,
         "menu": {
-            meal: [dataclasses.asdict(d) for d in dishes]
-            for meal, dishes in inp.menu.items()
+            meal: [dataclasses.asdict(d) for d in dishes] for meal, dishes in inp.menu.items()
         },
         "canteen_items": [dataclasses.asdict(c) for c in inp.canteen_items],
         "canteen_budget_inr": inp.canteen_budget_inr,
@@ -125,10 +124,7 @@ def _inp_from_dict(data: dict[str, Any]) -> OptimizationInput:
         allergies=tuple(data["allergies"]),
         conditions=tuple(data["conditions"]),
         goal=data["goal"],
-        menu={
-            meal: [_dish_from_dict(d) for d in dishes]
-            for meal, dishes in data["menu"].items()
-        },
+        menu={meal: [_dish_from_dict(d) for d in dishes] for meal, dishes in data["menu"].items()},
         canteen_items=tuple(_canteen_from_dict(c) for c in data["canteen_items"]),
         canteen_budget_inr=int(data["canteen_budget_inr"]),
         skip_dish_ids=tuple(data["skip_dish_ids"]),
@@ -156,10 +152,7 @@ def output_to_dict(output: OptimizationOutput) -> dict[str, Any]:
 def output_from_dict(data: dict[str, Any]) -> OptimizationOutput:
     """Reconstruct an OptimizationOutput from a Celery result dict."""
     return OptimizationOutput(
-        plan={
-            meal: [PlateItem(**item) for item in items]
-            for meal, items in data["plan"].items()
-        },
+        plan={meal: [PlateItem(**item) for item in items] for meal, items in data["plan"].items()},
         daily_totals=data["daily_totals"],
         daily_targets=data["daily_targets"],
         gap_fills=[GapFill(**gf) for gf in data["gap_fills"]],

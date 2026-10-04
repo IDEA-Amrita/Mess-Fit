@@ -89,9 +89,7 @@ def classify_bmi(bmi: float) -> BmiClass:
     return "obese"
 
 
-def compute_bmr_mifflin_st_jeor(
-    weight_kg: float, height_cm: float, age: int, sex: str
-) -> float:
+def compute_bmr_mifflin_st_jeor(weight_kg: float, height_cm: float, age: int, sex: str) -> float:
     """Mifflin-St Jeor BMR (kcal/day).
 
     Formula: ``10*weight + 6.25*height - 5*age + (5 if male else -161)``.
@@ -204,18 +202,16 @@ def compute_targets(
     bmi_class = classify_bmi(bmi)
 
     bmr = round(compute_bmr_mifflin_st_jeor(current_weight_kg, height_cm, age, sex), 1)
-    
+
     if adaptive_tdee_override is not None:
         tdee = round(adaptive_tdee_override, 1)
         tdee_rationale = f"Adaptive TDEE calculated from your logged weight & meals = {tdee}"
     else:
         tdee = round(compute_tdee(bmr, activity_level), 1)
         tdee_rationale = f"BMR × activity factor {ACTIVITY_FACTORS[activity_level]} = {tdee}"
-        
+
     daily_kcal = compute_daily_kcal(tdee, target_rate_kg_per_week)
-    protein_g, carbs_g, fats_g = compute_macros(
-        daily_kcal, current_weight_kg, goal, conditions
-    )
+    protein_g, carbs_g, fats_g = compute_macros(daily_kcal, current_weight_kg, goal, conditions)
 
     delta_per_day = int(
         max(
@@ -244,8 +240,7 @@ def compute_targets(
             f"= {daily_kcal}"
         ),
         "protein_basis": (
-            f"{protein_g} g (≈ {round(protein_g / current_weight_kg, 1)} g/kg "
-            f"body weight)"
+            f"{protein_g} g (≈ {round(protein_g / current_weight_kg, 1)} g/kg body weight)"
         ),
         "fats_basis": f"{fats_g} g (≈ {fats_pct}% of kcal)",
         "carbs_basis": f"{carbs_g} g (remainder of kcal budget)",

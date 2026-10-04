@@ -21,9 +21,7 @@ from messfit_api.db import Base
 class ChatConversationORM(Base):
     __tablename__ = "chatbot_conversations"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE")
     )
@@ -39,9 +37,7 @@ class ChatConversationORM(Base):
 class ChatMessageORM(Base):
     __tablename__ = "chatbot_messages"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     conversation_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("chatbot_conversations.id", ondelete="CASCADE")
     )
@@ -59,14 +55,10 @@ class ChatMessageORM(Base):
 class KBDocumentORM(Base):
     __tablename__ = "kb_documents"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     source: Mapped[str] = mapped_column(Text)  # IFCT_2017 | ICMR_RDA_2020 | ACSM | curated
     title: Mapped[str] = mapped_column(Text)
-    metadata_: Mapped[dict[str, Any]] = mapped_column(
-        "metadata", JSONB, server_default="{}"
-    )
+    metadata_: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, server_default="{}")
     created_at: Mapped[dt.datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.now()
     )

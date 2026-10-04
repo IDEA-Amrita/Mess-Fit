@@ -133,17 +133,22 @@ async def estimate_meal_from_photo(
             confidence="low",
         )
 
+
 # --- Production Validation Models ---
 class ExtractedDish(BaseModel):
     name: str = Field(..., description="Name of the food item")
-    category: str = Field(..., description="One of: protein, rice, roti, curry, sweet, snack, beverage, other")
+    category: str = Field(
+        ..., description="One of: protein, rice, roti, curry, sweet, snack, beverage, other"
+    )
     # Defaults to the strictest class so a dish the model couldn't classify is
     # never offered to a vegetarian.
     diet_type: Literal["vegan", "veg", "egg", "non_veg"] = Field(
         "non_veg",
         description="vegan, veg, egg (contains egg) or non_veg (meat/fish); non_veg when unsure",
     )
-    portion_icon: Literal["piece", "katori", "small_katori", "glass", "spoon", "thumb"] = Field("piece")
+    portion_icon: Literal["piece", "katori", "small_katori", "glass", "spoon", "thumb"] = Field(
+        "piece"
+    )
     serving_grams: float = Field(..., ge=1, le=1000, description="Estimated grams per serving")
     kcal: float = Field(..., ge=0, le=2000, description="Calories per serving")
     protein_g: float = Field(..., ge=0, le=200, description="Protein in grams")
@@ -164,8 +169,10 @@ class ExtractedDish(BaseModel):
             self.fats_g = self.serving_grams
         return self
 
+
 class MenuExtractionResult(BaseModel):
     dishes: list[ExtractedDish] = Field(..., description="List of all unique food items available")
+
 
 _MENU_PHOTO_PROMPT = """
 You are a highly precise nutrition AI. Analyze this image of a restaurant menu, buffet spread, or food selection.
@@ -185,6 +192,7 @@ contains egg, "non_veg" if it contains meat or fish. A vegetarian user relies on
 label, so if you are not sure an item is vegetarian, use "non_veg".
 """
 
+
 async def extract_menu_from_photo(
     image_bytes: bytes, mime: str = "image/jpeg"
 ) -> MenuExtractionResult:
@@ -203,15 +211,15 @@ async def extract_menu_from_photo(
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=MenuExtractionResult,
-                temperature=0.1, # Low temperature for more deterministic/factual macro estimation
-            )
+                temperature=0.1,  # Low temperature for more deterministic/factual macro estimation
+            ),
         )
-        
+
         # The Gemini SDK returns JSON strings when using response_schema. We parse it into our Pydantic model.
         if response.text:
             data = json.loads(response.text)
             return MenuExtractionResult.model_validate(data)
-        
+
         raise ValueError("Empty response from Vision model")
     except Exception as e:
         logger.error("Menu extraction failed", error=str(e))

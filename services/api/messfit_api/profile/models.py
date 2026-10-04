@@ -39,18 +39,12 @@ class Profile(Base):
     height_cm: Mapped[float] = mapped_column(Numeric(5, 2), nullable=False)
     current_weight_kg: Mapped[float] = mapped_column(Numeric(5, 2), nullable=False)
     target_weight_kg: Mapped[float] = mapped_column(Numeric(5, 2), nullable=False)
-    target_rate_kg_per_week: Mapped[float] = mapped_column(
-        Numeric(3, 2), nullable=False
-    )
+    target_rate_kg_per_week: Mapped[float] = mapped_column(Numeric(3, 2), nullable=False)
     goal: Mapped[str] = mapped_column(Text, nullable=False)
     activity_level: Mapped[int] = mapped_column(Integer, nullable=False)
     diet_type: Mapped[str] = mapped_column(Text, nullable=False)
-    allergies: Mapped[list[str]] = mapped_column(
-        ARRAY(Text), nullable=False, server_default="{}"
-    )
-    conditions: Mapped[list[str]] = mapped_column(
-        ARRAY(Text), nullable=False, server_default="{}"
-    )
+    allergies: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, server_default="{}")
+    conditions: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, server_default="{}")
 
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
@@ -60,9 +54,7 @@ class Profile(Base):
     )
 
     __table_args__ = (
-        CheckConstraint(
-            "sex IN ('male', 'female', 'other')", name="profiles_sex_check"
-        ),
+        CheckConstraint("sex IN ('male', 'female', 'other')", name="profiles_sex_check"),
         CheckConstraint("height_cm BETWEEN 120 AND 220", name="profiles_height_check"),
         CheckConstraint(
             "current_weight_kg BETWEEN 30 AND 200",
@@ -76,12 +68,8 @@ class Profile(Base):
             "target_rate_kg_per_week BETWEEN -0.5 AND 0.5",
             name="profiles_target_rate_check",
         ),
-        CheckConstraint(
-            "goal IN ('lose', 'maintain', 'gain')", name="profiles_goal_check"
-        ),
-        CheckConstraint(
-            "activity_level BETWEEN 1 AND 5", name="profiles_activity_check"
-        ),
+        CheckConstraint("goal IN ('lose', 'maintain', 'gain')", name="profiles_goal_check"),
+        CheckConstraint("activity_level BETWEEN 1 AND 5", name="profiles_activity_check"),
         CheckConstraint(
             "diet_type IN ('veg', 'eggetarian', 'non_veg', 'jain')",
             name="profiles_diet_check",
@@ -105,15 +93,11 @@ class HostelContext(Base):
     top_up_budget_inr_weekly: Mapped[int] = mapped_column(
         Integer, nullable=False, server_default="0"
     )
-    equipment: Mapped[list[str]] = mapped_column(
-        ARRAY(Text), nullable=False, server_default="{}"
-    )
+    equipment: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, server_default="{}")
     workout_minutes_per_day: Mapped[int] = mapped_column(
         Integer, nullable=False, server_default="30"
     )
-    workout_days_per_week: Mapped[int] = mapped_column(
-        Integer, nullable=False, server_default="3"
-    )
+    workout_days_per_week: Mapped[int] = mapped_column(Integer, nullable=False, server_default="3")
     gym_access_days: Mapped[list[str]] = mapped_column(
         ARRAY(Text), nullable=False, server_default="{}"
     )

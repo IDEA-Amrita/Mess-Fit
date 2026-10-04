@@ -177,9 +177,7 @@ async def _call_gemini_text(prompt: str) -> str:
     from google import genai
 
     client = genai.Client(api_key=settings.gemini_api_key)
-    response = await client.aio.models.generate_content(
-        model=GEMINI_MODEL, contents=[prompt]
-    )
+    response = await client.aio.models.generate_content(model=GEMINI_MODEL, contents=[prompt])
     return response.text or ""
 
 

@@ -46,11 +46,11 @@ def _linear_regression_slope(x: Sequence[float], y: Sequence[float]) -> float:
     sum_y = sum(y)
     sum_xy = sum(xi * yi for xi, yi in zip(x, y))
     sum_xx = sum(xi * xi for xi in x)
-    
+
     denominator = n * sum_xx - sum_x * sum_x
     if denominator == 0:
         return 0.0
-        
+
     return (n * sum_xy - sum_x * sum_y) / denominator
 
 
@@ -62,7 +62,7 @@ def compute_adaptive_tdee(
     min_days: int = 7,
 ) -> AdaptiveTDEEResult:
     """Compute adaptive TDEE from recent weight and intake data.
-    
+
     Args:
         weight_series: User's weight history.
         calorie_series: User's daily calorie intake history.
@@ -71,21 +71,21 @@ def compute_adaptive_tdee(
         min_days: Minimum number of data points required to compute.
     """
     cutoff_date = today - datetime.timedelta(days=window_days)
-    
+
     # Filter to window
     recent_weights = [w for w in weight_series if w.date > cutoff_date]
     recent_cals = [c for c in calorie_series if c.date > cutoff_date]
-    
+
     if len(recent_weights) < min_days:
         return AdaptiveTDEEResult(
             available=False,
-            reason=f"Need at least {min_days} weigh-ins in the last {window_days} days to compute adaptive TDEE. Keep logging!"
+            reason=f"Need at least {min_days} weigh-ins in the last {window_days} days to compute adaptive TDEE. Keep logging!",
         )
-        
+
     if len(recent_cals) < min_days:
         return AdaptiveTDEEResult(
             available=False,
-            reason=f"Need at least {min_days} days of calorie logs in the last {window_days} days. Keep logging!"
+            reason=f"Need at least {min_days} days of calorie logs in the last {window_days} days. Keep logging!",
         )
 
     # 1. Calculate Average Intake
@@ -96,7 +96,7 @@ def compute_adaptive_tdee(
     start_date = recent_weights[0].date
     x_days = [(w.date - start_date).days for w in recent_weights]
     y_weights = [w.weight_kg for w in recent_weights]
-    
+
     trend_kg_per_day = _linear_regression_slope(x_days, y_weights)
 
     # 3. Energy Balance Equation
@@ -104,7 +104,7 @@ def compute_adaptive_tdee(
     # TDEE = intake - (surplus)
     # surplus = trend_kg_per_day * KCAL_PER_KG_BODY
     tdee = avg_intake - (trend_kg_per_day * KCAL_PER_KG_BODY)
-    
+
     # Cap the TDEE to realistic human bounds just in case of weird data
     # (e.g. 1000 to 5000 kcal)
     tdee = max(1000.0, min(5000.0, tdee))

@@ -24,7 +24,13 @@ def is_push_service_url(url: str) -> bool:
     except ValueError:
         return False
     host = (parts.hostname or "").lower()
-    if parts.scheme != "https" or not host or parts.username or parts.password or parts.port not in (None, 443):
+    if (
+        parts.scheme != "https"
+        or not host
+        or parts.username
+        or parts.password
+        or parts.port not in (None, 443)
+    ):
         return False
     return any(host == h or host.endswith("." + h) for h in PUSH_SERVICE_HOSTS)
 

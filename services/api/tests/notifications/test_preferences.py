@@ -74,7 +74,9 @@ async def test_no_row_means_the_default_of_on(api):
 async def test_a_stored_opt_out_is_returned(api):
     client, holder = api
     holder["session"] = _FakeSession(stored=False)
-    assert (await client.get("/api/v1/notifications/preferences")).json() == {"weekly_checkin": False}
+    assert (await client.get("/api/v1/notifications/preferences")).json() == {
+        "weekly_checkin": False
+    }
 
 
 async def test_put_upserts_only_the_callers_row(api):
@@ -93,7 +95,9 @@ async def test_put_upserts_only_the_callers_row(api):
 async def test_put_ignores_a_user_id_in_the_body(api):
     client, holder = api
     other = str(uuid.uuid4())
-    r = await client.put("/api/v1/notifications/preferences", json={"weekly_checkin": True, "user_id": other})
+    r = await client.put(
+        "/api/v1/notifications/preferences", json={"weekly_checkin": True, "user_id": other}
+    )
     assert r.status_code == 200
     params = holder["session"].statements[0].compile(dialect=postgresql.dialect()).params.values()
     assert uuid.UUID(other) not in params
@@ -131,7 +135,9 @@ async def test_weekly_task_notifies_only_the_recipients_it_is_given():
 
     with (
         patch.object(tasks, "WorkerSessionLocal", lambda: _Ctx()),
-        patch.object(tasks.repository, "list_weekly_checkin_recipients", AsyncMock(return_value=[a, b])),
+        patch.object(
+            tasks.repository, "list_weekly_checkin_recipients", AsyncMock(return_value=[a, b])
+        ),
         patch.object(tasks, "send_push_notification", send),
     ):
         await tasks._notify_weekly_checkin()
@@ -152,7 +158,9 @@ async def test_one_failing_device_does_not_stop_the_rest():
 
     with (
         patch.object(tasks, "WorkerSessionLocal", lambda: _Ctx()),
-        patch.object(tasks.repository, "list_weekly_checkin_recipients", AsyncMock(return_value=[a, b])),
+        patch.object(
+            tasks.repository, "list_weekly_checkin_recipients", AsyncMock(return_value=[a, b])
+        ),
         patch.object(tasks, "send_push_notification", send),
     ):
         await tasks._notify_weekly_checkin()

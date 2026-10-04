@@ -57,9 +57,7 @@ def position_in_cycle(completed_count: int, days_per_week: int) -> tuple[int, in
     return week, day
 
 
-async def completed_workout_count(
-    db: AsyncSession, user_id: uuid.UUID, template_id: str
-) -> int:
+async def completed_workout_count(db: AsyncSession, user_id: uuid.UUID, template_id: str) -> int:
     """How many workouts the user has logged for this template (done/partial)."""
     return (
         await db.execute(

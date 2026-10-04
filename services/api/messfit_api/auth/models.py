@@ -11,6 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from messfit_api.db import Base
 
+
 class UserORM(Base):
     __tablename__ = "users"
 
@@ -20,5 +21,9 @@ class UserORM(Base):
     role: Mapped[str] = mapped_column(Text, nullable=False, server_default="user")
     onboarded_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     deleted_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
+    )

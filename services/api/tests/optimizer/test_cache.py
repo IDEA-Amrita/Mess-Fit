@@ -198,6 +198,7 @@ def test_cache_miss_stores_valid_json(monkeypatch):
     # Must be a str and parseable
     assert isinstance(_stored, str)
     import json
+
     data = json.loads(_stored)
     assert "plan" in data and "daily_totals" in data
 

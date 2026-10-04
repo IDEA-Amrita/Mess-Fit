@@ -7,6 +7,7 @@ from .models import NotificationPreferences, PushSubscription
 from ..auth.models import UserORM
 from .schemas import PushSubscriptionIn
 
+
 async def save_subscription(db: AsyncSession, sub: PushSubscriptionIn) -> None:
     """Register this browser's subscription for the signed-in user.
 
@@ -24,11 +25,11 @@ async def save_subscription(db: AsyncSession, sub: PushSubscriptionIn) -> None:
 
 async def remove_subscription(db: AsyncSession, user_id: uuid.UUID, endpoint: str) -> None:
     stmt = delete(PushSubscription).where(
-        PushSubscription.user_id == user_id,
-        PushSubscription.endpoint == endpoint
+        PushSubscription.user_id == user_id, PushSubscription.endpoint == endpoint
     )
     await db.execute(stmt)
     await db.commit()
+
 
 async def get_user_subscriptions(db: AsyncSession, user_id: uuid.UUID) -> list[PushSubscription]:
     stmt = select(PushSubscription).where(PushSubscription.user_id == user_id)
@@ -37,7 +38,9 @@ async def get_user_subscriptions(db: AsyncSession, user_id: uuid.UUID) -> list[P
 
 
 async def get_weekly_checkin_enabled(db: AsyncSession, user_id: uuid.UUID) -> bool:
-    stmt = select(NotificationPreferences.weekly_checkin).where(NotificationPreferences.user_id == user_id)
+    stmt = select(NotificationPreferences.weekly_checkin).where(
+        NotificationPreferences.user_id == user_id
+    )
     value = (await db.execute(stmt)).scalar_one_or_none()
     return True if value is None else value
 
@@ -59,7 +62,9 @@ async def list_weekly_checkin_recipients(db: AsyncSession) -> list[uuid.UUID]:
     stmt = (
         select(PushSubscription.user_id)
         .join(UserORM, UserORM.id == PushSubscription.user_id)
-        .outerjoin(NotificationPreferences, NotificationPreferences.user_id == PushSubscription.user_id)
+        .outerjoin(
+            NotificationPreferences, NotificationPreferences.user_id == PushSubscription.user_id
+        )
         .where(
             UserORM.deleted_at.is_(None),
             func.coalesce(NotificationPreferences.weekly_checkin, True).is_(True),

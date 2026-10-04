@@ -86,6 +86,7 @@ class DishExclusionOut(DishExclusionIn):
 
 class DishFeedbackIn(BaseModel):
     """User confirms or denies a dish is being served today."""
+
     date: date
     meal_type: Literal["breakfast", "lunch", "snack", "dinner"]
     dish_id: uuid.UUID
@@ -101,9 +102,7 @@ class DishFeedbackOut(BaseModel):
 # ─── OCR (Phase 4) ────────────────────────────────────────────────────
 
 MealTypeLiteral = Literal["breakfast", "lunch", "snack", "dinner"]
-OcrStatus = Literal[
-    "pending", "processing", "ready_for_review", "approved", "rejected", "failed"
-]
+OcrStatus = Literal["pending", "processing", "ready_for_review", "approved", "rejected", "failed"]
 
 
 class ParsedDish(BaseModel):
@@ -143,12 +142,28 @@ class DishMatch(BaseModel):
 # DB CHECK-constrained vocabularies (migration 004/006) — Literals so an
 # off-enum LLM estimate fails validation and falls back to a safe default.
 DishCategory = Literal[
-    "rice", "roti", "curry", "sabzi", "dal", "snack", "sweet",
-    "beverage", "protein", "salad", "other",
+    "rice",
+    "roti",
+    "curry",
+    "sabzi",
+    "dal",
+    "snack",
+    "sweet",
+    "beverage",
+    "protein",
+    "salad",
+    "other",
 ]
 PortionIcon = Literal[
-    "katori", "small_katori", "fist", "palm", "thumb",
-    "cupped_hand", "plate_quarter", "piece", "glass",
+    "katori",
+    "small_katori",
+    "fist",
+    "palm",
+    "thumb",
+    "cupped_hand",
+    "plate_quarter",
+    "piece",
+    "glass",
 ]
 DietTypeLiteral = Literal["vegan", "veg", "egg", "non_veg"]
 

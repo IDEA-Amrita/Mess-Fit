@@ -29,9 +29,7 @@ async def get_profile(session: AsyncSession, user_id: UUID) -> Profile | None:
     return result.scalar_one_or_none()
 
 
-async def upsert_profile(
-    session: AsyncSession, user_id: UUID, payload: ProfileIn
-) -> Profile:
+async def upsert_profile(session: AsyncSession, user_id: UUID, payload: ProfileIn) -> Profile:
     """Insert or update by ``user_id``."""
     values = {"user_id": user_id, **payload.model_dump()}
 
@@ -52,12 +50,8 @@ async def upsert_profile(
 # ─── hostel_contexts ──────────────────────────────────────────────────
 
 
-async def get_hostel_context(
-    session: AsyncSession, user_id: UUID
-) -> HostelContext | None:
-    result = await session.execute(
-        select(HostelContext).where(HostelContext.user_id == user_id)
-    )
+async def get_hostel_context(session: AsyncSession, user_id: UUID) -> HostelContext | None:
+    result = await session.execute(select(HostelContext).where(HostelContext.user_id == user_id))
     return result.scalar_one_or_none()
 
 

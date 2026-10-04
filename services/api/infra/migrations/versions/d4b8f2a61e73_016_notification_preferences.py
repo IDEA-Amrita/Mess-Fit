@@ -26,7 +26,12 @@ def upgrade() -> None:
         "notification_preferences",
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("weekly_checkin", sa.Boolean(), server_default=sa.text("true"), nullable=False),
-        sa.Column("updated_at", sa.TIMESTAMP(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "updated_at",
+            sa.TIMESTAMP(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("user_id"),
     )

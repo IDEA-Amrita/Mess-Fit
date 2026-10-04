@@ -76,10 +76,7 @@ async def test_hard_delete_pending_removes_expired(db_session: AsyncSession):
     # A user soft-deleted 31 days ago should be erased by the sweep.
     uid = uuid.uuid4()
     await db_session.execute(
-        text(
-            "INSERT INTO users (id, email, deleted_at) "
-            "VALUES (:id, :email, :deleted_at)"
-        ),
+        text("INSERT INTO users (id, email, deleted_at) VALUES (:id, :email, :deleted_at)"),
         {
             "id": str(uid),
             "email": f"gone+{uid.hex[:8]}@messfit.local",
@@ -100,10 +97,7 @@ async def test_hard_delete_pending_keeps_within_grace(db_session: AsyncSession):
     # Soft-deleted 5 days ago → still within the 30-day grace, must remain.
     uid = uuid.uuid4()
     await db_session.execute(
-        text(
-            "INSERT INTO users (id, email, deleted_at) "
-            "VALUES (:id, :email, :deleted_at)"
-        ),
+        text("INSERT INTO users (id, email, deleted_at) VALUES (:id, :email, :deleted_at)"),
         {
             "id": str(uid),
             "email": f"recent+{uid.hex[:8]}@messfit.local",

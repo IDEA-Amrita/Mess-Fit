@@ -25,7 +25,11 @@ CALLER = "00000000-0000-0000-0000-0000000000aa"
 
 
 def _event(**over: Any) -> dict[str, Any]:
-    base: dict[str, Any] = {"name": "meal_logged", "props": {"meal": "lunch"}, "occurred_at": NOW().isoformat()}
+    base: dict[str, Any] = {
+        "name": "meal_logged",
+        "props": {"meal": "lunch"},
+        "occurred_at": NOW().isoformat(),
+    }
     base.update(over)
     return base
 
@@ -150,7 +154,9 @@ async def test_summary_is_admin_only(api):
     client, _ = api
     # No admin override installed: the real dependency chain (JWT check, then
     # role lookup) runs, and a bad token never gets as far as the query.
-    r = await client.get("/api/v1/analytics/summary", headers={"Authorization": "Bearer not-a-real-token"})
+    r = await client.get(
+        "/api/v1/analytics/summary", headers={"Authorization": "Bearer not-a-real-token"}
+    )
     assert r.status_code in (401, 403)
 
 
@@ -187,7 +193,9 @@ async def test_summary_shape_for_an_admin():
     app.dependency_overrides[require_admin] = lambda: CALLER
     app.dependency_overrides[get_session] = _session
     try:
-        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://t") as c:
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://t"
+        ) as c:
             r = await c.get("/api/v1/analytics/summary?days=7")
     finally:
         app.dependency_overrides.clear()

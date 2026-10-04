@@ -35,10 +35,7 @@ from ..db import get_session
 
 
 def _jwks_url() -> str:
-    return (
-        f"https://{settings.supabase_project_ref}.supabase.co"
-        "/auth/v1/.well-known/jwks.json"
-    )
+    return f"https://{settings.supabase_project_ref}.supabase.co/auth/v1/.well-known/jwks.json"
 
 
 # PyJWKClient handles caching internally (default: 16 keys, 5 min TTL).
@@ -55,6 +52,7 @@ def _get_jwks_client() -> PyJWKClient:
         _jwks_client = PyJWKClient(_jwks_url(), cache_keys=True)
         _jwks_client_initialized_at = now
     return _jwks_client
+
 
 # ─── verification ─────────────────────────────────────────────────────
 

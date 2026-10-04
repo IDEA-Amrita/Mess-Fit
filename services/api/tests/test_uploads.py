@@ -23,7 +23,9 @@ HEIC = b"\x00\x00\x00\x18ftypheic" + b"\x00" * 16
 
 
 def _upload(data: bytes, content_type: str) -> UploadFile:
-    return UploadFile(io.BytesIO(data), filename="x", headers=Headers({"content-type": content_type}))
+    return UploadFile(
+        io.BytesIO(data), filename="x", headers=Headers({"content-type": content_type})
+    )
 
 
 class _CountingFile(io.BytesIO):
@@ -57,7 +59,9 @@ async def test_accepts_real_images_and_normalises_the_type(data, declared, canon
     assert content_type == canonical
 
 
-@pytest.mark.parametrize("declared", ["text/plain", "application/pdf", "image/svg+xml", "image/gif", ""])
+@pytest.mark.parametrize(
+    "declared", ["text/plain", "application/pdf", "image/svg+xml", "image/gif", ""]
+)
 async def test_rejects_types_outside_the_allow_list(declared):
     with pytest.raises(HTTPException) as e:
         await read_image_upload(_upload(JPEG, declared))
@@ -106,7 +110,11 @@ def api(monkeypatch):
         seen.append((len(image_bytes), content_type))
         return SimpleNamespace(
             dishes=[{"name": "Idli", "portion": "3"}],
-            total_kcal=300, total_protein_g=9, total_carbs_g=60, total_fats_g=2, confidence="high",
+            total_kcal=300,
+            total_protein_g=9,
+            total_carbs_g=60,
+            total_fats_g=2,
+            confidence="high",
         )
 
     monkeypatch.setattr(tracking_router, "estimate_meal_from_photo", fake_estimate)
@@ -131,7 +139,9 @@ async def test_photo_estimate_happy_path(api):
 
 async def test_photo_rejects_a_non_image_before_calling_the_model(api):
     client, seen = api
-    r = await client.post("/api/v1/logs/photo", files={"photo": ("a.jpg", b"not an image", "image/jpeg")})
+    r = await client.post(
+        "/api/v1/logs/photo", files={"photo": ("a.jpg", b"not an image", "image/jpeg")}
+    )
     assert r.status_code == 415
     assert seen == []  # never reached the (paid) vision model
 

@@ -15,15 +15,48 @@ EQUIPMENT = ["bodyweight"]
 DAYS_PER_WEEK = 3
 
 _DAY_POOLS = [
-    {"day": 1, "name": "Full Body A", "exercise_ids": [
-        "squat", "pushup", "inverted_row_table", "reverse_lunge",
-        "burpee", "mountain_climber", "plank", "high_knees"]},
-    {"day": 2, "name": "Full Body B", "exercise_ids": [
-        "jump_squat", "decline_pushup", "doorway_row", "glute_bridge",
-        "skater", "jumping_jack", "bicycle_crunch", "side_plank"]},
-    {"day": 3, "name": "Full Body C", "exercise_ids": [
-        "forward_lunge", "pike_pushup", "superman", "single_leg_glute_bridge",
-        "burpee", "high_knees", "leg_raise", "plank"]},
+    {
+        "day": 1,
+        "name": "Full Body A",
+        "exercise_ids": [
+            "squat",
+            "pushup",
+            "inverted_row_table",
+            "reverse_lunge",
+            "burpee",
+            "mountain_climber",
+            "plank",
+            "high_knees",
+        ],
+    },
+    {
+        "day": 2,
+        "name": "Full Body B",
+        "exercise_ids": [
+            "jump_squat",
+            "decline_pushup",
+            "doorway_row",
+            "glute_bridge",
+            "skater",
+            "jumping_jack",
+            "bicycle_crunch",
+            "side_plank",
+        ],
+    },
+    {
+        "day": 3,
+        "name": "Full Body C",
+        "exercise_ids": [
+            "forward_lunge",
+            "pike_pushup",
+            "superman",
+            "single_leg_glute_bridge",
+            "burpee",
+            "high_knees",
+            "leg_raise",
+            "plank",
+        ],
+    },
 ]
 
 

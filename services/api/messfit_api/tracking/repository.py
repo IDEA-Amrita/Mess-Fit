@@ -17,9 +17,7 @@ from .metrics import MealRow, WeightPoint, WorkoutRow
 from .models import MealLogORM, WeightLogORM
 
 
-async def meal_rows(
-    db: AsyncSession, user_id: UUID, start: dt.date, end: dt.date
-) -> list[MealRow]:
+async def meal_rows(db: AsyncSession, user_id: UUID, start: dt.date, end: dt.date) -> list[MealRow]:
     rows = (
         await db.execute(
             select(

@@ -61,22 +61,15 @@ async def test_log_meal_rejects_bad_meal_type(client):
 
 
 async def test_log_weight_idempotent(client, db_session: AsyncSession):
-    r1 = await client.post(
-        "/api/v1/logs/weight", json={"date": "2026-06-15", "weight_kg": 61.2}
-    )
+    r1 = await client.post("/api/v1/logs/weight", json={"date": "2026-06-15", "weight_kg": 61.2})
     assert r1.status_code == 201
-    r2 = await client.post(
-        "/api/v1/logs/weight", json={"date": "2026-06-15", "weight_kg": 61.8}
-    )
+    r2 = await client.post("/api/v1/logs/weight", json={"date": "2026-06-15", "weight_kg": 61.8})
     assert r2.status_code == 201
     assert r2.json()["weight_kg"] == 61.8
 
     count = (
         await db_session.execute(
-            text(
-                "SELECT count(*) FROM weight_logs "
-                "WHERE date = '2026-06-15' AND user_id = :uid"
-            ),
+            text("SELECT count(*) FROM weight_logs WHERE date = '2026-06-15' AND user_id = :uid"),
             {"uid": "00000000-0000-0000-0000-000000000001"},
         )
     ).scalar()
@@ -84,9 +77,7 @@ async def test_log_weight_idempotent(client, db_session: AsyncSession):
 
 
 async def test_log_weight_rejects_out_of_range(client):
-    r = await client.post(
-        "/api/v1/logs/weight", json={"date": "2026-06-15", "weight_kg": 12}
-    )
+    r = await client.post("/api/v1/logs/weight", json={"date": "2026-06-15", "weight_kg": 12})
     assert r.status_code == 422
 
 
@@ -117,9 +108,7 @@ async def test_today_aggregates_logs(client):
         json={"date": today, "meal_type": "breakfast", "status": "as_planned"},
     )
     await client.post("/api/v1/logs/weight", json={"date": today, "weight_kg": 60})
-    await client.post(
-        "/api/v1/logs/subjective", json={"date": today, "energy": 4}
-    )
+    await client.post("/api/v1/logs/subjective", json={"date": today, "energy": 4})
 
     body = (await client.get("/api/v1/logs/today")).json()
     assert body["date"] == today

@@ -141,10 +141,7 @@ def validate_dish(record: dict[str, Any], index: int) -> list[str]:
     # Category
     cat = record.get("category", "")
     if isinstance(cat, str) and cat.strip() and cat.strip() not in VALID_CATEGORIES:
-        errors.append(
-            f"[{index}] Unknown category '{cat}'. "
-            f"Valid: {sorted(VALID_CATEGORIES)}"
-        )
+        errors.append(f"[{index}] Unknown category '{cat}'. Valid: {sorted(VALID_CATEGORIES)}")
 
     # Diet type — must match the DB's CHECK constraint exactly. No default:
     # the column's own DB-level default of 'veg' is what silently mislabeled
@@ -253,9 +250,7 @@ async def seed_dishes(*, data_file: Path = DATA_FILE, dry_run: bool = False) -> 
                     skipped += 1
 
             await db.commit()
-            logger.info(
-                "Seed complete — %d upserted, %d skipped", upserted, skipped
-            )
+            logger.info("Seed complete — %d upserted, %d skipped", upserted, skipped)
         except Exception:
             await db.rollback()
             logger.exception("Error during seeding – rolled back transaction")

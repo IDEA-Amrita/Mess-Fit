@@ -79,9 +79,7 @@ def compute_adherence(
 # ─── macro hit rate ──────────────────────────────────────────────────────
 
 
-def compute_macro_hit_rate(
-    meal_logs: Sequence[MealRow], targets: Targets
-) -> float | None:
+def compute_macro_hit_rate(meal_logs: Sequence[MealRow], targets: Targets) -> float | None:
     """Average fraction of daily macro targets hit, over days with a plan snapshot.
 
     Only ``as_planned`` meals carry a macro snapshot (the client sends the planned
@@ -114,9 +112,7 @@ def compute_macro_hit_rate(
     day_scores: list[float] = []
     for consumed in by_date.values():
         ratios = [
-            min(1.0, consumed[k] / target_by_key[k])
-            for k in target_by_key
-            if target_by_key[k] > 0
+            min(1.0, consumed[k] / target_by_key[k]) for k in target_by_key if target_by_key[k] > 0
         ]
         if ratios:
             day_scores.append(sum(ratios) / len(ratios))

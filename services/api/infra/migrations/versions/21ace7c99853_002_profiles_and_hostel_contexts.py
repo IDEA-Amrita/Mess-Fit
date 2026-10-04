@@ -97,9 +97,7 @@ def upgrade() -> None:
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column("college", sa.Text(), nullable=False),
         sa.Column("city", sa.Text(), nullable=False),
-        sa.Column(
-            "seeded_by", sa.UUID(), sa.ForeignKey("users.id", ondelete="SET NULL")
-        ),
+        sa.Column("seeded_by", sa.UUID(), sa.ForeignKey("users.id", ondelete="SET NULL")),
         sa.Column(
             "created_at",
             sa.TIMESTAMP(timezone=True),
@@ -162,12 +160,8 @@ def upgrade() -> None:
             nullable=False,
             server_default=sa.text("NOW()"),
         ),
-        sa.CheckConstraint(
-            "sex IN ('male', 'female', 'other')", name="profiles_sex_check"
-        ),
-        sa.CheckConstraint(
-            "height_cm BETWEEN 120 AND 220", name="profiles_height_check"
-        ),
+        sa.CheckConstraint("sex IN ('male', 'female', 'other')", name="profiles_sex_check"),
+        sa.CheckConstraint("height_cm BETWEEN 120 AND 220", name="profiles_height_check"),
         sa.CheckConstraint(
             "current_weight_kg BETWEEN 30 AND 200",
             name="profiles_current_weight_check",
@@ -180,12 +174,8 @@ def upgrade() -> None:
             "target_rate_kg_per_week BETWEEN -0.5 AND 0.5",
             name="profiles_target_rate_check",
         ),
-        sa.CheckConstraint(
-            "goal IN ('lose', 'maintain', 'gain')", name="profiles_goal_check"
-        ),
-        sa.CheckConstraint(
-            "activity_level BETWEEN 1 AND 5", name="profiles_activity_check"
-        ),
+        sa.CheckConstraint("goal IN ('lose', 'maintain', 'gain')", name="profiles_goal_check"),
+        sa.CheckConstraint("activity_level BETWEEN 1 AND 5", name="profiles_activity_check"),
         sa.CheckConstraint(
             "diet_type IN ('veg', 'eggetarian', 'non_veg', 'jain')",
             name="profiles_diet_check",
@@ -265,9 +255,7 @@ def upgrade() -> None:
             "canteen_freq IN ('never', 'rare', 'frequent', 'daily')",
             name="hostel_canteen_freq_check",
         ),
-        sa.CheckConstraint(
-            "canteen_typical_spend_inr >= 0", name="hostel_canteen_spend_check"
-        ),
+        sa.CheckConstraint("canteen_typical_spend_inr >= 0", name="hostel_canteen_spend_check"),
         sa.CheckConstraint("top_up_budget_inr_weekly >= 0", name="hostel_top_up_check"),
         sa.CheckConstraint(
             "workout_minutes_per_day BETWEEN 0 AND 180",
@@ -312,15 +300,9 @@ def upgrade() -> None:
     # messes — public read, admin write
     op.execute("ALTER TABLE messes ENABLE ROW LEVEL SECURITY")
     op.execute("CREATE POLICY messes_public_read ON messes FOR SELECT USING (true)")
-    op.execute(
-        "CREATE POLICY messes_admin_write ON messes FOR INSERT WITH CHECK (is_admin())"
-    )
-    op.execute(
-        "CREATE POLICY messes_admin_update ON messes FOR UPDATE USING (is_admin())"
-    )
-    op.execute(
-        "CREATE POLICY messes_admin_delete ON messes FOR DELETE USING (is_admin())"
-    )
+    op.execute("CREATE POLICY messes_admin_write ON messes FOR INSERT WITH CHECK (is_admin())")
+    op.execute("CREATE POLICY messes_admin_update ON messes FOR UPDATE USING (is_admin())")
+    op.execute("CREATE POLICY messes_admin_delete ON messes FOR DELETE USING (is_admin())")
 
 
 def downgrade() -> None:

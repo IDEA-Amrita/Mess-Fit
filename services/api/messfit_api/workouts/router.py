@@ -58,12 +58,16 @@ async def workout_today(
 
     profile = await get_profile(db, uid)
     if profile is None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="Profile not set up — complete onboarding first")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Profile not set up — complete onboarding first",
+        )
     hostel = await get_hostel_context(db, uid)
     if hostel is None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="Hostel context not set up — complete onboarding first")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Hostel context not set up — complete onboarding first",
+        )
 
     template_id = select_template_id(
         goal=profile.goal,
@@ -127,8 +131,10 @@ async def list_templates(
     db: AsyncSession = Depends(get_session),
 ) -> Sequence[WorkoutTemplateORM]:
     return (
-        await db.execute(select(WorkoutTemplateORM).order_by(WorkoutTemplateORM.id))
-    ).scalars().all()
+        (await db.execute(select(WorkoutTemplateORM).order_by(WorkoutTemplateORM.id)))
+        .scalars()
+        .all()
+    )
 
 
 @router.get("/exercises/{exercise_id}", response_model=ExerciseDetail)
@@ -162,14 +168,11 @@ async def log_workout(
         "status": payload.status,
         "skip_reason": payload.skip_reason,
     }
-    update_cols = {k: v for k, v in values.items()
-                   if k not in ("user_id", "date", "template_id")}
+    update_cols = {k: v for k, v in values.items() if k not in ("user_id", "date", "template_id")}
     stmt = (
         pg_insert(WorkoutLogORM)
         .values(**values)
-        .on_conflict_do_update(
-            index_elements=["user_id", "date", "template_id"], set_=update_cols
-        )
+        .on_conflict_do_update(index_elements=["user_id", "date", "template_id"], set_=update_cols)
         .returning(WorkoutLogORM)
     )
     row = (await db.execute(stmt)).scalar_one()

@@ -155,11 +155,7 @@ async def post_message(
                     return
 
             with get_tracer().start_as_current_span("chat.retrieve") as rspan:
-                chunks = (
-                    await retrieval.retrieve_by_vector(sdb, emb)
-                    if emb is not None
-                    else []
-                )
+                chunks = await retrieval.retrieve_by_vector(sdb, emb) if emb is not None else []
                 rspan.set_attribute("chat.retrieved_chunks", len(chunks))
             citations = [
                 {
@@ -181,9 +177,7 @@ async def post_message(
             with get_tracer().start_as_current_span("chat.generate") as gspan:
                 started = time.perf_counter()
                 first_token_ms: float | None = None
-                async for token in llm.generate_response(
-                    query, summary, chunks, history
-                ):
+                async for token in llm.generate_response(query, summary, chunks, history):
                     if first_token_ms is None:
                         first_token_ms = (time.perf_counter() - started) * 1000
                         gspan.set_attribute("chat.first_token_ms", first_token_ms)
@@ -196,9 +190,7 @@ async def post_message(
                 await cache.store_cache(sdb, emb, full, citations)
 
             # Auto-generate title from the first user message
-            conv_row = await sdb.get(
-                repository.ChatConversationORM, conv_id
-            )
+            conv_row = await sdb.get(repository.ChatConversationORM, conv_id)
             if conv_row and not conv_row.title:
                 auto_title = _auto_title(query)
                 conv_row.title = auto_title

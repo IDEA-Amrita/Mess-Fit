@@ -97,7 +97,7 @@ async def optimize_today(
     start = today - datetime.timedelta(days=14)
     weights = await tracking_repo.weight_points(db, uid, start, today)
     meals = await tracking_repo.meal_rows(db, uid, start, today)
-    
+
     # Calculate static TDEE first as a fallback/baseline
     baseline_targets = compute_targets(
         dob=profile.dob,
@@ -110,9 +110,9 @@ async def optimize_today(
         conditions=list(profile.conditions),
         today=today,
     )
-    
+
     adaptive = compute_adaptive_tdee(weights, meals, baseline_targets.tdee)
-    
+
     targets = compute_targets(
         dob=profile.dob,
         sex=profile.sex,
@@ -127,20 +127,21 @@ async def optimize_today(
     )
 
     menu_rows = (
-        await db.execute(
-            select(MessMenuORM)
-            .where(
-                MessMenuORM.mess_id == hostel.mess_id,
-                MessMenuORM.day_of_week == today.weekday(),
-                MessMenuORM.effective_from <= today,
-                (
-                    MessMenuORM.effective_to.is_(None)
-                    | (MessMenuORM.effective_to >= today)
-                ),
+        (
+            await db.execute(
+                select(MessMenuORM)
+                .where(
+                    MessMenuORM.mess_id == hostel.mess_id,
+                    MessMenuORM.day_of_week == today.weekday(),
+                    MessMenuORM.effective_from <= today,
+                    (MessMenuORM.effective_to.is_(None) | (MessMenuORM.effective_to >= today)),
+                )
+                .options(selectinload(MessMenuORM.dish))
             )
-            .options(selectinload(MessMenuORM.dish))
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     if not menu_rows:
         raise HTTPException(
@@ -149,13 +150,17 @@ async def optimize_today(
         )
 
     exclusion_rows = (
-        await db.execute(
-            select(DishExclusionORM).where(
-                DishExclusionORM.user_id == uid,
-                DishExclusionORM.date == today,
+        (
+            await db.execute(
+                select(DishExclusionORM).where(
+                    DishExclusionORM.user_id == uid,
+                    DishExclusionORM.date == today,
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     skip_dish_ids = tuple(str(row.dish_id) for row in exclusion_rows)
 
     grouped: dict[str, list[Dish]] = defaultdict(list)
@@ -178,6 +183,7 @@ async def optimize_today(
     )
 
     return run_optimizer(inp_to_dict(inp))
+
 
 @router.post("/photo")
 @limiter.limit("10/minute")
@@ -214,7 +220,7 @@ async def optimize_photo(
     start = today - datetime.timedelta(days=14)
     weights = await tracking_repo.weight_points(db, uid, start, today)
     meals = await tracking_repo.meal_rows(db, uid, start, today)
-    
+
     baseline_targets = compute_targets(
         dob=profile.dob,
         sex=profile.sex,
@@ -227,7 +233,7 @@ async def optimize_photo(
         today=today,
     )
     adaptive = compute_adaptive_tdee(weights, meals, baseline_targets.tdee)
-    
+
     targets = compute_targets(
         dob=profile.dob,
         sex=profile.sex,
@@ -251,7 +257,7 @@ async def optimize_photo(
                 name=ed.name,
                 category=ed.category,
                 diet_type=ed.diet_type,
-                serving_unit=ed.portion_icon, # Use portion_icon as unit for AI
+                serving_unit=ed.portion_icon,  # Use portion_icon as unit for AI
                 serving_grams=ed.serving_grams,
                 portion_icon=ed.portion_icon,
                 kcal=ed.kcal,
@@ -262,7 +268,7 @@ async def optimize_photo(
                 sodium_mg=0,
                 glycemic_index=None,
                 allergens=tuple(ed.allergens),
-                tags=()
+                tags=(),
             )
         )
 
@@ -278,7 +284,7 @@ async def optimize_photo(
         allergies=tuple(profile.allergies or []),
         conditions=tuple(profile.conditions or []),
         goal=profile.goal,
-        menu={"scan": dishes}, # Dump them all into a virtual meal called 'scan'
+        menu={"scan": dishes},  # Dump them all into a virtual meal called 'scan'
         canteen_items=(),
         canteen_budget_inr=0,
         skip_dish_ids=(),
@@ -286,7 +292,7 @@ async def optimize_photo(
 
     # 4. Run Optimizer
     output = run_optimizer(inp_to_dict(inp))
-    
+
     # If the solver is infeasible, it will still return the best it can, but let's add the raw extracted dishes
     # so the frontend can display them if it wants to.
     output["extracted_dishes"] = [d.model_dump() for d in extraction.dishes]

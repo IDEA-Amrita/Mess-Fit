@@ -23,8 +23,13 @@ from messfit_api.mess.schemas import ParsedMenu
 _NAME_MATCH_THRESHOLD = 0.75
 
 _DAY_INDEX = {
-    "monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3,
-    "friday": 4, "saturday": 5, "sunday": 6,
+    "monday": 0,
+    "tuesday": 1,
+    "wednesday": 2,
+    "thursday": 3,
+    "friday": 4,
+    "saturday": 5,
+    "sunday": 6,
 }
 
 
@@ -71,9 +76,7 @@ def score_parsed(parsed: ParsedMenu, truth: dict) -> ScoreResult:
     for day in parsed.weekly:
         di = _day_index(day.day)
         for meal in day.meals:
-            parsed_index.setdefault((di, meal.type), []).extend(
-                d.name for d in meal.dishes
-            )
+            parsed_index.setdefault((di, meal.type), []).extend(d.name for d in meal.dishes)
 
     total = 0
     correct = 0

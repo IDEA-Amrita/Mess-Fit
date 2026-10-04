@@ -36,7 +36,9 @@ def test_every_dish_has_a_diet_type():
 
 
 def test_every_diet_type_is_valid():
-    bad = {r["name"]: r["diet_type"] for r in _RECORDS if r.get("diet_type") not in VALID_DIET_TYPES}
+    bad = {
+        r["name"]: r["diet_type"] for r in _RECORDS if r.get("diet_type") not in VALID_DIET_TYPES
+    }
     assert bad == {}, f"dishes with an invalid diet_type: {bad}"
 
 

@@ -39,8 +39,12 @@ class TestUnauthed:
         r = await unauthed_client.get(f"/mess/menu/exclusions?date={TODAY}")
         assert r.status_code == 401
 
-    async def test_post_exclusion_requires_auth(self, unauthed_client: AsyncClient, fake_dish_id: str):
-        r = await unauthed_client.post("/mess/menu/exclusions", json=_exclusion_payload(fake_dish_id))
+    async def test_post_exclusion_requires_auth(
+        self, unauthed_client: AsyncClient, fake_dish_id: str
+    ):
+        r = await unauthed_client.post(
+            "/mess/menu/exclusions", json=_exclusion_payload(fake_dish_id)
+        )
         assert r.status_code == 401
 
 
@@ -76,7 +80,9 @@ class TestExclusionCRUD:
         assert body["meal_type"] == MEAL
         assert body["date"] == TODAY
 
-    async def test_get_returns_exclusion_after_post(self, client: AsyncClient, admin_client: AsyncClient):
+    async def test_get_returns_exclusion_after_post(
+        self, client: AsyncClient, admin_client: AsyncClient
+    ):
         dish_id = await self._seed_dish(admin_client)
         await client.post("/mess/menu/exclusions", json=_exclusion_payload(dish_id))
         r = await client.get(f"/mess/menu/exclusions?date={TODAY}")

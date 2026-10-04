@@ -44,9 +44,7 @@ def _ext_for(content_type: str) -> str:
     }.get(content_type.lower(), "jpg")
 
 
-async def upload_menu_photo(
-    image_bytes: bytes, content_type: str, mess_id: uuid.UUID
-) -> str:
+async def upload_menu_photo(image_bytes: bytes, content_type: str, mess_id: uuid.UUID) -> str:
     """Upload bytes to the private bucket; return the storage object path.
 
     The path (not a URL) is what we persist in ``ocr_jobs.photo_url`` — URLs
@@ -67,9 +65,7 @@ async def upload_menu_photo(
 async def download_menu_photo(path: str) -> bytes:
     """Fetch the raw bytes for a stored object (used by the worker)."""
     async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.get(
-            f"{_base_url()}/object/{BUCKET}/{path}", headers=_headers()
-        )
+        resp = await client.get(f"{_base_url()}/object/{BUCKET}/{path}", headers=_headers())
     if resp.status_code != 200:
         raise StorageError(f"download failed ({resp.status_code}): {resp.text}")
     return resp.content

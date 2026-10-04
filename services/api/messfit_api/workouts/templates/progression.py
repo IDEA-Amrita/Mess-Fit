@@ -19,8 +19,16 @@ from typing import Any
 
 # Exercises measured by time, not reps — progress in seconds.
 TIME_BASED = {
-    "plank", "side_plank", "hollow_hold", "wall_sit", "plank_shoulder_tap",
-    "high_knees", "jumping_jack", "skater", "jump_rope", "mountain_climber",
+    "plank",
+    "side_plank",
+    "hollow_hold",
+    "wall_sit",
+    "plank_shoulder_tap",
+    "high_knees",
+    "jumping_jack",
+    "skater",
+    "jump_rope",
+    "mountain_climber",
 }
 
 

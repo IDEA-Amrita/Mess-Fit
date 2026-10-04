@@ -64,9 +64,7 @@ def upgrade() -> None:
 
     # ── 2. Drop the trigger if it already exists, then create it ──
     # CREATE TRIGGER doesn't support OR REPLACE, so we DROP first.
-    op.execute(
-        "DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users"
-    )
+    op.execute("DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users")
     op.execute(
         """
         CREATE TRIGGER on_auth_user_created

@@ -182,12 +182,8 @@ def optimize(inp: OptimizationInput) -> OptimizationOutput:
 
     # Linear macro totals across mess + canteen.
     def _macro(attr: str) -> pulp.LpAffineExpression:
-        mess = pulp.lpSum(
-            getattr(dish_by_id[did], attr) * var for (did, _m), var in x.items()
-        )
-        canteen = pulp.lpSum(
-            getattr(canteen_by_id[iid], attr) * var for iid, var in y.items()
-        )
+        mess = pulp.lpSum(getattr(dish_by_id[did], attr) * var for (did, _m), var in x.items())
+        canteen = pulp.lpSum(getattr(canteen_by_id[iid], attr) * var for iid, var in y.items())
         return mess + canteen
 
     total_k = _macro("kcal")
