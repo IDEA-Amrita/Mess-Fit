@@ -223,7 +223,7 @@ def architecture(theme: str) -> str:
     s += [card(40, yw, 740, hw, th), tiles(64, yw + 20, ["celery", "python"], th, size=32),
           t(64 + 2 * 40 + 10, yw + 36, "Celery worker + beat", 15, 700, th["text"]),
           t(64 + 2 * 40 + 10, yw + 54, "Async jobs and the daily / weekly schedule", 12, 400, th["muted"]),
-          chips(64, yw + 74, ["Menu OCR", "Optimizer runs", "DPDP purge · daily", "Analytics prune · daily",
+          chips(64, yw + 74, ["Menu OCR", "DPDP purge · daily", "Analytics prune · daily",
                               "Check-in push · Sun"], th)]
     s += [card(800, yw, 360, hw, th), tiles(824, yw + 20, ["opentelemetry", "grafana", "sentry"], th, size=32),
           t(824, yw + 82, "Observability", 15, 700, th["text"]),
@@ -336,11 +336,69 @@ def banner() -> str:
     return "".join(s)
 
 
+# ── metrics strip ───────────────────────────────────────────────────────────
+# Keep these in step with the codebase; each is checked when the README changes.
+
+METRICS = [
+    ("405", "backend tests", "run under RLS"),
+    ("95", "end-to-end tests", "Playwright"),
+    ("47", "API endpoints", "11 routers"),
+    ("23 / 23", "tables with RLS", "row-level security"),
+    ("19", "migrations", "up / down verified"),
+    ("50", "optimizer scenarios", "evaluated in CI"),
+]
+
+
+def metrics(theme: str) -> str:
+    th = THEMES[theme]
+    W, H = 1200, 132
+    cw = (W - 80 - 5 * 12) / 6
+    s = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
+        f'role="img" aria-label="MessFit by the numbers">',
+        "<title>MessFit by the numbers</title>",
+    ]
+    for i, (value, label, sub) in enumerate(METRICS):
+        x = 40 + i * (cw + 12)
+        s += [card(x, 16, cw, 100, th, rx=14),
+              f'<rect x="{x + 18}" y="34" width="22" height="3" rx="1.5" fill="{th["bar"]}"/>',
+              t(x + 18, 72, value, 28, 800, th["text"], spacing=-0.5),
+              t(x + 18, 92, label, 12.5, 600, th["text"]),
+              t(x + 18, 107, sub, 11, 400, th["muted"])]
+    s.append("</svg>")
+    return "".join(s)
+
+
+# ── heading / feature glyphs ────────────────────────────────────────────────
+# Lucide (ISC) line icons on a dark tile with the app's lime stroke. One file
+# per icon, readable on GitHub's light and dark themes alike.
+
+GLYPHS = HERE / "glyphs"
+
+
+def glyph_tile(name: str) -> str:
+    raw = (GLYPHS / f"{name}.svg").read_text(encoding="utf-8")
+    inner = raw[raw.index(">", raw.index("<svg")) + 1 : raw.rindex("</svg>")]
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">'
+        '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">'
+        '<stop offset="0" stop-color="#1F1F23"/><stop offset="1" stop-color="#111113"/></linearGradient></defs>'
+        '<rect x="0.5" y="0.5" width="47" height="47" rx="12" fill="url(#g)" stroke="#34343B"/>'
+        '<g transform="translate(12 12)" fill="none" stroke="#CCFF00" stroke-width="2" '
+        f'stroke-linecap="round" stroke-linejoin="round">{inner}</g></svg>'
+    )
+
+
 def main() -> None:
+    out = HERE / "glyph-tiles"
+    out.mkdir(exist_ok=True)
+    for src in sorted(GLYPHS.glob("*.svg")):
+        (out / src.name).write_text(glyph_tile(src.stem), encoding="utf-8")
     (HERE / "banner.svg").write_text(banner(), encoding="utf-8")
     for theme in THEMES:
         (HERE / f"architecture-{theme}.svg").write_text(architecture(theme), encoding="utf-8")
         (HERE / f"stack-{theme}.svg").write_text(stack(theme), encoding="utf-8")
+        (HERE / f"metrics-{theme}.svg").write_text(metrics(theme), encoding="utf-8")
     for p in sorted(HERE.glob("*.svg")):
         print(f"{p.name:28} {p.stat().st_size / 1024:7.1f} KB")
 
