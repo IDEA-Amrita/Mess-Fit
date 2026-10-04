@@ -15,18 +15,62 @@ EQUIPMENT = ["bodyweight"]
 DAYS_PER_WEEK = 4
 
 _DAY_POOLS = [
-    {"day": 1, "name": "Upper Push", "exercise_ids": [
-        "decline_pushup", "pike_pushup", "diamond_pushup", "pushup",
-        "chair_dip", "plank_shoulder_tap", "plank", "hollow_hold"]},
-    {"day": 2, "name": "Lower", "exercise_ids": [
-        "bulgarian_split_squat", "squat", "reverse_lunge", "single_leg_glute_bridge",
-        "glute_bridge", "wall_sit", "calf_raise", "jump_squat"]},
-    {"day": 3, "name": "Upper Pull", "exercise_ids": [
-        "inverted_row_table", "doorway_row", "pike_pushup", "chair_dip",
-        "superman", "plank", "side_plank", "hollow_hold"]},
-    {"day": 4, "name": "Lower + Core", "exercise_ids": [
-        "squat", "forward_lunge", "single_leg_glute_bridge", "calf_raise",
-        "leg_raise", "crunch", "bicycle_crunch", "plank"]},
+    {
+        "day": 1,
+        "name": "Upper Push",
+        "exercise_ids": [
+            "decline_pushup",
+            "pike_pushup",
+            "diamond_pushup",
+            "pushup",
+            "chair_dip",
+            "plank_shoulder_tap",
+            "plank",
+            "hollow_hold",
+        ],
+    },
+    {
+        "day": 2,
+        "name": "Lower",
+        "exercise_ids": [
+            "bulgarian_split_squat",
+            "squat",
+            "reverse_lunge",
+            "single_leg_glute_bridge",
+            "glute_bridge",
+            "wall_sit",
+            "calf_raise",
+            "jump_squat",
+        ],
+    },
+    {
+        "day": 3,
+        "name": "Upper Pull",
+        "exercise_ids": [
+            "inverted_row_table",
+            "doorway_row",
+            "pike_pushup",
+            "chair_dip",
+            "superman",
+            "plank",
+            "side_plank",
+            "hollow_hold",
+        ],
+    },
+    {
+        "day": 4,
+        "name": "Lower + Core",
+        "exercise_ids": [
+            "squat",
+            "forward_lunge",
+            "single_leg_glute_bridge",
+            "calf_raise",
+            "leg_raise",
+            "crunch",
+            "bicycle_crunch",
+            "plank",
+        ],
+    },
 ]
 
 

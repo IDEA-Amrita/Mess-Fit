@@ -15,7 +15,17 @@ import datetime as dt
 import uuid
 from typing import Any, Literal
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+    status,
+)
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -102,6 +112,7 @@ async def leaderboard(
 
     # Look up the college from the user's mess.
     from ..mess.models import MessORM
+
     mess = (
         await db.execute(select(MessORM).where(MessORM.id == hostel.mess_id))
     ).scalar_one_or_none()
@@ -127,15 +138,11 @@ async def log_meal(
 ) -> MealLogORM:
     """Idempotent on (user, date, meal_type) — re-submitting updates the row."""
     values = {"user_id": uuid.UUID(user_id), **payload.model_dump()}
-    update_cols = {
-        k: v for k, v in values.items() if k not in ("user_id", "date", "meal_type")
-    }
+    update_cols = {k: v for k, v in values.items() if k not in ("user_id", "date", "meal_type")}
     stmt = (
         pg_insert(MealLogORM)
         .values(**values)
-        .on_conflict_do_update(
-            index_elements=["user_id", "date", "meal_type"], set_=update_cols
-        )
+        .on_conflict_do_update(index_elements=["user_id", "date", "meal_type"], set_=update_cols)
         .returning(MealLogORM)
     )
     row = (await db.execute(stmt)).scalar_one()
@@ -197,17 +204,19 @@ async def todays_logs(
     today = today_ist()
 
     meals = (
-        await db.execute(
-            select(MealLogORM)
-            .where(MealLogORM.user_id == uid, MealLogORM.date == today)
-            .order_by(MealLogORM.meal_type)
+        (
+            await db.execute(
+                select(MealLogORM)
+                .where(MealLogORM.user_id == uid, MealLogORM.date == today)
+                .order_by(MealLogORM.meal_type)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     weight = (
         await db.execute(
-            select(WeightLogORM).where(
-                WeightLogORM.user_id == uid, WeightLogORM.date == today
-            )
+            select(WeightLogORM).where(WeightLogORM.user_id == uid, WeightLogORM.date == today)
         )
     ).scalar_one_or_none()
     subjective = (
@@ -218,12 +227,16 @@ async def todays_logs(
         )
     ).scalar_one_or_none()
     workout = (
-        await db.execute(
-            select(WorkoutLogORM.status).where(
-                WorkoutLogORM.user_id == uid, WorkoutLogORM.date == today
+        (
+            await db.execute(
+                select(WorkoutLogORM.status).where(
+                    WorkoutLogORM.user_id == uid, WorkoutLogORM.date == today
+                )
             )
         )
-    ).scalars().first()
+        .scalars()
+        .first()
+    )
 
     return TodayLogs(
         date=today,
@@ -276,9 +289,7 @@ async def get_progress(
 
     return Progress(
         range=range,
-        weight_series=[
-            WeightPoint(date=w.date, weight_kg=w.weight_kg) for w in weights
-        ],
+        weight_series=[WeightPoint(date=w.date, weight_kg=w.weight_kg) for w in weights],
         adherence_rate=compute_adherence(meals, workouts, days, workout_days),
         macro_hit_rate=compute_macro_hit_rate(meals, targets),
         projection=compute_projection(

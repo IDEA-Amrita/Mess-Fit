@@ -107,21 +107,15 @@ class TestBMR:
         # 175 cm, 70 kg, 25 y male
         # base = 10*70 + 6.25*175 - 5*25 = 700 + 1093.75 - 125 = 1668.75
         # male offset +5 -> 1673.75
-        assert compute_bmr_mifflin_st_jeor(70, 175, 25, "male") == pytest.approx(
-            1673.75, abs=0.01
-        )
+        assert compute_bmr_mifflin_st_jeor(70, 175, 25, "male") == pytest.approx(1673.75, abs=0.01)
 
     def test_female_bmr(self):
         # 160 cm, 55 kg, 25 y female -> 10*55 + 6.25*160 - 5*25 - 161 = 1264.0
-        assert compute_bmr_mifflin_st_jeor(55, 160, 25, "female") == pytest.approx(
-            1264.0, abs=0.01
-        )
+        assert compute_bmr_mifflin_st_jeor(55, 160, 25, "female") == pytest.approx(1264.0, abs=0.01)
 
     def test_other_bmr_uses_female_offset(self):
         # 'other' is treated like 'female' (-161 offset). Documented choice.
-        assert compute_bmr_mifflin_st_jeor(55, 160, 25, "other") == pytest.approx(
-            1264.0, abs=0.01
-        )
+        assert compute_bmr_mifflin_st_jeor(55, 160, 25, "other") == pytest.approx(1264.0, abs=0.01)
 
     def test_male_vs_female_diff(self):
         # Same body, +5 vs -161 means males have 166 kcal higher BMR
@@ -132,9 +126,7 @@ class TestBMR:
     def test_low_weight(self):
         # 150 cm, 40 kg, 18 y female
         # 10*40 + 6.25*150 - 5*18 - 161 = 400 + 937.5 - 90 - 161 = 1086.5
-        assert compute_bmr_mifflin_st_jeor(40, 150, 18, "female") == pytest.approx(
-            1086.5, abs=0.01
-        )
+        assert compute_bmr_mifflin_st_jeor(40, 150, 18, "female") == pytest.approx(1086.5, abs=0.01)
 
 
 # ────────────────────────────────────────────────────────────────────────

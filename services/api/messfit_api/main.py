@@ -47,6 +47,7 @@ app.state.limiter = limiter
 # (Request, Exception). Compatible at runtime — the registry keys on the type.
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     logger.exception("Unhandled exception", path=request.url.path, exc_info=exc)
@@ -54,6 +55,7 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
         status_code=500,
         content={"detail": "Internal server error. Please try again later."},
     )
+
 
 app.add_middleware(
     CORSMiddleware,

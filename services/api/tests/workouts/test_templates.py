@@ -57,6 +57,7 @@ def test_duration_scales_exercise_count():
 @pytest.mark.parametrize("tpl", _TEMPLATES, ids=[t["id"] for t in _TEMPLATES])
 def test_progression_overloads_then_deloads(tpl):
     weeks = {w["week"]: w for w in tpl["structure"]["weeks"]}
+
     # Use the first exercise of day 1 as the probe.
     def probe(week):
         return weeks[week]["days"][0]["exercises"][0]

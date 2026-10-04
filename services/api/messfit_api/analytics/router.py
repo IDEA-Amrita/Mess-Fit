@@ -29,7 +29,10 @@ async def ingest_events(
     uid = uuid.UUID(user_id)
     await db.execute(
         insert(AnalyticsEvent),
-        [{"user_id": uid, "name": e.name, "props": e.props, "occurred_at": e.occurred_at} for e in batch.events],
+        [
+            {"user_id": uid, "name": e.name, "props": e.props, "occurred_at": e.occurred_at}
+            for e in batch.events
+        ],
     )
     await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

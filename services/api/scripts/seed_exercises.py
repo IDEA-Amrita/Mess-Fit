@@ -49,7 +49,9 @@ async def seed() -> None:
             )
             await db.execute(stmt)
         await db.commit()
-    logger.info("Seeded %d exercises (youtube_video_id left NULL — curate per README)", len(EXERCISES))
+    logger.info(
+        "Seeded %d exercises (youtube_video_id left NULL — curate per README)", len(EXERCISES)
+    )
 
 
 if __name__ == "__main__":

@@ -61,8 +61,8 @@ def test_ocr_accuracy_meets_bar():
     overall_total = sum(r.total for _, r in results)
     overall_correct = sum(r.correct for _, r in results)
     accuracy = overall_correct / overall_total if overall_total else 0.0
-    print(f"\nOVERALL: {accuracy:.1%} ({overall_correct}/{overall_total}) across {len(results)} photos")
-
-    assert accuracy >= _ACCURACY_BAR, (
-        f"OCR accuracy {accuracy:.1%} below {_ACCURACY_BAR:.0%} bar"
+    print(
+        f"\nOVERALL: {accuracy:.1%} ({overall_correct}/{overall_total}) across {len(results)} photos"
     )
+
+    assert accuracy >= _ACCURACY_BAR, f"OCR accuracy {accuracy:.1%} below {_ACCURACY_BAR:.0%} bar"

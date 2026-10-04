@@ -42,8 +42,12 @@ async def _insert_job(db, mess_id, status="ready_for_review", parsed=None):
             "INSERT INTO ocr_jobs (id, mess_id, photo_url, status, parsed_result) "
             "VALUES (:id, :mid, 'p/x.jpg', :st, CAST(:pr AS jsonb))"
         ),
-        {"id": str(jid), "mid": str(mess_id), "st": status,
-         "pr": __import__("json").dumps(parsed) if parsed else None},
+        {
+            "id": str(jid),
+            "mid": str(mess_id),
+            "st": status,
+            "pr": __import__("json").dumps(parsed) if parsed else None,
+        },
     )
     await db.commit()
     return jid
@@ -69,9 +73,7 @@ async def test_upload_requires_admin(client, mess_id):
 # ─── upload ───────────────────────────────────────────────────────────
 
 
-async def test_upload_creates_pending_job_and_enqueues(
-    admin_client, mess_id, monkeypatch
-):
+async def test_upload_creates_pending_job_and_enqueues(admin_client, mess_id, monkeypatch):
     enqueued: list[str] = []
 
     async def fake_upload(image_bytes, content_type, mess):
@@ -216,9 +218,7 @@ async def test_approve_writes_menu_and_creates_draft(
     assert list(draft_row.allergens) == ["eggs"]
 
     # Cleanup: drop menu rows (RESTRICT) before the draft dish, then matched dish.
-    await db_session.execute(
-        text("DELETE FROM mess_menus WHERE mess_id = :m"), {"m": str(mess_id)}
-    )
+    await db_session.execute(text("DELETE FROM mess_menus WHERE mess_id = :m"), {"m": str(mess_id)})
     await db_session.execute(
         text("DELETE FROM dishes WHERE name = :n OR id = :i"),
         {"n": draft_name, "i": str(matched_id)},
@@ -244,11 +244,15 @@ async def test_reject_sets_status(admin_client, db_session, mess_id, status):
 
 
 @pytest.mark.parametrize("status", ["pending", "processing", "approved", "rejected"])
-async def test_reject_refuses_jobs_that_are_not_reviewable(admin_client, db_session, mess_id, status):
+async def test_reject_refuses_jobs_that_are_not_reviewable(
+    admin_client, db_session, mess_id, status
+):
     # An approved job's menu rows are live; relabelling it "rejected" would lie.
     # A pending/processing job would be overwritten when the worker finishes.
     jid = await _insert_job(db_session, mess_id, status=status)
     resp = await admin_client.post(f"/mess/admin/ocr/jobs/{jid}/reject")
     assert resp.status_code == 409
-    row = (await db_session.execute(text("SELECT status FROM ocr_jobs WHERE id = :id"), {"id": jid})).scalar_one()
+    row = (
+        await db_session.execute(text("SELECT status FROM ocr_jobs WHERE id = :id"), {"id": jid})
+    ).scalar_one()
     assert row == status

@@ -34,7 +34,9 @@ class FakeSession:
 async def test_deletes_only_events_older_than_the_window():
     db = FakeSession([3])
     assert await prune_old_events(db, now=NOW) == 3
-    sql = db.statements[0].compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": False})
+    sql = db.statements[0].compile(
+        dialect=postgresql.dialect(), compile_kwargs={"literal_binds": False}
+    )
     assert "DELETE FROM analytics_events" in str(sql)
     assert "occurred_at <" in str(sql)
     cutoff = NOW - timedelta(days=RETENTION_DAYS)

@@ -24,11 +24,13 @@ async def _notify_weekly_checkin() -> None:
         # Only users with a registered device who haven't opted out.
         user_ids = await repository.list_weekly_checkin_recipients(db)
 
-        payload = json.dumps({
-            "title": "Weekly Check-in 📈",
-            "body": "It's Sunday evening! Time to log your weight and check your adherence for the week.",
-            "url": "/dashboard/progress",
-        })
+        payload = json.dumps(
+            {
+                "title": "Weekly Check-in 📈",
+                "body": "It's Sunday evening! Time to log your weight and check your adherence for the week.",
+                "url": "/dashboard/progress",
+            }
+        )
 
         success_count = 0
         for uid in user_ids:
@@ -38,13 +40,17 @@ async def _notify_weekly_checkin() -> None:
             except Exception as e:
                 logger.warning("Failed to send weekly check-in", user_id=str(uid), error=str(e))
 
-        logger.info("Weekly check-in notifications sent", total_attempted=len(user_ids), successes=success_count)
+        logger.info(
+            "Weekly check-in notifications sent",
+            total_attempted=len(user_ids),
+            successes=success_count,
+        )
 
 
 @celery_app.task(name="messfit.notifications.weekly_checkin")
 def send_weekly_checkin_reminders() -> None:
     """Trigger the weekly check-in push notification for all users.
-    
+
     Intended to be scheduled via Celery Beat every Sunday at 18:00 IST.
     """
     logger.info("Starting weekly check-in reminder task")

@@ -36,14 +36,18 @@ async def list_conversations(
     db: AsyncSession, user_id: uuid.UUID, limit: int = 50, offset: int = 0
 ) -> Sequence[ChatConversationORM]:
     return (
-        await db.execute(
-            select(ChatConversationORM)
-            .where(ChatConversationORM.user_id == user_id)
-            .order_by(ChatConversationORM.updated_at.desc())
-            .limit(limit)
-            .offset(offset)
+        (
+            await db.execute(
+                select(ChatConversationORM)
+                .where(ChatConversationORM.user_id == user_id)
+                .order_by(ChatConversationORM.updated_at.desc())
+                .limit(limit)
+                .offset(offset)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
 
 async def get_owned_conversation(

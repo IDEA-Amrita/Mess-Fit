@@ -39,14 +39,25 @@ def upgrade() -> None:
         sa.Column("id", sa.BigInteger(), sa.Identity(), primary_key=True),
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("name", sa.Text(), nullable=False),
-        sa.Column("props", postgresql.JSONB(), server_default=sa.text("'{}'::jsonb"), nullable=False),
+        sa.Column(
+            "props", postgresql.JSONB(), server_default=sa.text("'{}'::jsonb"), nullable=False
+        ),
         sa.Column("occurred_at", sa.TIMESTAMP(timezone=True), nullable=False),
-        sa.Column("received_at", sa.TIMESTAMP(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "received_at",
+            sa.TIMESTAMP(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
     )
     op.create_index("ix_analytics_events_occurred_at", "analytics_events", ["occurred_at"])
-    op.create_index("ix_analytics_events_name_occurred", "analytics_events", ["name", "occurred_at"])
-    op.create_index("ix_analytics_events_user_occurred", "analytics_events", ["user_id", "occurred_at"])
+    op.create_index(
+        "ix_analytics_events_name_occurred", "analytics_events", ["name", "occurred_at"]
+    )
+    op.create_index(
+        "ix_analytics_events_user_occurred", "analytics_events", ["user_id", "occurred_at"]
+    )
 
     op.execute("ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY")
     op.execute(

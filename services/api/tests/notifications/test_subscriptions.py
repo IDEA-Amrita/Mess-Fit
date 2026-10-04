@@ -24,7 +24,10 @@ from messfit_api.notifications import service
 from messfit_api.notifications.schemas import PushSubscriptionIn, is_push_service_url
 
 CALLER = "00000000-0000-0000-0000-0000000000dd"
-KEYS = {"p256dh": "BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8QcYP7DkM", "auth": "tBHItJI5svbpez7KI4CCXg"}
+KEYS = {
+    "p256dh": "BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8QcYP7DkM",
+    "auth": "tBHItJI5svbpez7KI4CCXg",
+}
 
 
 # ─── which endpoints are acceptable ─────────────────────────────────────
@@ -70,7 +73,12 @@ def test_anything_else_is_rejected(url):
 
 @pytest.mark.parametrize(
     "keys",
-    [{}, {"p256dh": KEYS["p256dh"]}, {"p256dh": "short", "auth": KEYS["auth"]}, {"p256dh": KEYS["p256dh"], "auth": "has spaces in it"}],
+    [
+        {},
+        {"p256dh": KEYS["p256dh"]},
+        {"p256dh": "short", "auth": KEYS["auth"]},
+        {"p256dh": KEYS["p256dh"], "auth": "has spaces in it"},
+    ],
 )
 def test_encryption_keys_are_required_and_well_formed(keys):
     with pytest.raises(ValidationError):
@@ -110,7 +118,9 @@ def api():
 async def test_subscribe_claims_the_endpoint_for_the_signed_in_user(api):
     client, session = api
     endpoint = "https://fcm.googleapis.com/fcm/send/abc"
-    r = await client.post("/api/v1/notifications/subscribe", json={"endpoint": endpoint, "keys": KEYS})
+    r = await client.post(
+        "/api/v1/notifications/subscribe", json={"endpoint": endpoint, "keys": KEYS}
+    )
     assert r.status_code == 201
     assert r.json() == {"endpoint": endpoint}
     sql, params = session.statements[0]
@@ -132,7 +142,9 @@ async def test_subscribe_refuses_a_non_push_endpoint_without_touching_the_db(api
 async def test_unsubscribe_needs_only_the_endpoint(api):
     client, session = api
     r = await client.request(
-        "DELETE", "/api/v1/notifications/unsubscribe", json={"endpoint": "https://fcm.googleapis.com/fcm/send/abc"}
+        "DELETE",
+        "/api/v1/notifications/unsubscribe",
+        json={"endpoint": "https://fcm.googleapis.com/fcm/send/abc"},
     )
     assert r.status_code == 204
     assert "DELETE FROM push_subscriptions" in session.statements[0][0]
@@ -153,9 +165,13 @@ async def test_a_stored_non_push_endpoint_is_dropped_never_contacted():
 
     with (
         patch.object(service.settings, "vapid_private_key", "k"),
-        patch.object(service.repository, "get_user_subscriptions", AsyncMock(return_value=[bad, good])),
+        patch.object(
+            service.repository, "get_user_subscriptions", AsyncMock(return_value=[bad, good])
+        ),
         patch.object(service.repository, "remove_subscription", fake_remove),
-        patch.object(service, "webpush", lambda **kw: contacted.append(kw["subscription_info"]["endpoint"])),
+        patch.object(
+            service, "webpush", lambda **kw: contacted.append(kw["subscription_info"]["endpoint"])
+        ),
     ):
         delivered = await service.send_push_notification(object(), uid, "{}")  # type: ignore[arg-type]
 
@@ -197,5 +213,10 @@ def test_claim_function_is_locked_down():
     assert "SECURITY DEFINER" in sql
     assert "SET search_path = public, pg_temp" in sql  # no search_path hijack
     assert "VALUES (caller," in sql  # always the authenticated caller, never a parameter
-    assert "REVOKE ALL ON FUNCTION public.claim_push_subscription(text, text, text) FROM PUBLIC" in sql
-    assert "GRANT EXECUTE ON FUNCTION public.claim_push_subscription(text, text, text) TO messfit_app" in sql
+    assert (
+        "REVOKE ALL ON FUNCTION public.claim_push_subscription(text, text, text) FROM PUBLIC" in sql
+    )
+    assert (
+        "GRANT EXECUTE ON FUNCTION public.claim_push_subscription(text, text, text) TO messfit_app"
+        in sql
+    )

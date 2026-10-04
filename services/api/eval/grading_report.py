@@ -36,8 +36,12 @@ from .loader import all_scenario_paths, load_scenario_file
 
 _REPORTS_DIR = Path(__file__).resolve().parent / "reports"
 _MEAL_ORDER = ["breakfast", "lunch", "snack", "dinner"]
-_MACROS = [("kcal", "kcal", ""), ("protein_g", "Protein", "g"),
-           ("carbs_g", "Carbs", "g"), ("fats_g", "Fats", "g")]
+_MACROS = [
+    ("kcal", "kcal", ""),
+    ("protein_g", "Protein", "g"),
+    ("carbs_g", "Carbs", "g"),
+    ("fats_g", "Fats", "g"),
+]
 
 # kcal hard band the solver enforces (mirror of solver.KCAL_LOWER/UPPER).
 _KCAL_BAND = (0.90, 1.10)
@@ -51,8 +55,11 @@ def _profile_line(user: dict) -> str:
     bits = [
         f"{user['sex']}, {user['age']}y, {user['height_cm']}cm, {user['weight_kg']}kg",
         f"goal: <b>{user['goal']}</b>"
-        + (f" @ {user['target_rate_kg_per_week']:+g} kg/wk"
-           if user.get("target_rate_kg_per_week") else ""),
+        + (
+            f" @ {user['target_rate_kg_per_week']:+g} kg/wk"
+            if user.get("target_rate_kg_per_week")
+            else ""
+        ),
         f"activity {user['activity_level']}/5",
         f"diet: <b>{user['diet_type']}</b>",
     ]
@@ -61,7 +68,9 @@ def _profile_line(user: dict) -> str:
     if user.get("conditions"):
         bits.append(f"conditions: {', '.join(user['conditions'])}")
     bits.append(f"canteen budget: ₹{user.get('canteen_budget_inr', 0)}")
-    return _esc(" · ".join(b for b in bits)).replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
+    return (
+        _esc(" · ".join(b for b in bits)).replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
+    )
 
 
 def _macro_table(totals: dict, targets: dict, protein_floor: float) -> str:
@@ -92,8 +101,7 @@ def _macro_table(totals: dict, targets: dict, protein_floor: float) -> str:
     )
     return (
         "<table class='macros'><tr><th>Macro</th><th>Achieved</th>"
-        "<th>Target</th><th>% target</th></tr>"
-        + "".join(rows) + "</table>" + floor_note
+        "<th>Target</th><th>% target</th></tr>" + "".join(rows) + "</table>" + floor_note
     )
 
 
@@ -106,7 +114,7 @@ def _plate_html(plan: dict, gap_fills: list) -> str:
         meal_kcal = sum(i.kcal for i in items)
         lis = []
         for i in items:
-            portions = (f"{i.portions:g}× {i.serving_unit}")
+            portions = f"{i.portions:g}× {i.serving_unit}"
             lis.append(
                 f"<li><span class='dish'>{_esc(i.name)}</span> "
                 f"<span class='qty'>{_esc(portions)} · {i.grams:.0f}g</span>"
@@ -128,8 +136,7 @@ def _plate_html(plan: dict, gap_fills: list) -> str:
                 f"<span class='mac'>{g.kcal:.0f} kcal · P{g.protein_g:.0f}</span></li>"
             )
         parts.append(
-            f"<div class='meal canteen'><h4>Canteen top-ups</h4>"
-            f"<ul>{''.join(lis)}</ul></div>"
+            f"<div class='meal canteen'><h4>Canteen top-ups</h4><ul>{''.join(lis)}</ul></div>"
         )
     return "".join(parts) or "<p class='empty'>No dishes selected.</p>"
 
@@ -183,9 +190,7 @@ def build() -> tuple[str, list[dict]]:
         s = load_scenario_file(path)
         out = optimize(s.input)
 
-        protein_floor = s.expected.get(
-            "protein_min_g", 0.85 * s.daily_protein_g
-        )
+        protein_floor = s.expected.get("protein_min_g", 0.85 * s.daily_protein_g)
 
         cards.append(
             f"<div class='card'>"
@@ -204,17 +209,19 @@ def build() -> tuple[str, list[dict]]:
             f"</div>"
         )
 
-        csv_rows.append({
-            "n": f"{n:02d}",
-            "id": raw["id"],
-            "description": s.description,
-            "kcal_target": f"{out.daily_targets['kcal']:.0f}",
-            "kcal_achieved": f"{out.daily_totals['kcal']:.0f}",
-            "protein_target": f"{out.daily_targets['protein_g']:.0f}",
-            "protein_achieved": f"{out.daily_totals['protein_g']:.0f}",
-            "grade": "",
-            "notes": "",
-        })
+        csv_rows.append(
+            {
+                "n": f"{n:02d}",
+                "id": raw["id"],
+                "description": s.description,
+                "kcal_target": f"{out.daily_targets['kcal']:.0f}",
+                "kcal_achieved": f"{out.daily_totals['kcal']:.0f}",
+                "protein_target": f"{out.daily_targets['protein_g']:.0f}",
+                "protein_achieved": f"{out.daily_totals['protein_g']:.0f}",
+                "grade": "",
+                "notes": "",
+            }
+        )
 
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     doc = (

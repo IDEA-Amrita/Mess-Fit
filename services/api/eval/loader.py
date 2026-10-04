@@ -133,9 +133,7 @@ def build_scenario(raw: dict[str, Any]) -> LoadedScenario:
         resolved: list[Dish] = []
         for did in dish_ids:
             if did not in catalog:
-                raise KeyError(
-                    f"Scenario {raw['id']!r}: menu dish id {did!r} not in catalog"
-                )
+                raise KeyError(f"Scenario {raw['id']!r}: menu dish id {did!r} not in catalog")
             resolved.append(catalog[did])
         menu[meal_type] = resolved
 

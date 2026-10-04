@@ -22,9 +22,7 @@ from . import repository
 from .schemas import GRACE_PERIOD_DAYS
 
 
-async def sweep_pending_deletions(
-    db: AsyncSession, now: datetime | None = None
-) -> int:
+async def sweep_pending_deletions(db: AsyncSession, now: datetime | None = None) -> int:
     """Erase accounts whose grace period elapsed; returns the count removed."""
     now = now or datetime.now(timezone.utc)
     cutoff = now - timedelta(days=GRACE_PERIOD_DAYS)

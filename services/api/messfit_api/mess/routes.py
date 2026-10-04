@@ -118,7 +118,9 @@ async def list_exclusions(
     return result.scalars().all()
 
 
-@router.post("/menu/exclusions", response_model=DishExclusionOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/menu/exclusions", response_model=DishExclusionOut, status_code=status.HTTP_201_CREATED
+)
 async def exclude_dish(
     payload: DishExclusionIn,
     user_id: str = Depends(get_active_user_id),
@@ -183,15 +185,19 @@ async def submit_dish_feedback(
     db: AsyncSession = Depends(get_session),
 ) -> dict:
     """User confirms or denies that a scheduled dish is actually available today."""
-    stmt = pg_insert(DishFeedbackORM).values(
-        user_id=user_id,
-        date=payload.date,
-        meal_type=payload.meal_type,
-        dish_id=payload.dish_id,
-        vote=payload.vote,
-    ).on_conflict_do_update(
-        index_elements=["user_id", "date", "meal_type", "dish_id"],
-        set_={"vote": payload.vote},
+    stmt = (
+        pg_insert(DishFeedbackORM)
+        .values(
+            user_id=user_id,
+            date=payload.date,
+            meal_type=payload.meal_type,
+            dish_id=payload.dish_id,
+            vote=payload.vote,
+        )
+        .on_conflict_do_update(
+            index_elements=["user_id", "date", "meal_type", "dish_id"],
+            set_={"vote": payload.vote},
+        )
     )
     await db.execute(stmt)
     await db.commit()
@@ -240,4 +246,3 @@ async def _aggregate_feedback(
         "confirms": row.confirms,
         "denies": row.denies,
     }
-

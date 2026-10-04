@@ -56,7 +56,8 @@ MEDICAL_REFUSAL_PATTERNS = [
     r"\b\d+\s*mg\b",
     r"\b(how much|what dose).{0,40}\b(mg|ml|" + _MEDICATIONS + r")\b",
     r"\b(should i|can i|do i)\b.{0,40}\b(take|stop|increase|reduce|change)\b.{0,40}\b("
-    + _MEDICATIONS + r")\b",
+    + _MEDICATIONS
+    + r")\b",
     r"\b(take|taking|stop|increase|reduce)\b.{0,30}\b(" + _MEDICATIONS + r")\b",
     r"\b(diagnose|diagnosis)\b",
     r"\bcure\s+(my|for|this)\b",
@@ -85,9 +86,7 @@ def validate_citations(text: str, n_sources: int) -> str:
 
 
 def build_context(chunks: list[RetrievedChunk]) -> str:
-    return "\n\n".join(
-        f"[Source {i + 1}] {c.content}" for i, c in enumerate(chunks)
-    )
+    return "\n\n".join(f"[Source {i + 1}] {c.content}" for i, c in enumerate(chunks))
 
 
 def build_messages(
@@ -115,6 +114,7 @@ def build_messages(
 def _gemini_client() -> Any:
     """Singleton Gemini client — reuses the HTTP connection pool."""
     from google import genai
+
     return genai.Client(api_key=settings.gemini_api_key)
 
 
@@ -144,6 +144,7 @@ async def _stream_gemini(messages: list[dict[str, str]]) -> AsyncIterator[str]:
 def _groq_client() -> Any:
     """Singleton Groq client — reuses the HTTP connection pool."""
     from groq import AsyncGroq
+
     return AsyncGroq(api_key=settings.groq_api_key)
 
 
@@ -183,7 +184,4 @@ async def generate_response(
             yield await _complete_groq(messages)
         except Exception as groq_err:
             logger.error("Groq fallback failed: %s", groq_err)
-            yield (
-                "Sorry — I'm having trouble answering right now. Please try again "
-                "in a moment."
-            )
+            yield ("Sorry — I'm having trouble answering right now. Please try again in a moment.")

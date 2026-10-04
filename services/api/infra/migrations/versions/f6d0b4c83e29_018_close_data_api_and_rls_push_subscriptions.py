@@ -91,7 +91,9 @@ def upgrade() -> None:
         $$;
         """
     )
-    op.execute("REVOKE ALL ON FUNCTION public.claim_push_subscription(text, text, text) FROM PUBLIC")
+    op.execute(
+        "REVOKE ALL ON FUNCTION public.claim_push_subscription(text, text, text) FROM PUBLIC"
+    )
     for role in _API_ROLES:
         op.execute(
             f"""

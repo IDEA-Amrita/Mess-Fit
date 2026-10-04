@@ -67,11 +67,13 @@ async def seeded_state(
     dow = today.weekday()
 
     await db_session.execute(
-        text(
-            "INSERT INTO messes (id, name, college, city) "
-            "VALUES (:id, :name, :college, :city)"
-        ),
-        {"id": str(mess_id), "name": f"TestMess-{mess_id.hex[:8]}", "college": "Test College", "city": "Test City"},
+        text("INSERT INTO messes (id, name, college, city) VALUES (:id, :name, :college, :city)"),
+        {
+            "id": str(mess_id),
+            "name": f"TestMess-{mess_id.hex[:8]}",
+            "college": "Test College",
+            "city": "Test City",
+        },
     )
     await db_session.execute(
         text(
@@ -127,15 +129,9 @@ async def seeded_state(
         text("UPDATE hostel_contexts SET mess_id = NULL WHERE mess_id = :id"),
         {"id": str(mess_id)},
     )
-    await db_session.execute(
-        text("DELETE FROM mess_menus WHERE id = :id"), {"id": str(menu_id)}
-    )
-    await db_session.execute(
-        text("DELETE FROM messes WHERE id = :id"), {"id": str(mess_id)}
-    )
-    await db_session.execute(
-        text("DELETE FROM dishes WHERE id = :id"), {"id": str(dish_id)}
-    )
+    await db_session.execute(text("DELETE FROM mess_menus WHERE id = :id"), {"id": str(menu_id)})
+    await db_session.execute(text("DELETE FROM messes WHERE id = :id"), {"id": str(mess_id)})
+    await db_session.execute(text("DELETE FROM dishes WHERE id = :id"), {"id": str(dish_id)})
     await db_session.commit()
 
 
@@ -193,10 +189,14 @@ class TestOnboardingErrors:
         mess_id = uuid.uuid4()
         await db_session.execute(
             text(
-                "INSERT INTO messes (id, name, college, city) "
-                "VALUES (:id, :name, :college, :city)"
+                "INSERT INTO messes (id, name, college, city) VALUES (:id, :name, :college, :city)"
             ),
-            {"id": str(mess_id), "name": f"EmptyMess-{mess_id.hex[:8]}", "college": "Test", "city": "Test"},
+            {
+                "id": str(mess_id),
+                "name": f"EmptyMess-{mess_id.hex[:8]}",
+                "college": "Test",
+                "city": "Test",
+            },
         )
         await db_session.commit()
 
@@ -216,9 +216,7 @@ class TestOnboardingErrors:
             text("UPDATE hostel_contexts SET mess_id = NULL WHERE mess_id = :id"),
             {"id": str(mess_id)},
         )
-        await db_session.execute(
-            text("DELETE FROM messes WHERE id = :id"), {"id": str(mess_id)}
-        )
+        await db_session.execute(text("DELETE FROM messes WHERE id = :id"), {"id": str(mess_id)})
         await db_session.commit()
 
 

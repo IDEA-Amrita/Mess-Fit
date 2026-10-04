@@ -5,14 +5,15 @@ Revises: 00bc4bed1a1c
 Create Date: 2026-05-22 23:27:25.707079
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4adde9c1b860'
-down_revision: Union[str, Sequence[str], None] = '00bc4bed1a1c'
+revision: str = "4adde9c1b860"
+down_revision: Union[str, Sequence[str], None] = "00bc4bed1a1c"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

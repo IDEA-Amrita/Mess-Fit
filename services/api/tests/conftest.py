@@ -78,9 +78,7 @@ _test_engine = create_async_engine(
     poolclass=NullPool,
     pool_pre_ping=True,
 )
-_TestSessionLocal = async_sessionmaker(
-    _test_engine, expire_on_commit=False, class_=AsyncSession
-)
+_TestSessionLocal = async_sessionmaker(_test_engine, expire_on_commit=False, class_=AsyncSession)
 
 # Worker-equivalent test engine: connects with whatever role bypasses RLS
 # (celery_database_url in prod; same as database_url whenever the two
@@ -126,9 +124,7 @@ _TEST_DISH_PATTERNS = ("TestDish-%", "Test Dish %", "ScopeDish-%", "LimitDish-%"
 
 def _like_any(column: str, patterns: tuple[str, ...]) -> tuple[str, dict[str, str]]:
     """Build an OR-of-LIKEs clause and its bind params."""
-    clauses = " OR ".join(
-        f"{column} LIKE :{column}_p{i}" for i in range(len(patterns))
-    )
+    clauses = " OR ".join(f"{column} LIKE :{column}_p{i}" for i in range(len(patterns)))
     params = {f"{column}_p{i}": p for i, p in enumerate(patterns)}
     return clauses, params
 
@@ -160,12 +156,8 @@ async def _purge_test_catalog() -> None:
             ),
             {**mess_params, **dish_params},
         )
-        await session.execute(
-            text(f"DELETE FROM dishes WHERE {dish_clause}"), dish_params
-        )
-        await session.execute(
-            text(f"DELETE FROM messes WHERE {mess_clause}"), mess_params
-        )
+        await session.execute(text(f"DELETE FROM dishes WHERE {dish_clause}"), dish_params)
+        await session.execute(text(f"DELETE FROM messes WHERE {mess_clause}"), mess_params)
         await session.commit()
 
 
@@ -204,9 +196,7 @@ async def db_session() -> AsyncIterator[AsyncSession]:
 
 
 @pytest_asyncio.fixture
-async def seed_test_user(
-    db_session: AsyncSession, fake_user_id: str
-) -> AsyncIterator[str]:
+async def seed_test_user(db_session: AsyncSession, fake_user_id: str) -> AsyncIterator[str]:
     """Create the test user row that ``profiles.user_id`` will FK to.
 
     Cleans up after the test so the suite stays idempotent.
@@ -224,9 +214,7 @@ async def seed_test_user(
     yield fake_user_id
 
     # Cleanup — delete the test user; CASCADE removes their profile/hostel rows.
-    await db_session.execute(
-        text("DELETE FROM users WHERE id = :id"), {"id": fake_user_id}
-    )
+    await db_session.execute(text("DELETE FROM users WHERE id = :id"), {"id": fake_user_id})
     await db_session.commit()
 
 
@@ -278,9 +266,7 @@ def fake_admin_id() -> str:
 
 
 @pytest_asyncio.fixture
-async def seed_admin_user(
-    db_session: AsyncSession, fake_admin_id: str
-) -> AsyncIterator[str]:
+async def seed_admin_user(db_session: AsyncSession, fake_admin_id: str) -> AsyncIterator[str]:
     """Create a user row with role='admin' for testing admin-gated routes."""
     email = f"admin+{uuid.uuid4().hex[:8]}@messfit.local"
     await db_session.execute(
@@ -294,9 +280,7 @@ async def seed_admin_user(
 
     yield fake_admin_id
 
-    await db_session.execute(
-        text("DELETE FROM users WHERE id = :id"), {"id": fake_admin_id}
-    )
+    await db_session.execute(text("DELETE FROM users WHERE id = :id"), {"id": fake_admin_id})
     await db_session.commit()
 
 

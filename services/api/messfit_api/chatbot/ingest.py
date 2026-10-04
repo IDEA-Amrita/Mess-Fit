@@ -24,8 +24,9 @@ _TARGET_CHARS = 2000  # ~500 tokens at ~4 chars/token
 _OVERLAP_CHARS = 400  # ~100 tokens
 
 
-def chunk_text(body: str, target_chars: int = _TARGET_CHARS,
-               overlap_chars: int = _OVERLAP_CHARS) -> list[str]:
+def chunk_text(
+    body: str, target_chars: int = _TARGET_CHARS, overlap_chars: int = _OVERLAP_CHARS
+) -> list[str]:
     """Sliding-window chunker that snaps each cut to a sentence boundary.
 
     Advances by a fixed step (``target - overlap``) computed from ``target_chars``,
@@ -78,19 +79,14 @@ async def ingest_document(
     )
     doc_id = (
         await db.execute(
-            text(
-                "INSERT INTO kb_documents (source, title) "
-                "VALUES (:s, :t) RETURNING id"
-            ),
+            text("INSERT INTO kb_documents (source, title) VALUES (:s, :t) RETURNING id"),
             {"s": source, "t": title},
         )
     ).scalar_one()
 
     embeddings = await embed_texts(chunks)
     if len(embeddings) != len(chunks):
-        raise RuntimeError(
-            f"embedding count {len(embeddings)} != chunk count {len(chunks)}"
-        )
+        raise RuntimeError(f"embedding count {len(embeddings)} != chunk count {len(chunks)}")
 
     for idx, (chunk, emb) in enumerate(zip(chunks, embeddings)):
         await db.execute(
@@ -110,9 +106,7 @@ async def ingest_document(
     return len(chunks)
 
 
-def _meta_json(
-    source: str, title: str, idx: int, extra: dict[str, Any] | None = None
-) -> str:
+def _meta_json(source: str, title: str, idx: int, extra: dict[str, Any] | None = None) -> str:
     import json
 
     meta: dict[str, Any] = {"source": source, "title": title, "chunk_index": idx}

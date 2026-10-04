@@ -36,7 +36,8 @@ async def dish_and_voters(db_session):
     )
     for uid in (a, b):
         await db_session.execute(
-            text("INSERT INTO users (id, email) VALUES (:id, :e)"), {"id": uid, "e": f"fb+{uid[:8]}@messfit.local"}
+            text("INSERT INTO users (id, email) VALUES (:id, :e)"),
+            {"id": uid, "e": f"fb+{uid[:8]}@messfit.local"},
         )
     await db_session.commit()
     yield str(dish_id), a, b
@@ -77,7 +78,10 @@ async def test_totals_count_every_students_vote(dish_and_voters):
         r = await cb.post("/mess/dishes/feedback", json=_vote(dish_id, "deny"))
         assert r.json() == {"dish_id": dish_id, "confirms": 1, "denies": 1}
         # b's read sees a's vote too (totals only, never who voted).
-        r = await cb.get("/mess/dishes/feedback", params={"date": TODAY, "meal_type": "lunch", "dish_id": dish_id})
+        r = await cb.get(
+            "/mess/dishes/feedback",
+            params={"date": TODAY, "meal_type": "lunch", "dish_id": dish_id},
+        )
         assert r.status_code == 200
         assert r.json() == {"dish_id": dish_id, "confirms": 1, "denies": 1}
 
@@ -93,13 +97,22 @@ async def test_voting_again_changes_your_vote_not_adds_one(dish_and_voters):
 async def test_input_is_validated(dish_and_voters):
     dish_id, a, _ = dish_and_voters
     async with _as(a) as ca:
-        assert (await ca.post("/mess/dishes/feedback", json=_vote(dish_id, "confirm", meal="brunch"))).status_code == 422
-        assert (await ca.post("/mess/dishes/feedback", json=_vote(dish_id, "maybe"))).status_code == 422
-        r = await ca.get("/mess/dishes/feedback", params={"date": TODAY, "meal_type": "brunch", "dish_id": dish_id})
+        assert (
+            await ca.post("/mess/dishes/feedback", json=_vote(dish_id, "confirm", meal="brunch"))
+        ).status_code == 422
+        assert (
+            await ca.post("/mess/dishes/feedback", json=_vote(dish_id, "maybe"))
+        ).status_code == 422
+        r = await ca.get(
+            "/mess/dishes/feedback",
+            params={"date": TODAY, "meal_type": "brunch", "dish_id": dish_id},
+        )
         assert r.status_code == 422
 
 
 async def test_reading_totals_requires_sign_in(dish_and_voters, unauthed_client):
     dish_id, _, _ = dish_and_voters
-    r = await unauthed_client.get("/mess/dishes/feedback", params={"date": TODAY, "meal_type": "lunch", "dish_id": dish_id})
+    r = await unauthed_client.get(
+        "/mess/dishes/feedback", params={"date": TODAY, "meal_type": "lunch", "dish_id": dish_id}
+    )
     assert r.status_code == 401

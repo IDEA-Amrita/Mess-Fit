@@ -40,25 +40,22 @@ async def soft_delete_user(db: AsyncSession, user_id: uuid.UUID) -> datetime:
     return deleted_at
 
 
-async def list_pending_hard_delete(
-    db: AsyncSession, before: datetime
-) -> list[uuid.UUID]:
+async def list_pending_hard_delete(db: AsyncSession, before: datetime) -> list[uuid.UUID]:
     """User ids whose deletion grace period has elapsed."""
     rows = (
-        await db.execute(
-            text(
-                "SELECT id FROM users "
-                "WHERE deleted_at IS NOT NULL AND deleted_at < :before"
-            ),
-            {"before": before},
+        (
+            await db.execute(
+                text("SELECT id FROM users WHERE deleted_at IS NOT NULL AND deleted_at < :before"),
+                {"before": before},
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return [r if isinstance(r, uuid.UUID) else uuid.UUID(str(r)) for r in rows]
 
 
 async def hard_delete_user(db: AsyncSession, user_id: uuid.UUID) -> None:
     """Permanently remove the user; FK CASCADE removes all owned rows."""
-    await db.execute(
-        text("DELETE FROM users WHERE id = :id"), {"id": str(user_id)}
-    )
+    await db.execute(text("DELETE FROM users WHERE id = :id"), {"id": str(user_id)})
     await db.commit()

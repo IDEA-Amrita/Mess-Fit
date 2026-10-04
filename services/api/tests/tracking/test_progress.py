@@ -22,9 +22,7 @@ async def test_progress_aggregates(client, make_profile_payload):
     # 6 ascending weigh-ins → projection available; meals as_planned with snapshots.
     for i in range(6):
         d = (today - dt.timedelta(days=5 - i)).isoformat()
-        await client.post(
-            "/api/v1/logs/weight", json={"date": d, "weight_kg": 60 + 0.2 * i}
-        )
+        await client.post("/api/v1/logs/weight", json={"date": d, "weight_kg": 60 + 0.2 * i})
         await client.post(
             "/api/v1/logs/meals",
             json={

@@ -11,6 +11,7 @@ from .schemas import is_push_service_url
 
 logger = structlog.get_logger(__name__)
 
+
 async def send_push_notification(db: AsyncSession, user_id: uuid.UUID, payload: str) -> int:
     """Send a push notification to all subscriptions of a user.
 
@@ -18,17 +19,19 @@ async def send_push_notification(db: AsyncSession, user_id: uuid.UUID, payload: 
     if not settings.vapid_private_key:
         logger.warning("Push notifications disabled: VAPID key not set")
         return 0
-        
+
     subs = await repository.get_user_subscriptions(db, user_id)
     if not subs:
         return 0
 
     delivered = 0
-        
+
     for sub in subs:
         # Stored before endpoints were validated? Never POST to it (SSRF).
         if not is_push_service_url(sub.endpoint):
-            logger.warning("Dropping push subscription with a non-push-service endpoint", user_id=str(user_id))
+            logger.warning(
+                "Dropping push subscription with a non-push-service endpoint", user_id=str(user_id)
+            )
             await repository.remove_subscription(db, user_id, sub.endpoint)
             continue
         try:
@@ -37,16 +40,13 @@ async def send_push_notification(db: AsyncSession, user_id: uuid.UUID, payload: 
                 webpush,
                 subscription_info={
                     "endpoint": sub.endpoint,
-                    "keys": {
-                        "p256dh": sub.p256dh,
-                        "auth": sub.auth
-                    }
+                    "keys": {"p256dh": sub.p256dh, "auth": sub.auth},
                 },
                 data=payload,
                 vapid_private_key=settings.vapid_private_key,
                 vapid_claims={
                     "sub": settings.vapid_subscriber,
-                }
+                },
             )
             delivered += 1
         except WebPushException as e:

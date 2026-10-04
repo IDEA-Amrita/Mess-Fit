@@ -93,8 +93,7 @@ def upgrade() -> None:
     # ─── 2. RLS on users ────────────────────────────────────────────────────
     op.execute("ALTER TABLE users ENABLE ROW LEVEL SECURITY")
     op.execute(
-        "CREATE POLICY users_self_select ON users "
-        "FOR SELECT USING (id = auth.uid() OR is_admin())"
+        "CREATE POLICY users_self_select ON users FOR SELECT USING (id = auth.uid() OR is_admin())"
     )
     op.execute(
         "CREATE POLICY users_self_update ON users "
@@ -128,8 +127,7 @@ def upgrade() -> None:
         f"GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO {_APP_ROLE}"
     )
     op.execute(
-        f"ALTER DEFAULT PRIVILEGES IN SCHEMA public "
-        f"GRANT USAGE, SELECT ON SEQUENCES TO {_APP_ROLE}"
+        f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO {_APP_ROLE}"
     )
     # Narrow `users` specifically. App code never INSERTs or DELETEs a users
     # row directly (that's the Supabase auth trigger's job, which runs
@@ -171,15 +169,21 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.execute(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON TABLES FROM {_WORKER_ROLE}")
-    op.execute(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON SEQUENCES FROM {_WORKER_ROLE}")
+    op.execute(
+        f"ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON TABLES FROM {_WORKER_ROLE}"
+    )
+    op.execute(
+        f"ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON SEQUENCES FROM {_WORKER_ROLE}"
+    )
     op.execute(f"REVOKE ALL ON ALL TABLES IN SCHEMA public FROM {_WORKER_ROLE}")
     op.execute(f"REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM {_WORKER_ROLE}")
     op.execute(f"REVOKE USAGE ON SCHEMA public FROM {_WORKER_ROLE}")
     op.execute(f"DROP ROLE IF EXISTS {_WORKER_ROLE}")
 
     op.execute(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON TABLES FROM {_APP_ROLE}")
-    op.execute(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON SEQUENCES FROM {_APP_ROLE}")
+    op.execute(
+        f"ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON SEQUENCES FROM {_APP_ROLE}"
+    )
     op.execute(f"REVOKE ALL ON ALL TABLES IN SCHEMA public FROM {_APP_ROLE}")
     op.execute(f"REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM {_APP_ROLE}")
     op.execute(f"REVOKE USAGE ON SCHEMA public FROM {_APP_ROLE}")

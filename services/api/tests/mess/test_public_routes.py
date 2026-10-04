@@ -61,9 +61,7 @@ class TestListMesses:
         assert r.status_code == 200
         assert payload["name"] in [m["name"] for m in r.json()]
 
-    async def test_response_shape(
-        self, admin_client: AsyncClient, unauthed_client: AsyncClient
-    ):
+    async def test_response_shape(self, admin_client: AsyncClient, unauthed_client: AsyncClient):
         await admin_client.post("/mess/admin/messes", json=_mess_payload())
         r = await unauthed_client.get("/mess/messes")
         for m in r.json():
@@ -99,16 +97,12 @@ class TestListDishes:
     ):
         prefix = f"LimitDish-{uuid.uuid4().hex[:8]}"
         for i in range(3):
-            await admin_client.post(
-                "/mess/admin/dishes", json=_dish_payload(name=f"{prefix}-{i}")
-            )
+            await admin_client.post("/mess/admin/dishes", json=_dish_payload(name=f"{prefix}-{i}"))
         r = await unauthed_client.get(f"/mess/dishes?query={prefix}&limit=2")
         assert r.status_code == 200
         assert len(r.json()) <= 2
 
-    async def test_response_shape(
-        self, admin_client: AsyncClient, unauthed_client: AsyncClient
-    ):
+    async def test_response_shape(self, admin_client: AsyncClient, unauthed_client: AsyncClient):
         payload = _dish_payload()
         await admin_client.post("/mess/admin/dishes", json=payload)
 
@@ -174,9 +168,7 @@ class TestDailyMenu:
         r = await unauthed_client.get("/mess/messes/not-a-valid-uuid/menu")
         assert r.status_code == 422
 
-    async def test_no_auth_required(
-        self, admin_client: AsyncClient, unauthed_client: AsyncClient
-    ):
+    async def test_no_auth_required(self, admin_client: AsyncClient, unauthed_client: AsyncClient):
         """Menu is public — no Authorization header needed."""
         mess_id = await self._create_mess(admin_client)
         r = await unauthed_client.get(f"/mess/messes/{mess_id}/menu")

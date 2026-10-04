@@ -15,15 +15,42 @@ EQUIPMENT = ["college_gym"]
 DAYS_PER_WEEK = 3
 
 _DAY_POOLS = [
-    {"day": 1, "name": "Full Body A", "exercise_ids": [
-        "barbell_squat", "bench_press", "barbell_row",
-        "overhead_press", "leg_curl", "plank"]},
-    {"day": 2, "name": "Full Body B", "exercise_ids": [
-        "deadlift", "lat_pulldown", "leg_press",
-        "lateral_raise", "tricep_pushdown", "mountain_climber"]},
-    {"day": 3, "name": "Full Body C", "exercise_ids": [
-        "romanian_deadlift", "incline_bench_press", "pullup",
-        "leg_extension", "bicep_curl", "bicycle_crunch"]},
+    {
+        "day": 1,
+        "name": "Full Body A",
+        "exercise_ids": [
+            "barbell_squat",
+            "bench_press",
+            "barbell_row",
+            "overhead_press",
+            "leg_curl",
+            "plank",
+        ],
+    },
+    {
+        "day": 2,
+        "name": "Full Body B",
+        "exercise_ids": [
+            "deadlift",
+            "lat_pulldown",
+            "leg_press",
+            "lateral_raise",
+            "tricep_pushdown",
+            "mountain_climber",
+        ],
+    },
+    {
+        "day": 3,
+        "name": "Full Body C",
+        "exercise_ids": [
+            "romanian_deadlift",
+            "incline_bench_press",
+            "pullup",
+            "leg_extension",
+            "bicep_curl",
+            "bicycle_crunch",
+        ],
+    },
 ]
 
 

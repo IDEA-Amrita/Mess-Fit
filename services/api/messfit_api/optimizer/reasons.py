@@ -21,18 +21,19 @@ from __future__ import annotations
 from .contracts import Dish, GapFill, OptimizationInput, OptimizationOutput, PlateItem
 
 # ── tunables ────────────────────────────────────────────────────────────
-_HIGH_GI = 70       # mirrors solver.HIGH_GI_THRESHOLD
+_HIGH_GI = 70  # mirrors solver.HIGH_GI_THRESHOLD
 _LOW_GI_TAG = "low_gi"
 _HIGH_FIBER_TAG = "high_fiber"
 _HIGH_PROTEIN_TAG = "high_protein"
-_CALORIE_DENSE_KCAL = 150   # kcal/portion threshold for "calorie-dense" label
-_LOW_KCAL_KCAL = 65         # kcal/portion threshold for "low-calorie filler" label
-_TOP_PROTEIN_FRAC = 0.30    # share of meal protein to be "top source"
+_CALORIE_DENSE_KCAL = 150  # kcal/portion threshold for "calorie-dense" label
+_LOW_KCAL_KCAL = 65  # kcal/portion threshold for "low-calorie filler" label
+_TOP_PROTEIN_FRAC = 0.30  # share of meal protein to be "top source"
 
 _GOAL_LABEL = {"gain": "lean gain", "lose": "fat loss", "maintain": "maintenance"}
 
 
 # ── 16 template paths ───────────────────────────────────────────────────
+
 
 def _reason(
     item: PlateItem,
@@ -124,6 +125,7 @@ def _gap_text(gf: GapFill, protein_gap: float) -> str:
 
 
 # ── public API ──────────────────────────────────────────────────────────
+
 
 def annotate(
     output: OptimizationOutput,

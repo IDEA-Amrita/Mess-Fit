@@ -47,15 +47,26 @@ def upgrade() -> None:
     )
 
     op.execute("ALTER TABLE dish_feedback ENABLE ROW LEVEL SECURITY")
-    for name in ("dish_feedback_read", "dish_feedback_write_own", "dish_feedback_update_own", "dish_feedback_delete_own"):
+    for name in (
+        "dish_feedback_read",
+        "dish_feedback_write_own",
+        "dish_feedback_update_own",
+        "dish_feedback_delete_own",
+    ):
         op.execute(f"DROP POLICY IF EXISTS {name} ON dish_feedback")
-    op.execute("CREATE POLICY dish_feedback_read ON dish_feedback FOR SELECT USING (auth.uid() IS NOT NULL)")
-    op.execute("CREATE POLICY dish_feedback_write_own ON dish_feedback FOR INSERT WITH CHECK (user_id = auth.uid())")
+    op.execute(
+        "CREATE POLICY dish_feedback_read ON dish_feedback FOR SELECT USING (auth.uid() IS NOT NULL)"
+    )
+    op.execute(
+        "CREATE POLICY dish_feedback_write_own ON dish_feedback FOR INSERT WITH CHECK (user_id = auth.uid())"
+    )
     op.execute(
         "CREATE POLICY dish_feedback_update_own ON dish_feedback FOR UPDATE "
         "USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid())"
     )
-    op.execute("CREATE POLICY dish_feedback_delete_own ON dish_feedback FOR DELETE USING (user_id = auth.uid())")
+    op.execute(
+        "CREATE POLICY dish_feedback_delete_own ON dish_feedback FOR DELETE USING (user_id = auth.uid())"
+    )
 
     # A table created by the hand-run script predates migration 018's revoke
     # only if the script ran after 018; revoke here too so it's never exposed.

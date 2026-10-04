@@ -130,7 +130,9 @@ class TestUpdateDish:
     # requesting admin_client alongside unauthed_client/client in the same
     # test leaks the admin override onto the "unauthed" request too.
     async def test_no_auth_rejected(self, unauthed_client: AsyncClient):
-        r = await unauthed_client.patch(f"/mess/admin/dishes/{uuid.uuid4()}", json={"allergens": ["nuts"]})
+        r = await unauthed_client.patch(
+            f"/mess/admin/dishes/{uuid.uuid4()}", json={"allergens": ["nuts"]}
+        )
         assert r.status_code == 401
 
     async def test_regular_user_gets_403(self, client: AsyncClient):
@@ -145,7 +147,9 @@ class TestUpdateDish:
         dish_id = created.json()["id"]
         assert created.json()["allergens"] == []
 
-        r = await admin_client.patch(f"/mess/admin/dishes/{dish_id}", json={"allergens": ["eggs", "gluten"]})
+        r = await admin_client.patch(
+            f"/mess/admin/dishes/{dish_id}", json={"allergens": ["eggs", "gluten"]}
+        )
         assert r.status_code == 200, r.text
         assert sorted(r.json()["allergens"]) == ["eggs", "gluten"]
 

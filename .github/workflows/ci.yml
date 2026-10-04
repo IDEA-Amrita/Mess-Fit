@@ -54,6 +54,8 @@ jobs:
         run: uv sync --frozen --all-packages
       - name: Lint (ruff)
         run: uv run ruff check .
+      - name: Format (ruff)
+        run: uv run ruff format --check .
       - name: Type check (mypy)
         run: uv run mypy messfit_api
       - name: Supabase shim for a plain Postgres

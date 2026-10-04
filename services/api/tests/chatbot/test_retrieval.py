@@ -28,10 +28,7 @@ def _basis(i: int) -> list[float]:
 async def seeded_kb(db_session: AsyncSession):
     doc_id = (
         await db_session.execute(
-            text(
-                "INSERT INTO kb_documents (source, title) "
-                "VALUES ('curated', :t) RETURNING id"
-            ),
+            text("INSERT INTO kb_documents (source, title) VALUES ('curated', :t) RETURNING id"),
             {"t": f"TestKB-{uuid.uuid4().hex[:8]}"},
         )
     ).scalar_one()
@@ -57,9 +54,7 @@ async def seeded_kb(db_session: AsyncSession):
 
     yield ids
 
-    await db_session.execute(
-        text("DELETE FROM kb_documents WHERE id = :id"), {"id": doc_id}
-    )
+    await db_session.execute(text("DELETE FROM kb_documents WHERE id = :id"), {"id": doc_id})
     await db_session.commit()
 
 

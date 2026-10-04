@@ -36,19 +36,23 @@ async def retrieve_by_vector(
 ) -> list[RetrievedChunk]:
     """Cosine ANN search for a pre-computed query embedding (no network)."""
     rows = (
-        await db.execute(
-            text(
-                """
+        (
+            await db.execute(
+                text(
+                    """
                 SELECT id, content, metadata,
                        1 - (embedding <=> CAST(:emb AS vector)) AS similarity
                 FROM kb_chunks
                 ORDER BY embedding <=> CAST(:emb AS vector)
                 LIMIT :k
                 """
-            ),
-            {"emb": to_pgvector(emb), "k": top_k},
+                ),
+                {"emb": to_pgvector(emb), "k": top_k},
+            )
         )
-    ).mappings().all()
+        .mappings()
+        .all()
+    )
 
     return [
         RetrievedChunk(

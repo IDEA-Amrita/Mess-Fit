@@ -43,9 +43,7 @@ class TestProfileMe:
         assert r.status_code == 404
         assert "onboarding" in r.json()["detail"].lower()
 
-    async def test_put_then_get_roundtrip(
-        self, client: AsyncClient, make_profile_payload
-    ):
+    async def test_put_then_get_roundtrip(self, client: AsyncClient, make_profile_payload):
         payload = make_profile_payload()
         put = await client.put("/api/v1/profile/me", json=payload)
         assert put.status_code == 200, put.text
@@ -68,28 +66,16 @@ class TestProfileMe:
         assert r.status_code == 200
         assert r.json()["current_weight_kg"] == 62.0
 
-    async def test_put_rejects_bad_height(
-        self, client: AsyncClient, make_profile_payload
-    ):
-        r = await client.put(
-            "/api/v1/profile/me", json=make_profile_payload(height_cm=50)
-        )
+    async def test_put_rejects_bad_height(self, client: AsyncClient, make_profile_payload):
+        r = await client.put("/api/v1/profile/me", json=make_profile_payload(height_cm=50))
         assert r.status_code == 422
 
-    async def test_put_rejects_bad_goal(
-        self, client: AsyncClient, make_profile_payload
-    ):
-        r = await client.put(
-            "/api/v1/profile/me", json=make_profile_payload(goal="shred")
-        )
+    async def test_put_rejects_bad_goal(self, client: AsyncClient, make_profile_payload):
+        r = await client.put("/api/v1/profile/me", json=make_profile_payload(goal="shred"))
         assert r.status_code == 422
 
-    async def test_put_rejects_bad_diet(
-        self, client: AsyncClient, make_profile_payload
-    ):
-        r = await client.put(
-            "/api/v1/profile/me", json=make_profile_payload(diet_type="carnivore")
-        )
+    async def test_put_rejects_bad_diet(self, client: AsyncClient, make_profile_payload):
+        r = await client.put("/api/v1/profile/me", json=make_profile_payload(diet_type="carnivore"))
         assert r.status_code == 422
 
     async def test_put_rejects_aggressive_weight_rate(
@@ -110,12 +96,8 @@ class TestHostelContext:
         r = await client.get("/api/v1/profile/hostel-context")
         assert r.status_code == 404
 
-    async def test_put_then_get_roundtrip(
-        self, client: AsyncClient, make_hostel_payload
-    ):
-        put = await client.put(
-            "/api/v1/profile/hostel-context", json=make_hostel_payload()
-        )
+    async def test_put_then_get_roundtrip(self, client: AsyncClient, make_hostel_payload):
+        put = await client.put("/api/v1/profile/hostel-context", json=make_hostel_payload())
         assert put.status_code == 200, put.text
         assert put.json()["canteen_freq"] == "rare"
 
@@ -132,9 +114,7 @@ class TestHostelContext:
         assert r.status_code == 200
         assert r.json()["canteen_freq"] == "frequent"
 
-    async def test_put_rejects_bad_canteen_freq(
-        self, client: AsyncClient, make_hostel_payload
-    ):
+    async def test_put_rejects_bad_canteen_freq(self, client: AsyncClient, make_hostel_payload):
         r = await client.put(
             "/api/v1/profile/hostel-context",
             json=make_hostel_payload(canteen_freq="hourly"),

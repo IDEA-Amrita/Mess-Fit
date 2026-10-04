@@ -43,8 +43,7 @@ celery_app.conf.update(
     result_serializer="json",
     accept_content=["json"],
     task_track_started=True,
-    task_always_eager=os.getenv("CELERY_TASK_ALWAYS_EAGER", "").lower()
-    in {"1", "true", "yes"},
+    task_always_eager=os.getenv("CELERY_TASK_ALWAYS_EAGER", "").lower() in {"1", "true", "yes"},
     timezone="UTC",
     enable_utc=True,
     # Daily DPDP hard-delete sweep (Phase 9, task 9.8). Runs at 03:30 UTC.

@@ -69,10 +69,12 @@ _FAKE_RESULT: dict = {
 # Minimal bytes with a real JPEG signature (uploads are signature-checked).
 JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 16
 
+
 class TestUnauthed:
     async def test_no_auth_header_rejected(self, unauthed_client: AsyncClient):
         r = await unauthed_client.post(URL)
         assert r.status_code == 401
+
 
 class TestOnboardingErrors:
     async def test_no_profile_returns_409(self, client: AsyncClient):
@@ -81,6 +83,7 @@ class TestOnboardingErrors:
         r = await client.post(URL, files=files)
         assert r.status_code == 409
         assert "profile" in r.json()["detail"].lower()
+
 
 class TestHappyPath:
     async def test_returns_200_with_plan(
@@ -103,7 +106,7 @@ class TestHappyPath:
         file_content = JPEG
         files = {"file": ("test.jpg", file_content, "image/jpeg")}
         r = await client.post(URL, files=files)
-        
+
         assert r.status_code == 200, r.text
         body = r.json()
         assert "plan" in body
@@ -133,12 +136,8 @@ class TestAllergenWiring:
             captured.update(payload)
             return dict(_FAKE_RESULT)
 
-        monkeypatch.setattr(
-            "messfit_api.tracking.vision.extract_menu_from_photo", mock_extract
-        )
-        monkeypatch.setattr(
-            "messfit_api.optimizer.routes.run_optimizer", mock_run_optimizer
-        )
+        monkeypatch.setattr("messfit_api.tracking.vision.extract_menu_from_photo", mock_extract)
+        monkeypatch.setattr("messfit_api.optimizer.routes.run_optimizer", mock_run_optimizer)
 
         file_content = JPEG
         files = {"file": ("test.jpg", file_content, "image/jpeg")}
@@ -157,9 +156,7 @@ class TestAllergenWiring:
         async def mock_extract(*args, **kwargs):
             return _FAKE_EXTRACTION
 
-        monkeypatch.setattr(
-            "messfit_api.tracking.vision.extract_menu_from_photo", mock_extract
-        )
+        monkeypatch.setattr("messfit_api.tracking.vision.extract_menu_from_photo", mock_extract)
         monkeypatch.setattr(
             "messfit_api.optimizer.routes.run_optimizer", lambda _payload: dict(_FAKE_RESULT)
         )
@@ -179,9 +176,7 @@ class TestAllergenWiring:
         async def mock_extract(*args, **kwargs):
             return _FAKE_EXTRACTION
 
-        monkeypatch.setattr(
-            "messfit_api.tracking.vision.extract_menu_from_photo", mock_extract
-        )
+        monkeypatch.setattr("messfit_api.tracking.vision.extract_menu_from_photo", mock_extract)
         monkeypatch.setattr(
             "messfit_api.optimizer.routes.run_optimizer", lambda _payload: dict(_FAKE_RESULT)
         )

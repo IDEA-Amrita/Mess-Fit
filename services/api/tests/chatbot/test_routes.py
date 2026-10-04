@@ -18,6 +18,7 @@ from messfit_api.chatbot.embeddings import EMBED_DIM
 @pytest.fixture
 def stub_pipeline(monkeypatch):
     """Stub embedding/retrieval/generation; no network, no real cache writes."""
+
     async def fake_embed(_q):
         return [0.0] * EMBED_DIM
 
@@ -55,9 +56,7 @@ async def test_messages_404_when_not_owned(client):
 
     rid = str(uuid.uuid4())
     assert (await client.get(f"/api/v1/chat/conversations/{rid}/messages")).status_code == 404
-    r = await client.post(
-        f"/api/v1/chat/conversations/{rid}/messages", json={"content": "hi"}
-    )
+    r = await client.post(f"/api/v1/chat/conversations/{rid}/messages", json={"content": "hi"})
     assert r.status_code == 404
 
 

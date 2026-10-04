@@ -93,21 +93,15 @@ def test_kcal_within_band(scenario: LoadedScenario, result):
     # solver's hard band is enforced over mess + canteen combined.
     total = _totals(result.plan)["kcal"]
     total += sum(getattr(g, "kcal", 0.0) for g in result.gap_fills)
-    assert lo <= total <= hi, (
-        f"{scenario.id}: kcal {total:.0f} not in [{lo:.0f},{hi:.0f}]"
-    )
+    assert lo <= total <= hi, f"{scenario.id}: kcal {total:.0f} not in [{lo:.0f},{hi:.0f}]"
 
 
 def test_protein_floor(scenario: LoadedScenario, result):
-    floor = scenario.expected.get(
-        "protein_min_g", PROTEIN_FLOOR_FRAC * scenario.daily_protein_g
-    )
+    floor = scenario.expected.get("protein_min_g", PROTEIN_FLOOR_FRAC * scenario.daily_protein_g)
     # Canteen gap-fills count toward protein — they're part of the day's intake.
     total = _totals(result.plan)["protein_g"]
     total += sum(getattr(g, "protein_g", 0.0) for g in result.gap_fills)
-    assert total >= floor, (
-        f"{scenario.id}: protein {total:.0f}g below floor {floor:.0f}g"
-    )
+    assert total >= floor, f"{scenario.id}: protein {total:.0f}g below floor {floor:.0f}g"
 
 
 def test_allergens_excluded(scenario: LoadedScenario, result):
@@ -118,9 +112,7 @@ def test_allergens_excluded(scenario: LoadedScenario, result):
     for item in _all_items(result.plan):
         dish = catalog[item.dish_id]
         bad = banned.intersection(dish.allergens)
-        assert not bad, (
-            f"{scenario.id}: planned {item.dish_id} carries banned allergen(s) {bad}"
-        )
+        assert not bad, f"{scenario.id}: planned {item.dish_id} carries banned allergen(s) {bad}"
 
 
 def test_diet_respected(scenario: LoadedScenario, result):
@@ -170,16 +162,13 @@ def test_max_portions_per_meal(scenario: LoadedScenario, result):
     cap = scenario.expected.get("max_portions_per_meal", MAX_SERVINGS_PER_MEAL)
     for meal_type, items in result.plan.items():
         total = sum(i.portions for i in items)
-        assert total <= cap + 1e-6, (
-            f"{scenario.id}: {meal_type} has {total} portions (cap {cap})"
-        )
+        assert total <= cap + 1e-6, f"{scenario.id}: {meal_type} has {total} portions (cap {cap})"
 
 
 def test_canteen_budget_respected(scenario: LoadedScenario, result):
     spent = sum(getattr(g, "cost_inr", 0) for g in result.gap_fills)
     assert spent <= scenario.input.canteen_budget_inr, (
-        f"{scenario.id}: canteen spend ₹{spent} exceeds budget "
-        f"₹{scenario.input.canteen_budget_inr}"
+        f"{scenario.id}: canteen spend ₹{spent} exceeds budget ₹{scenario.input.canteen_budget_inr}"
     )
 
 
@@ -187,6 +176,4 @@ def test_reasons_populated(scenario: LoadedScenario, result):
     """Every plate item must carry a non-empty reason string."""
     for meal_type, items in result.plan.items():
         for item in items:
-            assert item.reason, (
-                f"{scenario.id}: {item.name} at {meal_type} has no reason"
-            )
+            assert item.reason, f"{scenario.id}: {item.name} at {meal_type} has no reason"

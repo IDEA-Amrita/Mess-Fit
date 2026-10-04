@@ -37,7 +37,7 @@ from .contracts import (
 )
 from .solver import SOLVER_VERSION, optimize
 
-_TTL = 86_400        # 24 h in seconds
+_TTL = 86_400  # 24 h in seconds
 _KEY_PREFIX = f"messfit:plate:v{SOLVER_VERSION}:"
 
 logger = structlog.get_logger(__name__)
@@ -94,9 +94,7 @@ def _inp_hash(inp: OptimizationInput) -> str:
             meal: [_dish_dict(d) for d in sorted(dishes, key=lambda d: d.id)]
             for meal, dishes in sorted(inp.menu.items())
         },
-        "canteen_items": [
-            _canteen_dict(c) for c in sorted(inp.canteen_items, key=lambda c: c.id)
-        ],
+        "canteen_items": [_canteen_dict(c) for c in sorted(inp.canteen_items, key=lambda c: c.id)],
         "canteen_budget_inr": inp.canteen_budget_inr,
         "skip_dish_ids": sorted(inp.skip_dish_ids),
     }
@@ -109,10 +107,7 @@ def _inp_hash(inp: OptimizationInput) -> str:
 
 def _output_to_json(output: OptimizationOutput) -> str:
     data = {
-        "plan": {
-            meal: [asdict(item) for item in items]
-            for meal, items in output.plan.items()
-        },
+        "plan": {meal: [asdict(item) for item in items] for meal, items in output.plan.items()},
         "daily_totals": output.daily_totals,
         "daily_targets": output.daily_targets,
         "gap_fills": [asdict(gf) for gf in output.gap_fills],
@@ -124,10 +119,7 @@ def _output_to_json(output: OptimizationOutput) -> str:
 
 def _output_from_json(raw: str | bytes) -> OptimizationOutput:
     data = json.loads(raw)
-    plan = {
-        meal: [PlateItem(**item) for item in items]
-        for meal, items in data["plan"].items()
-    }
+    plan = {meal: [PlateItem(**item) for item in items] for meal, items in data["plan"].items()}
     gap_fills = [GapFill(**gf) for gf in data["gap_fills"]]
     return OptimizationOutput(
         plan=plan,
@@ -156,9 +148,7 @@ def get_or_optimize(
     try:
         cached = redis_client.get(key)
     except _redis.RedisError:
-        logger.warning(
-            "Redis GET failed — solving without cache", exc_info=True
-        )
+        logger.warning("Redis GET failed — solving without cache", exc_info=True)
         return optimize(inp)
     if cached is not None:
         return _output_from_json(cached)  # type: ignore
@@ -166,7 +156,5 @@ def get_or_optimize(
     try:
         redis_client.setex(key, _TTL, _output_to_json(output))
     except _redis.RedisError:
-        logger.warning(
-            "Redis SETEX failed — result not cached", exc_info=True
-        )
+        logger.warning("Redis SETEX failed — result not cached", exc_info=True)
     return output

@@ -32,7 +32,11 @@ async def _app_session_as(user_id: str | None):
 
 async def _bypasses_rls() -> bool:
     async with db_module.SessionLocal() as s:
-        row = (await s.execute(text("SELECT rolsuper OR rolbypassrls FROM pg_roles WHERE rolname = current_user"))).scalar_one()
+        row = (
+            await s.execute(
+                text("SELECT rolsuper OR rolbypassrls FROM pg_roles WHERE rolname = current_user")
+            )
+        ).scalar_one()
         return bool(row)
 
 
@@ -45,9 +49,7 @@ async def two_users(db_session):
             {"id": uid, "email": f"rls+{uid[:8]}@messfit.local"},
         )
     await db_session.execute(
-        text(
-            "INSERT INTO weight_logs (user_id, date, weight_kg) VALUES (:id, CURRENT_DATE, 61.5)"
-        ),
+        text("INSERT INTO weight_logs (user_id, date, weight_kg) VALUES (:id, CURRENT_DATE, 61.5)"),
         {"id": a},
     )
     await db_session.commit()
@@ -68,14 +70,22 @@ async def test_a_user_cannot_read_another_users_rows(two_users):
     a, b = two_users
     session = await _app_session_as(b)
     try:
-        seen = (await session.execute(text("SELECT count(*) FROM weight_logs WHERE user_id = :a"), {"a": a})).scalar_one()
+        seen = (
+            await session.execute(
+                text("SELECT count(*) FROM weight_logs WHERE user_id = :a"), {"a": a}
+            )
+        ).scalar_one()
         assert seen == 0
     finally:
         await session.close()
 
     session = await _app_session_as(a)
     try:
-        own = (await session.execute(text("SELECT count(*) FROM weight_logs WHERE user_id = :a"), {"a": a})).scalar_one()
+        own = (
+            await session.execute(
+                text("SELECT count(*) FROM weight_logs WHERE user_id = :a"), {"a": a}
+            )
+        ).scalar_one()
         assert own == 1
     finally:
         await session.close()
@@ -89,11 +99,17 @@ async def test_a_user_cannot_write_rows_for_someone_else(two_users):
     try:
         with pytest.raises(Exception, match="row-level security"):
             await session.execute(
-                text("INSERT INTO weight_logs (user_id, date, weight_kg) VALUES (:a, CURRENT_DATE - 1, 99)"),
+                text(
+                    "INSERT INTO weight_logs (user_id, date, weight_kg) VALUES (:a, CURRENT_DATE - 1, 99)"
+                ),
                 {"a": a},
             )
         await session.rollback()
-        changed = (await session.execute(text("UPDATE weight_logs SET weight_kg = 99 WHERE user_id = :a"), {"a": a})).rowcount
+        changed = (
+            await session.execute(
+                text("UPDATE weight_logs SET weight_kg = 99 WHERE user_id = :a"), {"a": a}
+            )
+        ).rowcount
         assert changed == 0
     finally:
         await session.rollback()
