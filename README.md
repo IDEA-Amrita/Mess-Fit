@@ -28,7 +28,7 @@ Built for hostellers at Amrita Vishwa Vidyapeetham, Coimbatore, by the IDEA Club
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/metrics-dark.svg">
-  <img src="docs/assets/readme/metrics-light.svg" alt="By the numbers: 405 backend tests run under row-level security, 95 end-to-end tests, 47 API endpoints across 11 routers, row-level security on all 23 tables, 19 reversible migrations, 50 optimizer scenarios evaluated in CI." width="100%">
+  <img src="docs/assets/readme/metrics-light.svg" alt="By the numbers: 591 backend tests run under row-level security, 103 end-to-end tests, 47 API endpoints across 11 routers, row-level security on all 23 tables, 19 reversible migrations, 50 optimizer scenarios evaluated in CI." width="100%">
 </picture>
 
 <a id="screens"></a>
@@ -793,6 +793,11 @@ cd apps/web && pnpm dev
 cd services/api && uv run celery -A messfit_api.celery_app worker --beat --loglevel=info
 ```
 
+Or run the backend from the production image instead of terminals 1 and 3:
+`docker compose --profile app up -d --build` starts the API, worker and beat,
+configured by `services/api/.env` (see the
+[deploy runbook](./docs/runbooks/deploy-rollback.md#the-backend-image)).
+
 Open <http://localhost:3000>. The API is healthy when
 `curl http://localhost:8000/health` returns `{"status":"ok", ...}`.
 
@@ -823,8 +828,9 @@ Every pull request runs the full pipeline in [GitHub Actions](./.github/workflow
 
 | Stage | What runs |
 |---|---|
-| API | ruff · mypy · migrations built from scratch, reversed and rebuilt · **405 pytest tests as the RLS-restricted app role** · 50-scenario optimizer evaluation · pip-audit |
-| Web | TypeScript · ESLint · production build · **95 Playwright end-to-end tests** · pnpm audit |
+| API | ruff lint and format · mypy · migrations built from scratch, reversed and rebuilt · **591 pytest tests as the RLS-restricted app role**, including a 401 check on every protected endpoint · 50-scenario optimizer evaluation · pip-audit |
+| Image | production container built, started and required to report healthy as a non-root user · Trivy scan fails on fixable HIGH/CRITICAL vulnerabilities |
+| Web | TypeScript · ESLint · production build · **103 Playwright end-to-end tests** · pnpm audit |
 | Load | k6 scripts for the optimizer, chat and a smoke run ([infra/load-tests](./infra/load-tests/README.md)) |
 
 The backend suite runs on its own throwaway Postgres and **refuses to run against
