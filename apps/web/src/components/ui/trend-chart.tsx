@@ -43,7 +43,7 @@ export default function TrendChart({ series, lo, hi }: TrendChartProps) {
   return (
     <div role="img" aria-label={summary} style={{ width: "100%", height: 240 }}>
       <ResponsiveContainer>
-        <AreaChart data={series} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+        <AreaChart data={series} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.32} />
@@ -62,7 +62,7 @@ export default function TrendChart({ series, lo, hi }: TrendChartProps) {
             tickMargin={10}
             padding={{ left: 10, right: 10 }}
           />
-          <YAxis domain={[lo, hi]} tick={AXIS_TICK} axisLine={false} tickLine={false} width={36} />
+          <YAxis domain={[lo, hi]} tick={AXIS_TICK} axisLine={false} tickLine={false} width={44} />
           <Tooltip content={<ChartTooltip />} cursor={{ stroke: "rgba(255,255,255,0.15)", strokeDasharray: "4 4" }} />
           <Area
             type="monotone"

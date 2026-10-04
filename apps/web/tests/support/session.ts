@@ -19,7 +19,7 @@ import type { BrowserContext } from "@playwright/test";
 export async function signIn(
   context: BrowserContext,
   baseURL: string,
-  opts: { onboarded?: boolean; sub?: string; admin?: boolean } = {},
+  opts: { onboarded?: boolean; sub?: string; admin?: boolean; displayName?: string; email?: string } = {},
 ) {
   const sub = opts.sub ?? `${opts.admin ? "admin" : "e2e"}-${randomUUID()}`;
   const onboarded = opts.onboarded ?? true;
@@ -33,8 +33,8 @@ export async function signIn(
     token_type: "bearer",
     user: {
       id: sub,
-      email: "e2e@messfit.local",
-      user_metadata: { display_name: "E2E Tester", onboarded },
+      email: opts.email ?? "e2e@messfit.local",
+      user_metadata: { display_name: opts.displayName ?? "E2E Tester", onboarded },
     },
   };
   const value = "base64-" + Buffer.from(JSON.stringify(session)).toString("base64url");

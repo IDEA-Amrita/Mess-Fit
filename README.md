@@ -1,185 +1,333 @@
-# MessFit
+<div align="center">
 
-Constraint-based plate optimizer + fitness companion for Indian hostel students.
-Pick what to eat from **what your mess actually serves** — given your calorie /
-macro targets, allergens, conditions, and today's menu — then log it, track
-progress, train, and ask a grounded AI coach.
+<img src="docs/assets/readme/banner.svg" alt="MessFit: eat smart from what your hostel mess actually serves" width="100%">
 
-Built for Amrita Coimbatore hostelers, where you can't choose your ingredients —
-so generic fitness apps don't fit.
+<br>
 
-## What's inside
+[![CI](https://github.com/IDEA-Amrita/Mess-Fit/actions/workflows/ci.yml/badge.svg)](https://github.com/IDEA-Amrita/Mess-Fit/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache_2.0-CCFF00?labelColor=0B0B0D)](./LICENSE)
+![Next.js](https://img.shields.io/badge/Next.js-16-white?logo=nextdotjs&logoColor=white&labelColor=0B0B0D)
+![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white&labelColor=0B0B0D)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white&labelColor=0B0B0D)
+![Postgres](https://img.shields.io/badge/Postgres-RLS_+_pgvector-4169E1?logo=postgresql&logoColor=white&labelColor=0B0B0D)
 
-| Area | What it does |
-|---|---|
-| **Goal engine** | Mifflin-St Jeor BMR → TDEE → calorie + macro targets from your profile, goal, and conditions |
-| **Plate optimizer** | MILP solver (PuLP/CBC) picks portions from the live mess menu to hit your targets within allergen/diet/condition constraints — with one-line reasons |
-| **Mess & menu** | Per-hostel mess menus; admin menu management; **menu-photo OCR** (upload a photo → parsed dishes via async worker) |
-| **Workouts** | Hostel-friendly workout templates (bodyweight + gym), progression, exercise catalog |
-| **Logging + progress** | Log meals/weight/workouts/mood; adherence, macro-hit rate, streaks, weight projection; charts |
-| **AI coach** | RAG chatbot grounded in a curated KB (Gemini embeddings + pgvector), SSE streaming, medical-refusal + citation guardrails, semantic cache |
-| **Learn** | 15 public, hostel-angled nutrition/fitness articles at `/learn`; chatbot citations deep-link here |
-| **Hardening** | OpenTelemetry tracing, Grafana dashboards, Sentry (PII-scrubbed), per-route rate limits, k6 load tests, privacy/ToS, DPDP account deletion, ops runbooks |
+**[Screens](#-screens) · [Features](#-features) · [Architecture](#-architecture) · [Quick start](#-quick-start) · [Testing](#-testing--quality) · [Security](#-security--privacy) · [Docs](#-docs)**
 
-Build status: **Phases 0–9 complete.** Next is the Amrita pilot (Phase 10).
+</div>
 
-## Quick start
+---
 
-### Prerequisites
+Hostel students can't choose their ingredients. The mess serves what it serves,
+so generic calorie apps, built around cooking your own food, don't fit.
+**MessFit starts from today's mess menu** and works out how much of each dish to
+take to hit your calorie and macro targets, within your allergies, diet and
+health conditions. Then it helps you log it, train, track progress, and ask a
+coach that answers from vetted sources.
 
-- Node 24 LTS (pnpm 11 needs at least 22.13) + pnpm 11 (`corepack enable && corepack prepare pnpm@11 --activate`)
-- Python 3.12 + [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- Docker + Docker Compose
+Built for hostellers at Amrita Vishwa Vidyapeetham, Coimbatore, by the IDEA Club.
 
-### First-time setup
+## 📱 Screens
+
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="docs/assets/readme/screens/phone-today.png" alt="Home: today's plan, macros, streak" width="240"><br><sub><b>Today</b>: plan, macros, streak</sub></td>
+    <td align="center" width="33%"><img src="docs/assets/readme/screens/phone-plate.png" alt="Plate optimizer with per-dish portions" width="240"><br><sub><b>Plate</b>: portions from the live menu</sub></td>
+    <td align="center" width="33%"><img src="docs/assets/readme/screens/phone-log.png" alt="Daily log check-in" width="240"><br><sub><b>Log</b>: one-tap daily check-in</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/assets/readme/screens/phone-progress.png" alt="Weight trend and adherence" width="240"><br><sub><b>Progress</b>: trend, adherence, projection</sub></td>
+    <td align="center"><img src="docs/assets/readme/screens/phone-coach.png" alt="AI coach answer with citations" width="240"><br><sub><b>Coach</b>: grounded answers with citations</sub></td>
+    <td align="center"><img src="docs/assets/readme/screens/phone-workout.png" alt="Workout session with set tracking" width="240"><br><sub><b>Workout</b>: sets, rest timer, progression</sub></td>
+  </tr>
+</table>
+
+<details>
+<summary><b>Desktop</b></summary>
+<br>
+<img src="docs/assets/readme/screens/desktop-today.png" alt="Desktop home dashboard" width="100%">
+<img src="docs/assets/readme/screens/desktop-plate.png" alt="Desktop plate optimizer" width="100%">
+</details>
+
+<sub>Screenshots use demo data and are generated by <code>apps/web/scripts/readme-shots</code>.</sub>
+
+## ✨ Features
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🍽️ Plate optimizer</h3>
+      A mixed-integer linear program (PuLP / CBC) picks portions from <b>today's menu at your mess</b>
+      to land on your calorie and macro targets, respecting allergens, diet type and conditions.
+      Every dish comes with a one-line reason, and canteen add-ons cover any gap that's left.
+      Photo scan works when the menu board differs from the app.
+    </td>
+    <td width="50%" valign="top">
+      <h3>🎯 Goal engine</h3>
+      Mifflin-St Jeor BMR → activity-adjusted TDEE → calorie and macro targets from your profile,
+      goal and rate. As weight logs come in, an <b>adaptive TDEE</b> estimate corrects the
+      formula with your real data.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h3>🤖 AI coach</h3>
+      Retrieval-augmented chat grounded in MessFit's own articles (Gemini embeddings + pgvector),
+      streamed over SSE. It cites its sources, refuses medical questions, and caches common
+      answers. Groq is the fallback model.
+    </td>
+    <td valign="top">
+      <h3>📈 Logging & progress</h3>
+      One-tap meal check-ins, weight, mood and energy. Weight trends, adherence, macro-hit rate,
+      streaks with badges, and a projected date to reach your goal.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h3>🏋️ Workouts</h3>
+      Hostel-friendly templates, from bodyweight in your room to the gym, with week-by-week
+      progression, set tracking, a rest timer and form cues.
+    </td>
+    <td valign="top">
+      <h3>🧾 Menu OCR & admin</h3>
+      Admins photograph the weekly menu board. A background worker reads it with a vision model,
+      and an admin reviews it before anything goes live. Also: dish and mess management and
+      privacy-respecting analytics.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h3>📚 Learn</h3>
+      15 public articles on nutrition and training, written for hostel life. The coach's
+      citations link straight to them.
+    </td>
+    <td valign="top">
+      <h3>📲 Installable PWA</h3>
+      Works on any phone without an app store: installable, offline-aware, with Web Push for the
+      weekly check-in, a command palette and a mobile-first motion system.
+    </td>
+  </tr>
+</table>
+
+## 🏗️ Architecture
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/architecture-dark.svg">
+  <img src="docs/assets/readme/architecture-light.svg" alt="MessFit architecture: a Next.js PWA and admin console call a FastAPI modular monolith, which uses Postgres on Supabase with row-level security, Redis, Gemini and Groq, Supabase Storage and Web Push; Celery workers run OCR and scheduled jobs; OpenTelemetry and Sentry provide observability." width="100%">
+</picture>
+
+A **modular monolith**: one FastAPI service with a package per domain, one async
+SQLAlchemy engine, and Postgres as the single store for relational data and
+embeddings. Every request carries the user's identity into Postgres, so
+**row-level security enforces data isolation in the database itself**, not just in
+the API. Background work (OCR, optimizer runs, scheduled jobs) goes through Redis
+to Celery. Details live in the [technical design](./docs/02-tdd/TDD.md) and
+[schema](./docs/02-tdd/SCHEMA.md).
+
+<details>
+<summary><b>How a plate gets built</b></summary>
+<br>
+
+```mermaid
+flowchart LR
+    P[Profile and goal] --> T[Targets<br/>BMR → TDEE → macros]
+    M[Today's mess menu] --> F[Filter<br/>allergens · diet · conditions]
+    T --> S{{MILP solver<br/>PuLP / CBC}}
+    F --> S
+    S --> R[Plate + reasons]
+    S -- gap left --> C[Canteen add-ons]
+    R --> L[Log meals and weight]
+    L --> A[Adaptive TDEE]
+    A -. recalibrates .-> T
+```
+
+</details>
+
+<details>
+<summary><b>How the coach answers</b></summary>
+<br>
+
+```mermaid
+sequenceDiagram
+    participant U as Student
+    participant API as FastAPI
+    participant DB as Postgres + pgvector
+    participant LLM as Gemini (Groq fallback)
+    U->>API: question (Bearer JWT, rate-limited)
+    API->>LLM: embed the question
+    API->>DB: semantic cache lookup (non-personal questions)
+    API->>DB: nearest article chunks
+    API->>API: medical-advice pre-check
+    API->>LLM: grounded prompt
+    LLM-->>API: tokens
+    API-->>U: SSE stream + citations
+    API->>DB: save message, cache answer
+```
+
+</details>
+
+## 🧰 Tech stack
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/stack-dark.svg">
+  <img src="docs/assets/readme/stack-light.svg" alt="Tech stack: Next.js 16, React 19, TypeScript, Tailwind 4, Framer Motion, PWA; Python 3.12, FastAPI, Pydantic, SQLAlchemy 2, Celery, uv; Postgres, Supabase, Redis, Gemini; pytest, Playwright, ESLint, GitHub Actions, Docker, k6; OpenTelemetry, Grafana, Prometheus, Sentry, pnpm, Node 24." width="100%">
+</picture>
+
+| Decision | Choice | Why |
+|---|---|---|
+| Client | Next.js PWA | One codebase, no app store ([ADR-004](./docs/decisions/ADR-004-pwa-over-react-native.md)) |
+| Service shape | FastAPI modular monolith | Async-first and simple to run ([ADR-007](./docs/decisions/ADR-007-modular-monolith.md)) |
+| Auth | Supabase Auth, ES256 JWTs via JWKS | Don't roll your own ([ADR-003](./docs/decisions/ADR-003-supabase-auth.md)) |
+| Optimizer | PuLP / CBC | A linear MILP fits V1 ([ADR-002](./docs/decisions/ADR-002-pulp-over-cp-sat-for-v1.md)) |
+| Menu input | Vision OCR with human review | Menus change weekly ([ADR-008](./docs/decisions/ADR-008-ocr-in-v1.md)) |
+| Repo | Monorepo, uv + pnpm workspaces | ([ADR-001](./docs/decisions/ADR-001-monorepo-over-polyrepo.md), [ADR-005](./docs/decisions/ADR-005-uv-over-pip-poetry.md), [ADR-006](./docs/decisions/ADR-006-pnpm-over-npm-yarn.md)) |
+
+## 🚀 Quick start
+
+**Prerequisites:** Node 24 LTS (pnpm 11 needs at least 22.13) with pnpm 11,
+Python 3.12 with [uv](https://docs.astral.sh/uv/getting-started/installation/),
+and Docker.
 
 ```bash
 git clone https://github.com/IDEA-Amrita/Mess-Fit.git
 cd Mess-Fit
 
-# JS + Python deps
+# Dependencies
+corepack enable && corepack prepare pnpm@11 --activate
 pnpm install
 cd services/api && uv sync && cd ../..
 
-# Env files (fill in real secrets after copying)
+# Environment (then fill in your own keys)
 cp services/api/.env.example services/api/.env
 cp apps/web/.env.local.example apps/web/.env.local
 
-# Local Postgres + Redis
+# Local Postgres + Redis, then migrate
 docker compose up -d
-
-# Run migrations
 cd services/api && uv run alembic upgrade head && cd ../..
 ```
 
-### Running locally
+Run it in three terminals:
 
 ```bash
-# Terminal 1 — backend on :8000
-cd services/api
-uv run uvicorn messfit_api.main:app --reload --port 8000
+# 1 · API on :8000
+cd services/api && uv run uvicorn messfit_api.main:app --reload --port 8000
 
-# Terminal 2 — frontend on :3000
-cd apps/web
-pnpm dev
+# 2 · Web on :3000
+cd apps/web && pnpm dev
 
-# Terminal 3 (optional) — Celery worker for OCR + the account hard-delete sweep
-cd services/api
-uv run celery -A messfit_api.celery_app worker --beat --loglevel=info
+# 3 · Worker + scheduler (OCR, optimizer jobs, scheduled tasks), optional
+cd services/api && uv run celery -A messfit_api.celery_app worker --beat --loglevel=info
 ```
 
-Then open <http://localhost:3000>.
+Open <http://localhost:3000>. The API is healthy when
+`curl http://localhost:8000/health` returns `{"status":"ok", ...}`; interactive
+API docs are at <http://localhost:8000/docs>.
 
-Health check: `curl http://localhost:8000/health` → `{"status":"ok","version":"0.1.0"}`.
+To load the coach's knowledge base, run
+`uv run python scripts/ingest_articles.py` from `services/api`. The mess, dish
+and workout seed scripts are in `services/api/scripts/`.
 
-### Seeding data
+<details>
+<summary><b>Configuration</b></summary>
+<br>
 
-```bash
+Secrets live in git-ignored `.env` files; production uses host environment
+variables. The full lists are in
+[`services/api/.env.example`](./services/api/.env.example) and
+[`apps/web/.env.local.example`](./apps/web/.env.local.example).
+
+| Group | Variables |
+|---|---|
+| Core | `DATABASE_URL`, `REDIS_URL`, `SUPABASE_*`, `GEMINI_API_KEY`, `GROQ_API_KEY` |
+| Observability (no-op when empty) | `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS`, `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` |
+| Rate limiting | `RATE_LIMIT_ENABLED`, `RATE_LIMIT_STORAGE_URI` (the Redis URL in production) |
+
+</details>
+
+## 🧪 Testing & quality
+
+Every pull request runs the full pipeline in [GitHub Actions](./.github/workflows/ci.yml):
+
+| | What runs |
+|---|---|
+| **API** | ruff · mypy · migrations built from scratch, reversed and rebuilt · **405 pytest tests run as the RLS-restricted app role** · 50-scenario optimizer evaluation · pip-audit |
+| **Web** | TypeScript · ESLint · production build · **95 Playwright end-to-end tests** · pnpm audit |
+| **Load** | k6 scripts for the optimizer, chat and a smoke run ([infra/load-tests](./infra/load-tests/README.md)) |
+
+The backend suite runs on its own throwaway Postgres and **refuses to run against
+Supabase**. `scripts/test-db.ps1` starts one in Docker with the same image CI uses:
+
+```powershell
 cd services/api
-uv run python scripts/ingest_articles.py     # curated KB from /learn articles (chatbot)
-# plus the mess/dish/workout seed scripts under scripts/ as needed
+./scripts/test-db.ps1                  # add -Reset for a fresh database
+$env:TEST_DATABASE_URL = "postgresql+asyncpg://messfit_app:messfit_app@127.0.0.1:55432/messfit_test"
+$env:TEST_CELERY_DATABASE_URL = "postgresql+asyncpg://messfit_worker:messfit_worker@127.0.0.1:55432/messfit_test"
+uv run ruff check . ; uv run mypy messfit_api ; uv run pytest -q ; uv run pytest eval/ -q
+
+cd ../../apps/web
+pnpm exec tsc --noEmit ; pnpm exec eslint . ; pnpm build ; pnpm exec playwright test
 ```
 
-## Configuration
+## 🔒 Security & privacy
 
-All secrets live in `.env` files (git-ignored); production uses host env vars.
-See `services/api/.env.example` and `apps/web/.env.local.example` for the full
-list. Notable groups:
+- **Isolation in the database.** Row-level security on every user table, and the API
+  connects as a least-privilege role that can't bypass it. Supabase's public Data API
+  roles have no table access.
+- **Verified identity.** Supabase JWTs are checked against the project's JWKS on every
+  request, and nobody can promote themselves to admin.
+- **Hardened inputs.** Image uploads are allow-listed by type, capped at 10 MB and checked
+  by magic bytes. Push endpoints must be HTTPS on known push services.
+- **Rate limits** per route, with Redis-backed counters in production.
+- **Data rights.** Account deletion with a grace period and a nightly hard-delete sweep,
+  following India's DPDP Act. Analytics are opt-out, honour Global Privacy Control, and
+  events are deleted after 180 days.
+- **Ops.** Runbooks for [secret rotation](./docs/runbooks/rotate-secrets.md),
+  [incident response](./docs/runbooks/incident-response.md) and
+  [backup & restore](./docs/runbooks/backup-restore.md).
 
-- **Core:** `DATABASE_URL`, `REDIS_URL`, `SUPABASE_*`, `GEMINI_API_KEY`, `GROQ_API_KEY`
-- **Observability (optional, no-op when empty):** `OTEL_EXPORTER_OTLP_ENDPOINT`,
-  `OTEL_EXPORTER_OTLP_HEADERS`, `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`
-- **Rate limiting:** `RATE_LIMIT_ENABLED`, `RATE_LIMIT_STORAGE_URI` (set to the
-  Redis URL in prod)
-
-## Repo layout
+## 🗂️ Repository layout
 
 ```
 Mess-Fit/
-├── apps/web/                 Next.js 16 PWA (frontend)
-│   └── src/content/articles/ 15 /learn markdown articles (also the chatbot KB)
-├── services/api/             FastAPI app (modular monolith)
-│   ├── messfit_api/          profile · mess · optimizer · workouts · tracking · chatbot · account · observability
-│   ├── infra/migrations/     Alembic migrations (raw-SQL, RLS)
-│   ├── scripts/              seed + ingest scripts
-│   ├── eval/                 chatbot + optimizer eval harness
-│   └── tests/                pytest suite (400+ tests, run as the RLS-restricted app role)
+├── apps/web/                  Next.js 16 PWA (student app + admin console)
+│   ├── src/content/articles/  15 /learn articles, also the coach's knowledge base
+│   └── tests/                 Playwright end-to-end suite
+├── services/api/              FastAPI modular monolith
+│   ├── messfit_api/           profile · mess · optimizer · tracking · workouts · chatbot
+│   │                          notifications · analytics · account · observability
+│   ├── infra/migrations/      Alembic migrations (raw SQL, RLS policies)
+│   ├── scripts/               seed, ingest and test-database scripts
+│   ├── eval/                  optimizer and chatbot evaluation harness
+│   └── tests/                 pytest suite
 ├── infra/
-│   ├── grafana/dashboards/   importable Grafana dashboards (RED, business, AI/optimizer)
-│   └── load-tests/           k6 scripts (optimizer, chat, smoke)
-├── docs/
-│   ├── 01-prd/  02-tdd/      product + technical design
-│   ├── decisions/            ADRs
-│   └── runbooks/             backup-restore · incident-response · rotate-secrets · deploy-rollback · scale-up
-└── docker-compose.yml        Local Postgres + Redis
+│   ├── grafana/dashboards/    API health (RED), business KPIs, AI and optimizer
+│   └── load-tests/            k6 scripts
+├── docs/                      PRD, technical design, ADRs, runbooks
+└── docker-compose.yml         local Postgres + Redis
 ```
 
-## Testing & quality
+## 📖 Docs
 
-The backend suite writes and deletes rows, so it runs on its own throwaway
-Postgres and **refuses to run against Supabase**. `scripts/test-db.ps1` starts
-one in Docker (same image as CI), applies a small Supabase shim and migrates it.
+| | |
+|---|---|
+| [Product requirements](./docs/01-prd/PRD.md) | What we're building and for whom |
+| [Technical design](./docs/02-tdd/TDD.md) · [Schema](./docs/02-tdd/SCHEMA.md) | Architecture and data model |
+| [Decision records](./docs/decisions/) | Why each major choice was made |
+| [Runbooks](./docs/runbooks/) | Backup & restore, incident response, secret rotation, deploy & rollback, scaling |
 
-```powershell
-# Backend (needs Docker Desktop running)
-cd services/api
-./scripts/test-db.ps1              # add -Reset for a fresh database
-$env:TEST_DATABASE_URL = "postgresql+asyncpg://messfit_app:messfit_app@127.0.0.1:55432/messfit_test"
-$env:TEST_CELERY_DATABASE_URL = "postgresql+asyncpg://messfit_worker:messfit_worker@127.0.0.1:55432/messfit_test"
-uv run ruff check .                # lint
-uv run mypy messfit_api            # types
-uv run pytest -q                   # full suite (RLS enforced, as in production)
-uv run pytest eval/ -q             # optimizer evaluation
+## 🤝 Contributing
 
-# Frontend
-cd apps/web
-pnpm exec tsc --noEmit             # types
-pnpm exec eslint .                 # lint
-pnpm build                         # production build
-pnpm exec playwright test          # end-to-end (mocked backends)
+- Branch from `main` as `feat/…`, `fix/…`, `docs/…` or `chore/…`.
+- Use [Conventional Commits](https://www.conventionalcommits.org/), one logical change per commit.
+- Open a pull request to `main`. CI must be green before merge.
 
-# Load tests (against staging — see infra/load-tests/README.md)
-k6 run --env API_URL=... --env AUTH_TOKEN=... infra/load-tests/optimizer.js
-```
+## 📍 Status
 
-## Architecture
+Phases 0–9 are complete: the core app, optimizer, OCR, workouts, logging, coach,
+content and production hardening. **Next is the Amrita pilot (Phase 10).**
 
-Modular monolith: one FastAPI app with per-domain packages, one async
-SQLAlchemy engine, Postgres (Supabase) + pgvector + pg_trgm as the single store
-(relational + embeddings), Redis for the optimizer cache / Celery broker, and
-Celery workers for OCR + the daily account hard-delete sweep. The frontend is a
-Next.js App Router PWA with a dark inline-styled theme, TanStack Query, and
-Supabase Auth (JWT verified via JWKS). See [docs/02-tdd/](./docs/02-tdd/).
+## 📄 License
 
-## Docs
+[Apache License 2.0](./LICENSE).
 
-- [PRD](./docs/01-prd/) — what we're building and why
-- [TDD](./docs/02-tdd/) — architecture, data model
-- [ADRs](./docs/decisions/) — why we picked what we picked
-- [Runbooks](./docs/runbooks/) — backup/restore, incident response, secrets, deploy/rollback, scaling
-- [Phase plan](../Mess%20Fit%20Projects%20Resources/messfit-docs/03-phases/) — shipping order (Phase 0 → 11)
-
-## Workflow
-
-- Branch: `feat/<desc>`, `fix/<desc>`, `docs/<desc>`, `chore/<desc>`
-- PRs target `main`; linear history (no force-push to published commits)
-- One commit per logical task; commits fast-forward to `main`
-- CI must pass before merge (`.github/workflows/ci.yml`): ruff, mypy, migrations up/down, pytest, optimizer eval and dependency audit; tsc, eslint, build and Playwright
-
-## Tech
-
-| Layer | Choice | Why |
-|---|---|---|
-| Frontend | Next.js 16 + React 19 + Tailwind | PWA from day 1 ([ADR-004](./docs/decisions/ADR-004-pwa-over-react-native.md)) |
-| Backend | FastAPI + SQLAlchemy 2 + Alembic | Async-first; modular monolith ([ADR-007](./docs/decisions/ADR-007-modular-monolith.md)) |
-| Auth | Supabase Auth (JWKS / ES256) | Don't roll your own ([ADR-003](./docs/decisions/ADR-003-supabase-auth.md)) |
-| DB | Postgres (Supabase) + pgvector | Single store ([ADR-001](./docs/decisions/ADR-001-monorepo-over-polyrepo.md)) |
-| Optimizer | PuLP / CBC | Linear MILP fits V1 ([ADR-002](./docs/decisions/ADR-002-pulp-over-cp-sat-for-v1.md)) |
-| LLM | Gemini (primary) + Groq (fallback) | Embeddings + grounded generation |
-| Async | Celery + Redis (Upstash) | OCR + scheduled jobs |
-| Observability | OpenTelemetry + Grafana + Sentry | Tracing, dashboards, error reporting |
-| Package mgmt | uv (Python) + pnpm (JS) | Workspaces + speed ([ADR-005](./docs/decisions/ADR-005-uv-over-pip-poetry.md), [ADR-006](./docs/decisions/ADR-006-pnpm-over-npm-yarn.md)) |
-
-## License
-
-MIT — see [LICENSE](./LICENSE).
+<sub>Tech icons from <a href="https://techicons.dev">techicons.dev</a> (Devicon, MIT) and
+<a href="https://simpleicons.org">Simple Icons</a> (CC0). Brand names and logos belong to their owners.</sub>
