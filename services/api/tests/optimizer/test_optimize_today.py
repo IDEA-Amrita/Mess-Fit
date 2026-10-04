@@ -145,7 +145,7 @@ async def seeded_state(
 class TestUnauthed:
     async def test_no_auth_header_rejected(self, unauthed_client: AsyncClient):
         r = await unauthed_client.post(URL)
-        assert r.status_code in (401, 422)
+        assert r.status_code == 401
 
 
 # ── error paths: incomplete onboarding ────────────────────────────────

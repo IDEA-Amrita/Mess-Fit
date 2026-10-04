@@ -102,4 +102,4 @@ async def test_input_is_validated(dish_and_voters):
 async def test_reading_totals_requires_sign_in(dish_and_voters, unauthed_client):
     dish_id, _, _ = dish_and_voters
     r = await unauthed_client.get("/mess/dishes/feedback", params={"date": TODAY, "meal_type": "lunch", "dish_id": dish_id})
-    assert r.status_code in (401, 422)  # 422: the API treats a missing Authorization header as invalid input
+    assert r.status_code == 401
