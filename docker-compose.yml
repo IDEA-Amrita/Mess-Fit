@@ -1,4 +1,9 @@
 # docker-compose.yml
+#
+#   docker compose up -d                 Postgres + Redis for local development
+#   docker compose --profile app up -d   ...plus the API, worker and beat, built
+#                                        from services/api/Dockerfile and
+#                                        configured by services/api/.env
 services:
   postgres:
     image: pgvector/pgvector:pg16
@@ -15,6 +20,38 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+
+  api:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    image: messfit-api:local
+    command: ["api"]
+    env_file: services/api/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on: [redis]
+
+  worker:
+    profiles: ["app"]
+    image: messfit-api:local
+    command: ["worker"]
+    env_file: services/api/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on: [redis, api]
+
+  beat:
+    profiles: ["app"]
+    image: messfit-api:local
+    command: ["beat"]
+    env_file: services/api/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on: [redis, api]
 
 volumes:
   pgdata:

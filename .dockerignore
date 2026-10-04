@@ -1,0 +1,24 @@
+# Build context is the repository root (the uv workspace lives here). Only
+# the API's runtime files are copied into the image; keep everything else,
+# and every secret, out of the context.
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.mypy_cache
+**/.pytest_cache
+**/.ruff_cache
+**/.coverage
+**/.next
+**/test-results
+**/playwright-report
+.git
+.github
+apps
+docs
+infra
+services/api/tests
+services/api/eval

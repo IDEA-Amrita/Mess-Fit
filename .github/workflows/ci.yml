@@ -76,6 +76,48 @@ jobs:
           uv export --frozen --no-dev --no-hashes --no-emit-workspace > "$RUNNER_TEMP/requirements.txt"
           uvx pip-audit -r "$RUNNER_TEMP/requirements.txt" --no-deps --disable-pip --progress-spinner off
 
+  image:
+    name: API image (build, smoke, scan)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v4
+      - name: Build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: services/api/Dockerfile
+          tags: messfit-api:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test (API answers and reports healthy, as non-root)
+        run: |
+          docker run -d --name api -p 8000:8000 \
+            -e DATABASE_URL=postgresql+asyncpg://u:p@localhost:5432/none \
+            -e REDIS_URL=redis://localhost:6379/0 \
+            -e SUPABASE_URL=http://localhost:54321 -e SUPABASE_PROJECT_REF=ci \
+            -e SUPABASE_JWT_SECRET=ci-test-secret-ci-test-secret-ci-test \
+            -e GEMINI_API_KEY=ci-dummy \
+            messfit-api:ci
+          for i in $(seq 1 30); do curl -fsS localhost:8000/health && break; sleep 1; done
+          curl -fsS localhost:8000/health | grep -q '"status":"ok"'
+          test "$(docker exec api id -u)" != "0"
+          for i in $(seq 1 30); do
+            status=$(docker inspect -f '{{.State.Health.Status}}' api)
+            [ "$status" = healthy ] && break; sleep 2
+          done
+          test "$status" = healthy
+      - name: Container logs
+        if: failure()
+        run: docker logs api || true
+      - name: Vulnerability scan (fail on fixable HIGH/CRITICAL)
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.75.0 \
+            image --quiet --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed \
+            --exit-code 1 messfit-api:ci
+
   web:
     name: Web (types, lint, build, e2e)
     runs-on: ubuntu-latest
