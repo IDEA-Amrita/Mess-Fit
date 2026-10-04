@@ -340,8 +340,8 @@ def banner() -> str:
 # Keep these in step with the codebase; each is checked when the README changes.
 
 METRICS = [
-    ("405", "backend tests", "run under RLS"),
-    ("95", "end-to-end tests", "Playwright"),
+    ("591", "backend tests", "run under RLS"),
+    ("103", "end-to-end tests", "Playwright"),
     ("47", "API endpoints", "11 routers"),
     ("23 / 23", "tables with RLS", "row-level security"),
     ("19", "migrations", "up / down verified"),
