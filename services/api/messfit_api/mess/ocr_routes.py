@@ -28,6 +28,10 @@ from messfit_api.uploads import read_image_upload
 
 router = APIRouter(prefix="/admin/ocr", tags=["mess-ocr"])
 
+# States an admin can approve or reject from. Anything else is either still
+# with the worker or already final.
+_REVIEWABLE = ("ready_for_review", "failed")
+
 
 
 @router.post(
@@ -129,7 +133,7 @@ async def approve_ocr_job(
     job = await db.get(OCRJobORM, job_id)
     if job is None:
         raise HTTPException(status_code=404, detail="OCR job not found")
-    if job.status not in ("ready_for_review", "failed"):
+    if job.status not in _REVIEWABLE:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Job is '{job.status}', not reviewable",
@@ -188,10 +192,20 @@ async def reject_ocr_job(
     _: str = Depends(require_admin),
     db: AsyncSession = Depends(get_session),
 ) -> OCRJobORM:
-    """Reject a job (e.g. unreadable photo). Leaves no menu rows."""
+    """Reject a job (e.g. unreadable photo). Leaves no menu rows.
+
+    Only a reviewable job can be rejected: rejecting an approved one would
+    leave its menu rows live under a "rejected" label, and rejecting one the
+    worker is still processing would be overwritten when the worker finishes.
+    """
     job = await db.get(OCRJobORM, job_id)
     if job is None:
         raise HTTPException(status_code=404, detail="OCR job not found")
+    if job.status not in _REVIEWABLE:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Job is '{job.status}', not reviewable",
+        )
     job.status = "rejected"
     await db.commit()
     await db.refresh(job)
