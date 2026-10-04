@@ -138,6 +138,8 @@ function DishCard({ item, meal }: { item: PlateItem; meal: string }) {
             whileTap={{ scale: 0.95 }}
             onClick={() => voteMutation.mutate("confirm")}
             disabled={vote !== null || voteMutation.isPending}
+            aria-pressed={vote === "confirm"}
+            aria-label={`Yes, ${item.name} is being served`}
             className={cn(
               "flex h-8 items-center justify-center rounded-lg px-4 text-[11px] font-black uppercase tracking-widest transition-colors",
               vote === "confirm" ? "bg-white text-black" : "bg-surface-2 text-muted-foreground hover:bg-border hover:text-white",
@@ -150,6 +152,8 @@ function DishCard({ item, meal }: { item: PlateItem; meal: string }) {
             whileTap={{ scale: 0.95 }}
             onClick={() => voteMutation.mutate("deny")}
             disabled={vote !== null || voteMutation.isPending}
+            aria-pressed={vote === "deny"}
+            aria-label={`No, ${item.name} isn't being served`}
             className={cn(
               "flex h-8 items-center justify-center rounded-lg px-4 text-[11px] font-black uppercase tracking-widest transition-colors",
               vote === "deny" ? "bg-[#FF3B30] text-white" : "bg-surface-2 text-muted-foreground hover:bg-border hover:text-white",

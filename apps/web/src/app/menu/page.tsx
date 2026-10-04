@@ -434,6 +434,7 @@ function DishCard({
         <button
           onClick={() => onToggle(meal, dish.id, excluded)}
           aria-pressed={excluded}
+          aria-label={`${excluded ? "Add back to plate" : "Hide from plate"}: ${dish.name}`}
           className={cn(
             "flex w-full items-center justify-center gap-2 rounded-xl border py-3 text-[12px] font-bold uppercase tracking-wider transition-colors",
             excluded
@@ -455,7 +456,7 @@ function DishCard({
                 onClick={() => voteMutation.mutate("confirm")}
                 disabled={vote !== null || voteMutation.isPending}
                 aria-pressed={vote === "confirm"}
-                aria-label="Confirm this dish is being served"
+                aria-label={`Yes, ${dish.name} is being served`}
                 className={cn(
                   "flex h-7 items-center justify-center rounded-lg px-3 text-[11px] font-black uppercase tracking-widest transition-colors",
                   vote === "confirm" ? "bg-white text-black" : "bg-surface-2 text-muted-foreground hover:bg-border hover:text-white",
@@ -469,7 +470,7 @@ function DishCard({
                 onClick={() => voteMutation.mutate("deny")}
                 disabled={vote !== null || voteMutation.isPending}
                 aria-pressed={vote === "deny"}
-                aria-label="Report this dish is not being served"
+                aria-label={`No, ${dish.name} isn't being served`}
                 className={cn(
                   "flex h-7 items-center justify-center rounded-lg px-3 text-[11px] font-black uppercase tracking-widest transition-colors",
                   vote === "deny" ? "bg-[#FF3B30] text-white" : "bg-surface-2 text-muted-foreground hover:bg-border hover:text-white",
