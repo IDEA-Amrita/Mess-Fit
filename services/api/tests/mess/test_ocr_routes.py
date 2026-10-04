@@ -235,8 +235,20 @@ async def test_approve_rejects_non_reviewable_job(admin_client, db_session, mess
     assert resp.status_code == 409
 
 
-async def test_reject_sets_status(admin_client, db_session, mess_id):
-    jid = await _insert_job(db_session, mess_id)
+@pytest.mark.parametrize("status", ["ready_for_review", "failed"])
+async def test_reject_sets_status(admin_client, db_session, mess_id, status):
+    jid = await _insert_job(db_session, mess_id, status=status)
     resp = await admin_client.post(f"/mess/admin/ocr/jobs/{jid}/reject")
     assert resp.status_code == 200
     assert resp.json()["status"] == "rejected"
+
+
+@pytest.mark.parametrize("status", ["pending", "processing", "approved", "rejected"])
+async def test_reject_refuses_jobs_that_are_not_reviewable(admin_client, db_session, mess_id, status):
+    # An approved job's menu rows are live; relabelling it "rejected" would lie.
+    # A pending/processing job would be overwritten when the worker finishes.
+    jid = await _insert_job(db_session, mess_id, status=status)
+    resp = await admin_client.post(f"/mess/admin/ocr/jobs/{jid}/reject")
+    assert resp.status_code == 409
+    row = (await db_session.execute(text("SELECT status FROM ocr_jobs WHERE id = :id"), {"id": jid})).scalar_one()
+    assert row == status
